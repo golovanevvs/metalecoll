@@ -29,7 +29,12 @@ type Storage interface {
 type mainHandler struct{}
 
 func Start(config *Config) error {
+	met := Metric{}
 	return http.ListenAndServe(config.bindAddr, nil)
+}
+
+func (ch *Metric) chGauge(v float64) {
+	ch.Gauge = v
 }
 
 func mainPage(w http.ResponseWriter, r *http.Request) {
