@@ -27,8 +27,6 @@ type MetricsInt interface {
 	updateMetric(mT, mN string, mV interface{})
 }
 
-type mainHandler struct{}
-
 var (
 	gaugeMet, counterMet metric
 	metStorage           memStorage
@@ -36,8 +34,8 @@ var (
 
 // main
 func main() {
-	var handler mainHandler
-	err := http.ListenAndServe(":8080", handler)
+	http.HandleFunc("/", handler)
+	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		panic(err)
 	}
@@ -70,8 +68,8 @@ func updateMetrics(m MetricsInt, mT, mN string, mV interface{}) {
 	m.updateMetric(mT, mN, mV)
 }
 
-func (handle mainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Запущен ServeHTTP")
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Запущен handler")
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusMethodNotAllowed)
@@ -81,12 +79,16 @@ func (handle mainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
 	// Чтение тела запроса
+	fmt.Println(r.Body)
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	fmt.Println(string(body))
 
 	// Разделение тела запроса
 	sbody := strings.Split(string(body), "/")
@@ -96,6 +98,7 @@ func (handle mainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println(sbody)
 	mT := sbody[2] // Тип метрики
 	mN := sbody[3] // Имя метрики
 	mV := sbody[4] // Значение метрики
