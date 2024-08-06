@@ -23,9 +23,9 @@ type memStorage struct {
 	metrics map[string]metric
 }
 
-// type Storage interface {
-// 	Update(metric Metric) error
-// }
+type MetricsInt interface {
+	updateMetric(mT, mN string, mV interface{})
+}
 
 type mainHandler struct{}
 
@@ -63,6 +63,10 @@ func (m *memStorage) updateStorage(key string, met metric) {
 		m.metrics = make(map[string]metric)
 	}
 	m.metrics[key] = met
+}
+
+func updateMetrics(m MetricsInt, mT, mN string, mV interface{}) {
+	m.updateMetric(mT, mN, mV)
 }
 
 func (handle mainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -104,7 +108,7 @@ func (handle mainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		gaugeMet.updateMetric(mT, mN, mVParse)
+		updateMetrics(&gaugeMet, mT, mN, mVParse)
 		fmt.Println(gaugeMet)
 	case counterType:
 		mVParse, err := strconv.ParseInt(mV, 10, 64)
@@ -114,7 +118,7 @@ func (handle mainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		counterMet.updateMetric(mT, mN, mVParse)
+		updateMetrics(&counterMet, mT, mN, mVParse)
 		fmt.Println(counterMet)
 	default:
 		fmt.Println("Ошибка типа")
