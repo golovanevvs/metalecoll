@@ -11,6 +11,7 @@ import (
 const (
 	gaugeType   = "gauge"
 	counterType = "counter"
+	addr        = "localhost:8080"
 )
 
 type metric struct {
@@ -35,7 +36,9 @@ var (
 // main
 func main() {
 	http.HandleFunc("/", handler)
-	err := http.ListenAndServe("localhost:8080", nil)
+	fmt.Println("Запущен сервер:", addr)
+	fmt.Println("")
+	err := http.ListenAndServe(addr, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -69,67 +72,81 @@ func updateMetrics(m MetricsInt, mT, mN string, mV interface{}) {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Запущен handler")
+	fmt.Println("")
+	fmt.Println("Проверка метода")
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusMethodNotAllowed)
 		return
 	}
 
+	fmt.Println("Метод POST")
+	fmt.Println("")
+
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
 	// Чтение тела запроса
-	fmt.Println(r.Body)
-
+	fmt.Println("Чтение тела запроса")
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		fmt.Println("Ошибка чтения тела запроса")
 		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println(string(body))
-
 	// Разделение тела запроса
 	sbody := strings.Split(string(body), "/")
-	if len(sbody) != 5 {
-		fmt.Println("Неправильное тело запроса")
+	if len(sbody) != 4 {
+		fmt.Println("Структура тела запроса не соответствует ожидаемой. Получено тело запроса:", string(body))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	fmt.Println(sbody)
-	mT := sbody[2] // Тип метрики
-	mN := sbody[3] // Имя метрики
-	mV := sbody[4] // Значение метрики
+	fmt.Println("Получено тело запроса:", string(body))
+	fmt.Println("")
+
+	mT := sbody[1] // Тип метрики
+	fmt.Println("Тип метрики:", mT)
+	mN := sbody[2] // Имя метрики
+	fmt.Println("Имя метрики:", mN)
+	mV := sbody[3] // Значение метрики
+	fmt.Println("Значение метрики:", mV)
+	fmt.Println("")
 
 	switch mT {
 	case gaugeType:
 		mVParse, err := strconv.ParseFloat(mV, 64)
 		if err != nil || mVParse < 0 {
-			fmt.Println("Ошибка в ParseFloat")
+			fmt.Println("Значение метрики не соответствует требуемому типу float64:", mV)
 			fmt.Println(err)
+			fmt.Println("")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		updateMetrics(&gaugeMet, mT, mN, mVParse)
-		fmt.Println(gaugeMet)
 	case counterType:
 		mVParse, err := strconv.ParseInt(mV, 10, 64)
 		if err != nil || mVParse < 0 {
-			fmt.Println("Ошибка в ParseInt")
+			fmt.Println("Значение метрики не соответствует требуемому типу int64:", mV)
 			fmt.Println(err)
+			fmt.Println("")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		updateMetrics(&counterMet, mT, mN, mVParse)
-		fmt.Println(counterMet)
 	default:
-		fmt.Println("Ошибка типа")
+		fmt.Println("Неизвестный тип метрики")
+		fmt.Println("")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	fmt.Println(metStorage)
-	fmt.Println("Статус Ok")
+	fmt.Println("Обновлённая мапа:", metStorage)
+	fmt.Println("")
+	fmt.Println("Отправлен статус Ok")
+	fmt.Println("")
 	w.WriteHeader(http.StatusOK)
 }
+
+//Для запуска теста iter1
+//metricstest-windows-amd64 -test.v -test.run=^TestIteration1$ -binary-path=C:\dev\projects\yapracticum\metalecoll\cmd\server
