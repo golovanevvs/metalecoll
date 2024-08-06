@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -78,10 +77,15 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	contentType := r.Header.Get("Content-Type")
+
+	if contentType != "text/plain" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	//fmt.Println("Метод POST")
 	//fmt.Println("")
-
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
 	// Чтение и разделение тела запроса
 	//fmt.Println("Чтение и разделение тела запроса")
@@ -128,12 +132,14 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 		// fmt.Println("Неизвестный тип метрики")
 		// fmt.Println("")
 		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	fmt.Println("Обновлённая мапа:", metStorage)
+	//fmt.Println("Обновлённая мапа:", metStorage)
 	// fmt.Println("")
-	fmt.Println("Отправлен статус Ok")
+	//fmt.Println("Отправлен статус Ok")
 	// fmt.Println("")
+	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 }
 
