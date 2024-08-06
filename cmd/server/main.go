@@ -34,6 +34,7 @@ var (
 	metStorage           memStorage
 )
 
+// main
 func main() {
 	var handler mainHandler
 	err := http.ListenAndServe(":8080", handler)
