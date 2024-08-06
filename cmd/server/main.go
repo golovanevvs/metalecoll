@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,7 +10,7 @@ import (
 const (
 	gaugeType   = "gauge"
 	counterType = "counter"
-	addr        = "localhost:8080"
+	addr        = ":8080"
 )
 
 type metric struct {
@@ -34,10 +34,9 @@ var (
 
 // main
 func main() {
-	http.HandleFunc("/", handler)
 	//fmt.Println("Запущен сервер:", addr)
 	//fmt.Println("")
-	err := http.ListenAndServe(addr, nil)
+	err := http.ListenAndServe(addr, http.HandlerFunc(handlerf))
 	if err != nil {
 		panic(err)
 	}
@@ -70,12 +69,12 @@ func updateMetrics(m MetricsInt, mT, mN string, mV interface{}) {
 	m.updateMetric(mT, mN, mV)
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func handlerf(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println("")
 	//fmt.Println("Проверка метода")
 
 	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST requests are allowed!", http.StatusMethodNotAllowed)
+		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -84,32 +83,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
-	// Чтение тела запроса
-	//fmt.Println("Чтение тела запроса")
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		//fmt.Println("Ошибка чтения тела запроса")
-		//fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// Разделение тела запроса
-	sbody := strings.Split(string(body), "/")
-	if len(sbody) != 4 {
-		//fmt.Println("Структура тела запроса не соответствует ожидаемой. Получено тело запроса:", string(body))
+	// Чтение и разделение тела запроса
+	//fmt.Println("Чтение и разделение тела запроса")
+	sbody := strings.Split(r.URL.Path, "/")
+	if len(sbody) != 5 {
+		// 	//fmt.Println("Структура тела запроса не соответствует ожидаемой. Получено тело запроса:", r.URL.Path)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	//fmt.Println("Получено тело запроса:", string(body))
+	//fmt.Println("Получено тело запроса:", r.URL.Path)
 	//fmt.Println("")
 
-	mT := sbody[1] // Тип метрики
+	mT := sbody[2] // Тип метрики
 	//fmt.Println("Тип метрики:", mT)
-	mN := sbody[2] // Имя метрики
+	mN := sbody[3] // Имя метрики
 	//fmt.Println("Имя метрики:", mN)
-	mV := sbody[3] // Значение метрики
+	mV := sbody[4] // Значение метрики
 	//fmt.Println("Значение метрики:", mV)
 	//fmt.Println("")
 
@@ -117,9 +107,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	case gaugeType:
 		mVParse, err := strconv.ParseFloat(mV, 64)
 		if err != nil || mVParse < 0 {
-			//fmt.Println("Значение метрики не соответствует требуемому типу float64:", mV)
-			//fmt.Println(err)
-			//fmt.Println("")
+			// fmt.Println("Значение метрики не соответствует требуемому типу float64:", mV)
+			// fmt.Println(err)
+			// fmt.Println("")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -127,25 +117,27 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	case counterType:
 		mVParse, err := strconv.ParseInt(mV, 10, 64)
 		if err != nil || mVParse < 0 {
-			//fmt.Println("Значение метрики не соответствует требуемому типу int64:", mV)
-			//fmt.Println(err)
-			//fmt.Println("")
+			// fmt.Println("Значение метрики не соответствует требуемому типу int64:", mV)
+			// fmt.Println(err)
+			// fmt.Println("")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		updateMetrics(&counterMet, mT, mN, mVParse)
 	default:
-		//fmt.Println("Неизвестный тип метрики")
-		//fmt.Println("")
+		// fmt.Println("Неизвестный тип метрики")
+		// fmt.Println("")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	//fmt.Println("Обновлённая мапа:", metStorage)
-	//fmt.Println("")
-	//fmt.Println("Отправлен статус Ok")
-	//fmt.Println("")
+	fmt.Println("Обновлённая мапа:", metStorage)
+	// fmt.Println("")
+	fmt.Println("Отправлен статус Ok")
+	// fmt.Println("")
 	w.WriteHeader(http.StatusOK)
 }
 
 //Для запуска теста iter1
 //metricstest-windows-amd64 -test.v -test.run=^TestIteration1$ -binary-path=C:\dev\projects\yapracticum\metalecoll\cmd\server
+
+//metricstest-windows-amd64 -test.v -test.run=^TestIteration1$ -binary-path=C:\Golovanev\Dev\Projects\YaPracticum\metalecoll\cmd\server
