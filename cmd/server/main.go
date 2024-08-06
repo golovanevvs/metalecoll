@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -36,8 +35,8 @@ var (
 // main
 func main() {
 	http.HandleFunc("/", handler)
-	fmt.Println("Запущен сервер:", addr)
-	fmt.Println("")
+	//fmt.Println("Запущен сервер:", addr)
+	//fmt.Println("")
 	err := http.ListenAndServe(addr, nil)
 	if err != nil {
 		panic(err)
@@ -72,25 +71,25 @@ func updateMetrics(m MetricsInt, mT, mN string, mV interface{}) {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("")
-	fmt.Println("Проверка метода")
+	//fmt.Println("")
+	//fmt.Println("Проверка метода")
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusMethodNotAllowed)
 		return
 	}
 
-	fmt.Println("Метод POST")
-	fmt.Println("")
+	//fmt.Println("Метод POST")
+	//fmt.Println("")
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
 	// Чтение тела запроса
-	fmt.Println("Чтение тела запроса")
+	//fmt.Println("Чтение тела запроса")
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println("Ошибка чтения тела запроса")
-		fmt.Println(err)
+		//fmt.Println("Ошибка чтения тела запроса")
+		//fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -98,29 +97,29 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	// Разделение тела запроса
 	sbody := strings.Split(string(body), "/")
 	if len(sbody) != 4 {
-		fmt.Println("Структура тела запроса не соответствует ожидаемой. Получено тело запроса:", string(body))
+		//fmt.Println("Структура тела запроса не соответствует ожидаемой. Получено тело запроса:", string(body))
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	fmt.Println("Получено тело запроса:", string(body))
-	fmt.Println("")
+	//fmt.Println("Получено тело запроса:", string(body))
+	//fmt.Println("")
 
 	mT := sbody[1] // Тип метрики
-	fmt.Println("Тип метрики:", mT)
+	//fmt.Println("Тип метрики:", mT)
 	mN := sbody[2] // Имя метрики
-	fmt.Println("Имя метрики:", mN)
+	//fmt.Println("Имя метрики:", mN)
 	mV := sbody[3] // Значение метрики
-	fmt.Println("Значение метрики:", mV)
-	fmt.Println("")
+	//fmt.Println("Значение метрики:", mV)
+	//fmt.Println("")
 
 	switch mT {
 	case gaugeType:
 		mVParse, err := strconv.ParseFloat(mV, 64)
 		if err != nil || mVParse < 0 {
-			fmt.Println("Значение метрики не соответствует требуемому типу float64:", mV)
-			fmt.Println(err)
-			fmt.Println("")
+			//fmt.Println("Значение метрики не соответствует требуемому типу float64:", mV)
+			//fmt.Println(err)
+			//fmt.Println("")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -128,23 +127,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	case counterType:
 		mVParse, err := strconv.ParseInt(mV, 10, 64)
 		if err != nil || mVParse < 0 {
-			fmt.Println("Значение метрики не соответствует требуемому типу int64:", mV)
-			fmt.Println(err)
-			fmt.Println("")
+			//fmt.Println("Значение метрики не соответствует требуемому типу int64:", mV)
+			//fmt.Println(err)
+			//fmt.Println("")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		updateMetrics(&counterMet, mT, mN, mVParse)
 	default:
-		fmt.Println("Неизвестный тип метрики")
-		fmt.Println("")
+		//fmt.Println("Неизвестный тип метрики")
+		//fmt.Println("")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	fmt.Println("Обновлённая мапа:", metStorage)
-	fmt.Println("")
-	fmt.Println("Отправлен статус Ok")
-	fmt.Println("")
+	//fmt.Println("Обновлённая мапа:", metStorage)
+	//fmt.Println("")
+	//fmt.Println("Отправлен статус Ok")
+	//fmt.Println("")
 	w.WriteHeader(http.StatusOK)
 }
 
