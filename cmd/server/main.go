@@ -9,14 +9,14 @@ import (
 )
 
 const (
-	gaugetype   = "gauge"
-	countertype = "counter"
+	gaugeType   = "gauge"
+	counterType = "counter"
 )
 
 type metric struct {
-	metType string
-	name    string
-	value   interface{}
+	metType  string
+	metName  string
+	metValue interface{}
 }
 
 type memStorage struct {
@@ -31,6 +31,7 @@ type mainHandler struct{}
 
 var (
 	gaugeMet, counterMet metric
+	metStorage           memStorage
 )
 
 func main() {
@@ -41,23 +42,31 @@ func main() {
 	}
 }
 
-func (m *metric) update(mT, mN string, mV interface{}) {
+func (m *metric) updateMetric(mT, mN string, mV interface{}) {
 	m.metType = mT
-	m.name = mN
+	m.metName = mN
 	switch mT {
-	case gaugetype:
-		m.value = mV.(float64)
-	case countertype:
-		if m.value != nil {
-			m.value = m.value.(int64) + mV.(int64)
+	case gaugeType:
+		m.metValue = mV.(float64)
+	case counterType:
+		if m.metValue != nil {
+			m.metValue = m.metValue.(int64) + mV.(int64)
 		} else {
-			m.value = mV.(int64)
+			m.metValue = mV.(int64)
 		}
 	}
+	metStorage.updateStorage(mT, *m)
+}
+
+func (m *memStorage) updateStorage(key string, met metric) {
+	if m.metrics == nil {
+		m.metrics = make(map[string]metric)
+	}
+	m.metrics[key] = met
 }
 
 func (handle mainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Запущен mainPage")
+	fmt.Println("Запущен ServeHTTP")
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusMethodNotAllowed)
@@ -66,15 +75,15 @@ func (handle mainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
-	fmt.Println("Чтение Body")
+	// Чтение тела запроса
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	fmt.Println("Чтение Body прошло успешно")
 
+	// Разделение тела запроса
 	sbody := strings.Split(string(body), "/")
 	if len(sbody) != 5 {
 		fmt.Println("Неправильное тело запроса")
@@ -82,50 +91,37 @@ func (handle mainHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mT := sbody[2]
-	fmt.Println(mT)
-	mN := sbody[3]
-	if mN == "" {
-		fmt.Println("Отсутствует имя метрики")
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	fmt.Println(mN)
-	mV := sbody[4]
-	fmt.Println(mV)
+	mT := sbody[2] // Тип метрики
+	mN := sbody[3] // Имя метрики
+	mV := sbody[4] // Значение метрики
 
-	if mT == gaugetype {
-		mVgauge, err := strconv.ParseFloat(mV, 64)
-		if err != nil || mVgauge < 0 {
+	switch mT {
+	case gaugeType:
+		mVParse, err := strconv.ParseFloat(mV, 64)
+		if err != nil || mVParse < 0 {
 			fmt.Println("Ошибка в ParseFloat")
 			fmt.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-
-		gaugeMet.update(mT, mN, mVgauge)
-
+		gaugeMet.updateMetric(mT, mN, mVParse)
 		fmt.Println(gaugeMet)
-
-	} else if mT == countertype {
-		mVcounter, err := strconv.ParseInt(mV, 10, 64)
-		if err != nil || mVcounter < 0 {
+	case counterType:
+		mVParse, err := strconv.ParseInt(mV, 10, 64)
+		if err != nil || mVParse < 0 {
 			fmt.Println("Ошибка в ParseInt")
 			fmt.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-
-		counterMet.update(mT, mN, mVcounter)
-
+		counterMet.updateMetric(mT, mN, mVParse)
 		fmt.Println(counterMet)
-
-	} else {
+	default:
 		fmt.Println("Ошибка типа")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
+	fmt.Println(metStorage)
 	fmt.Println("Статус Ok")
 	w.WriteHeader(http.StatusOK)
 }
