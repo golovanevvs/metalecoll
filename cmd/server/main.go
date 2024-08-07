@@ -76,6 +76,8 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
 		fmt.Println("Недопустимый метод:", r.Method)
+		fmt.Println("")
+		fmt.Println("Отправлен код:", http.StatusMethodNotAllowed)
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
@@ -90,6 +92,8 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 	case contentType:
 	default:
 		fmt.Println("Недопустимый content-type:", cT)
+		fmt.Println("")
+		fmt.Println("Отправлен код:", http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -102,6 +106,8 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 	sbody := strings.Split(r.URL.Path, "/")
 	if len(sbody) != 5 {
 		fmt.Println("Структура тела запроса не соответствует ожидаемой. Получено тело запроса:", r.URL.Path)
+		fmt.Println("")
+		fmt.Println("Отправлен код:", http.StatusNotFound)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -127,6 +133,8 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 	case updateMethod:
 	default:
 		fmt.Println("Неизвестный тип метода:", mM)
+		fmt.Println("")
+		fmt.Println("Отправлен код:", http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -138,6 +146,8 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 
 	if mN == "" {
 		fmt.Println("Имя метрики не задано")
+		fmt.Println("")
+		fmt.Println("Отправлен код:", http.StatusNotFound)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -153,6 +163,8 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 		if err != nil || mVParse < 0 {
 			fmt.Println("Значение метрики не соответствует требуемому типу float64:", mV)
 			fmt.Println(err)
+			fmt.Println("")
+			fmt.Println("Отправлен код:", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -162,12 +174,16 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 		if err != nil || mVParse < 0 {
 			fmt.Println("Значение метрики не соответствует требуемому типу int64:", mV)
 			fmt.Println(err)
+			fmt.Println("")
+			fmt.Println("Отправлен код:", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		updateMetrics(&counterMet, mT, mN, mVParse)
 	default:
 		fmt.Println("Неизвестный тип метрики")
+		fmt.Println("")
+		fmt.Println("Отправлен код:", http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -177,11 +193,11 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Обновлённая мапа:", metStorage)
 
 	fmt.Println("")
-	fmt.Println("Отправлен Content-Type")
+	fmt.Println("Отправлен Content-Type: text/plain")
 	w.Header().Set("Content-Type", "text/plain")
 
 	fmt.Println("")
-	fmt.Println("Отправлен код 200")
+	fmt.Println("Отправлен код:", http.StatusOK)
 	w.WriteHeader(http.StatusOK)
 }
 
