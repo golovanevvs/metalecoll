@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -18,21 +19,22 @@ const (
 type metric struct {
 	metType  string
 	metName  string
-	metValue interface{}
+	metValue any
 }
 
 type MemStorage struct {
 	metrics map[string]metric
 }
 
-type MetricsInt interface {
-	updateMetric(mT, mN string, mV interface{})
+type Storage interface {
+	upStore(met metric)
 }
 
 var (
 	gaugeMet, counterMet metric
 	metStorage           MemStorage
 	hcount               int
+	mT                   string
 )
 
 func main() {
@@ -42,9 +44,10 @@ func main() {
 		fmt.Println("Ошибка сервера")
 		panic(err)
 	}
+	fmt.Println(runtime.Version())
 }
 
-func (m *metric) updateMetric(mT, mN string, mV interface{}) {
+func (m *metric) updateMetric(mT, mN string, mV any) {
 	m.metType = mT
 	m.metName = mN
 	switch mT {
@@ -57,21 +60,27 @@ func (m *metric) updateMetric(mT, mN string, mV interface{}) {
 			m.metValue = mV.(int64)
 		}
 	}
-	metStorage.updateStorage(mT, *m)
 }
 
-func (m *MemStorage) updateStorage(key string, met metric) {
-	if m.metrics == nil {
-		m.metrics = make(map[string]metric)
+func (store *MemStorage) upStore(met metric) {
+	if store.metrics == nil {
+		store.metrics = make(map[string]metric)
 	}
-	m.metrics[key] = met
+	store.metrics[met.metType] = met
 }
 
-func updateMetrics(m MetricsInt, mT, mN string, mV interface{}) {
-	m.updateMetric(mT, mN, mV)
+func updateStorage(store *MemStorage) {
+	switch mT {
+	case gaugeType:
+		store.upStore(gaugeMet)
+	case counterType:
+		store.upStore(counterMet)
+	}
 }
 
 func handlerf(w http.ResponseWriter, r *http.Request) {
+	var mVParse any
+	var err error
 	fmt.Println("")
 	fmt.Println("-----------------------------------------------------")
 	fmt.Println("")
@@ -127,7 +136,7 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Параметры полученной метрики:")
 	mM := sbody[1] // Тип метода
 	fmt.Println("Тип метода:", mM)
-	mT := sbody[2] // Тип метрики
+	mT = sbody[2] // Тип метрики
 	fmt.Println("Тип метрики:", mT)
 	mN := sbody[3] // Имя метрики
 	fmt.Println("Имя метрики:", mN)
@@ -167,25 +176,23 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 
 	switch mT {
 	case gaugeType:
-		mVParse, err := strconv.ParseFloat(mV, 64)
-		if err != nil || mVParse < 0 {
+		mVParse, err = strconv.ParseFloat(mV, 64)
+		if err != nil || mVParse.(float64) < 0 {
 			fmt.Println("Значение метрики не соответствует требуемому типу float64:", mV)
 			fmt.Println("")
 			fmt.Println("Отправлен код:", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		updateMetrics(&gaugeMet, mT, mN, mVParse)
 	case counterType:
-		mVParse, err := strconv.ParseInt(mV, 10, 64)
-		if err != nil || mVParse < 0 {
+		mVParse, err = strconv.ParseInt(mV, 10, 64)
+		if err != nil || mVParse.(int64) < 0 {
 			fmt.Println("Значение метрики не соответствует требуемому типу int64:", mV)
 			fmt.Println("")
 			fmt.Println("Отправлен код:", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		updateMetrics(&counterMet, mT, mN, mVParse)
 	default:
 		fmt.Println("Неизвестный тип метрики")
 		fmt.Println("")
@@ -196,7 +203,16 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Проверка значения метрики прошла успешно")
 
 	fmt.Println("")
-	fmt.Println("Обновлённая мапа:", metStorage)
+	fmt.Println("Обновление метрики...")
+
+	switch mT {
+	case gaugeType:
+		gaugeMet.updateMetric(mT, mN, mVParse)
+	case counterType:
+		counterMet.updateMetric(mT, mN, mVParse)
+	}
+
+	fmt.Println("Обновление метрики прошло успешно")
 
 	fmt.Println("")
 	fmt.Println("Отправлен Content-Type: text/plain")
@@ -205,6 +221,15 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
 	fmt.Println("Отправлен код:", http.StatusOK)
 	w.WriteHeader(http.StatusOK)
+
+	fmt.Println("")
+	fmt.Println("Обновление хранилища...")
+
+	updateStorage(&metStorage)
+
+	fmt.Println("Обновление хранилища прошло успешно")
+	fmt.Println("")
+	fmt.Println("Обновлённое хранилище:", metStorage)
 }
 
 //Для запуска теста iter1
