@@ -108,7 +108,6 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Проверка Content-Type прошла успешно")
 
-	// Чтение и разделение тела запроса
 	fmt.Println("")
 	fmt.Println("Чтение и разделение тела запроса...")
 	sbody := strings.Split(r.URL.Path, "/")
@@ -122,7 +121,7 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Чтение и разделение тела запроса прошло успешно")
 	fmt.Println("")
-	fmt.Println("Nело запроса:", r.URL.Path)
+	fmt.Println("Тело запроса:", r.URL.Path)
 
 	fmt.Println("")
 	fmt.Println("Параметры полученной метрики:")
@@ -171,7 +170,6 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 		mVParse, err := strconv.ParseFloat(mV, 64)
 		if err != nil || mVParse < 0 {
 			fmt.Println("Значение метрики не соответствует требуемому типу float64:", mV)
-			fmt.Println(err)
 			fmt.Println("")
 			fmt.Println("Отправлен код:", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
@@ -182,7 +180,6 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 		mVParse, err := strconv.ParseInt(mV, 10, 64)
 		if err != nil || mVParse < 0 {
 			fmt.Println("Значение метрики не соответствует требуемому типу int64:", mV)
-			fmt.Println(err)
 			fmt.Println("")
 			fmt.Println("Отправлен код:", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
