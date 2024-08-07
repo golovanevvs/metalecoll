@@ -71,7 +71,13 @@ func updateMetrics(m MetricsInt, mT, mN string, mV interface{}) {
 }
 
 func handlerf(w http.ResponseWriter, r *http.Request) {
+	var count int
+	fmt.Println("-----------------------------------------------------")
 	fmt.Println("")
+
+	count++
+	fmt.Println("Запрос №", count)
+
 	fmt.Println("Проверка метода...")
 
 	if r.Method != http.MethodPost {
@@ -113,7 +119,8 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("Чтение и разделение тела запроса прошло успешно")
-	fmt.Println("Получено тело запроса:", r.URL.Path)
+	fmt.Println("")
+	fmt.Println("Nело запроса:", r.URL.Path)
 
 	fmt.Println("")
 	fmt.Println("Параметры полученной метрики:")
