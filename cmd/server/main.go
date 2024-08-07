@@ -32,6 +32,7 @@ type MetricsInt interface {
 var (
 	gaugeMet, counterMet metric
 	metStorage           MemStorage
+	hcount               int
 )
 
 func main() {
@@ -71,13 +72,14 @@ func updateMetrics(m MetricsInt, mT, mN string, mV interface{}) {
 }
 
 func handlerf(w http.ResponseWriter, r *http.Request) {
-	var count int
+	fmt.Println("")
 	fmt.Println("-----------------------------------------------------")
 	fmt.Println("")
 
-	count++
-	fmt.Println("Запрос №", count)
+	hcount++
+	fmt.Println("Запрос №", hcount)
 
+	fmt.Println("")
 	fmt.Println("Проверка метода...")
 
 	if r.Method != http.MethodPost {
