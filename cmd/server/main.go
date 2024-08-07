@@ -232,6 +232,8 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Обновлённое хранилище:", metStorage)
 }
 
+//TODO Обернуть запрос в структуру
+
 //Для запуска теста iter1
 
 //surface
