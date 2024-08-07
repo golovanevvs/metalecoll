@@ -7,9 +7,11 @@ import (
 )
 
 const (
-	gaugeType   = "gauge"
-	counterType = "counter"
-	addr        = ":8080"
+	gaugeType    = "gauge"
+	counterType  = "counter"
+	addr         = ":8080"
+	contentType  = "text/plain"
+	updateMethod = "update"
 )
 
 type metric struct {
@@ -18,7 +20,7 @@ type metric struct {
 	metValue interface{}
 }
 
-type memStorage struct {
+type MemStorage struct {
 	metrics map[string]metric
 }
 
@@ -28,7 +30,7 @@ type MetricsInt interface {
 
 var (
 	gaugeMet, counterMet metric
-	metStorage           memStorage
+	metStorage           MemStorage
 )
 
 // main
@@ -57,7 +59,7 @@ func (m *metric) updateMetric(mT, mN string, mV interface{}) {
 	metStorage.updateStorage(mT, *m)
 }
 
-func (m *memStorage) updateStorage(key string, met metric) {
+func (m *MemStorage) updateStorage(key string, met metric) {
 	if m.metrics == nil {
 		m.metrics = make(map[string]metric)
 	}
@@ -77,9 +79,12 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	contentType := r.Header.Get("Content-Type")
+	cT := r.Header.Get("Content-Type")
 
-	if contentType != "text/plain" {
+	switch cT {
+	case contentType:
+	default:
+		//fmt.Println("Недопустимый content-type:", cT)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -99,6 +104,8 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println("Получено тело запроса:", r.URL.Path)
 	//fmt.Println("")
 
+	mM := sbody[1] // Имя метода
+	//fmt.Println("Метод:", mM)
 	mT := sbody[2] // Тип метрики
 	//fmt.Println("Тип метрики:", mT)
 	mN := sbody[3] // Имя метрики
@@ -106,6 +113,13 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 	mV := sbody[4] // Значение метрики
 	//fmt.Println("Значение метрики:", mV)
 	//fmt.Println("")
+
+	switch mM {
+	case updateMethod:
+	default:
+		//fmt.Println("Неизвестный тип метода:", mM)
+		w.WriteHeader(http.StatusBadRequest)
+	}
 
 	switch mT {
 	case gaugeType:
@@ -132,7 +146,6 @@ func handlerf(w http.ResponseWriter, r *http.Request) {
 		// fmt.Println("Неизвестный тип метрики")
 		// fmt.Println("")
 		w.WriteHeader(http.StatusBadRequest)
-		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	//fmt.Println("Обновлённая мапа:", metStorage)
