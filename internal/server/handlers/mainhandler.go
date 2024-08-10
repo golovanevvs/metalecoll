@@ -12,12 +12,14 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 )
 
-var mapStore mapstorage.MemStorage
+var (
+	mapStore mapstorage.MemStorage
+	hcount   int
+)
 
 func MainHandler(w http.ResponseWriter, r *http.Request) {
 	var mVParse any
 	var err error
-	var hcount int
 
 	fmt.Println("")
 	fmt.Println("-----------------------------------------------------")
