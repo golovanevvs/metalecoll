@@ -6,22 +6,22 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/golovanevvs/metalecoll/internal/server/server"
+	"github.com/golovanevvs/metalecoll/internal/server/constants"
+	"github.com/golovanevvs/metalecoll/internal/server/model"
+	"github.com/golovanevvs/metalecoll/internal/server/service"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 )
 
-var (
-	receivedMetric, calcMetric *mapstorage.MetricRepository
-)
+var mapStore mapstorage.MemStorage
 
 func MainHandler(w http.ResponseWriter, r *http.Request) {
 	var mVParse any
 	var err error
 	var hcount int
+
 	fmt.Println("")
 	fmt.Println("-----------------------------------------------------")
 	fmt.Println("")
-
 	hcount++
 	fmt.Println("Запрос №", hcount)
 
@@ -43,7 +43,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	cT := r.Header.Get("Content-Type")
 
 	switch cT {
-	case server.ContentType:
+	case constants.ContentType:
 	default:
 		fmt.Println("Недопустимый content-type:", cT)
 		fmt.Println("")
@@ -84,7 +84,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Проверка типа метода...")
 
 	switch mM {
-	case server.UpdateMethod:
+	case constants.UpdateMethod:
 	default:
 		fmt.Println("Неизвестный тип метода:", mM)
 		fmt.Println("")
@@ -112,7 +112,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Проверка значения метрики...")
 
 	switch mT {
-	case server.GaugeType:
+	case constants.GaugeType:
 		mVParse, err = strconv.ParseFloat(mV, 64)
 		if err != nil || mVParse.(float64) < 0 {
 			fmt.Println("Значение метрики не соответствует требуемому типу float64:", mV)
@@ -121,7 +121,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	case server.CounterType:
+	case constants.CounterType:
 		mVParse, err = strconv.ParseInt(mV, 10, 64)
 		if err != nil || mVParse.(int64) < 0 {
 			fmt.Println("Значение метрики не соответствует требуемому типу int64:", mV)
@@ -139,12 +139,13 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("Проверка значения метрики прошла успешно")
 
-	receivedMetric = mapstorage.MetricRepository //(mT, mN, mVParse)
+	receivedMetric := model.Metric{MetType: mT, MetName: mN, MetValue: mVParse}
 
 	fmt.Println("")
 	fmt.Println("Обновление метрики...")
 
-	calcMetric = receivedMetric
+	calcMetric := service.ProcMetric(receivedMetric, mapStore)
+
 	fmt.Println("Обновление метрики прошло успешно")
 
 	fmt.Println("")
@@ -158,9 +159,9 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
 	fmt.Println("Обновление хранилища...")
 
-	updateStorage(&metStorage, calcMetric)
+	mapStore.SaveMetric(*calcMetric)
 
 	fmt.Println("Обновление хранилища прошло успешно")
 	fmt.Println("")
-	fmt.Println("Обновлённое хранилище:", metStorage)
+	fmt.Println("Обновлённое хранилище:", mapStore.Metrics)
 }
