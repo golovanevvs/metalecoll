@@ -2,10 +2,6 @@ package mapstorage
 
 import "github.com/golovanevvs/metalecoll/internal/server/model"
 
-// type Storage interface {
-// 	GetMetric() map[string]model.Metric
-// }
-
 type MemStorage struct {
 	Metrics map[string]model.Metric
 }
