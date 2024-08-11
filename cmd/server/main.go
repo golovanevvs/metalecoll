@@ -1,20 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-
-	"github.com/golovanevvs/metalecoll/internal/server/constants"
-	"github.com/golovanevvs/metalecoll/internal/server/handlers"
+	"github.com/golovanevvs/metalecoll/internal/server/server"
 )
 
 func main() {
-	fmt.Println("Запущен сервер:", constants.Addr)
-	err := http.ListenAndServe(constants.Addr, http.HandlerFunc(handlers.MainHandler))
-	if err != nil {
-		fmt.Println("Ошибка сервера")
-		panic(err)
-	}
+	server.Start()
 }
 
 //Для запуска теста iter1

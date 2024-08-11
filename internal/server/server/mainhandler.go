@@ -1,4 +1,4 @@
-package handlers
+package server
 
 import (
 	"fmt"
@@ -8,13 +8,12 @@ import (
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
-	"github.com/golovanevvs/metalecoll/internal/server/service"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 )
 
 var (
-	mapStore mapstorage.MemStorage
-	hcount   int
+	//mapStore mapstorage.MemStorage
+	hcount int
 )
 
 func MainHandler(w http.ResponseWriter, r *http.Request) {
@@ -146,7 +145,8 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
 	fmt.Println("Обновление метрики...")
 
-	calcMetric := service.ProcMetric(receivedMetric, mapStore)
+	getMetric, err := mapstorage.GM(store, receivedMetric.MetType)
+	//calcMetric := service.ProcMetric(receivedMetric,)
 
 	fmt.Println("Обновление метрики прошло успешно")
 
@@ -161,9 +161,9 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
 	fmt.Println("Обновление хранилища...")
 
-	mapStore.SaveMetric(*calcMetric)
+	//mapstorage.SM(server.store, *calcMetric)
 
 	fmt.Println("Обновление хранилища прошло успешно")
 	fmt.Println("")
-	fmt.Println("Обновлённое хранилище:", mapStore.Metrics)
+	//fmt.Println("Обновлённое хранилище:", server.store.)
 }
