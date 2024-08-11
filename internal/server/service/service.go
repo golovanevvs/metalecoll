@@ -6,21 +6,21 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 )
 
-func ProcMetric(met model.Metric, ms mapstorage.MemStorage) *model.Metric {
+func ProcMetric(recMet, getMet model.Metric) *model.Metric {
 	var newValue any
-	switch met.MetType {
+	switch recMet.MetType {
 	case constants.GaugeType:
-		newValue = met.MetValue.(float64)
+		newValue = recMet.MetValue.(float64)
 	case constants.CounterType:
-		if value, inMap := ms.Metrics[constants.CounterType]; inMap {
-			newValue = value.MetValue.(int64) + met.MetValue.(int64)
+		if  {
+			newValue = value.MetValue.(int64) + recMet.MetValue.(int64)
 		} else {
-			newValue = met.MetValue.(int64)
+			newValue = recMet.MetValue.(int64)
 		}
 	}
 	return &model.Metric{
-		MetType:  met.MetType,
-		MetName:  met.MetName,
+		MetType:  recMet.MetType,
+		MetName:  recMet.MetName,
 		MetValue: newValue,
 	}
 }
