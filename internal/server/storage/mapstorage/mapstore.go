@@ -27,7 +27,7 @@ func (ms *memStorage) GetMetric(key string) (model.Metric, error) {
 	if _, inMap := ms.Metrics[key]; inMap {
 		return ms.Metrics[key], nil
 	}
-	err := errors.New("В хранилище отсутствует запрошенный тип метрики")
+	err := errors.New("в хранилище отсутствует запрошенный тип метрики")
 	return model.Metric{}, err
 }
 
