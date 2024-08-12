@@ -1,4 +1,4 @@
-package service
+package server
 
 import (
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
@@ -6,16 +6,16 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 )
 
-func ProcMetric(recMet, getMet model.Metric) *model.Metric {
+func procMetric(recMet model.Metric) *model.Metric {
 	var newValue any
 	switch recMet.MetType {
 	case constants.GaugeType:
 		newValue = recMet.MetValue.(float64)
 	case constants.CounterType:
-		if  {
-			newValue = value.MetValue.(int64) + recMet.MetValue.(int64)
-		} else {
+		if getValue, err := mapstorage.GM(srv.store, recMet.MetType); err != nil {
 			newValue = recMet.MetValue.(int64)
+		} else {
+			newValue = getValue.MetValue.(int64) + recMet.MetValue.(int64)
 		}
 	}
 	return &model.Metric{

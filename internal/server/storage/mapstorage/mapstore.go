@@ -8,31 +8,39 @@ import (
 
 type Storage interface {
 	SaveMetric(met model.Metric)
-	GetMetric(key string) model.Metric
-	NewStorage() Storage
+	GetMetric(key string) (model.Metric, error)
+	GetMetrics() map[string]model.Metric
 }
 
-type MemStorage struct {
+type memStorage struct {
 	Metrics map[string]model.Metric
 }
 
-func (ms *MemStorage) SaveMetric(met model.Metric) {
+func (ms *memStorage) SaveMetric(met model.Metric) {
 	if ms.Metrics == nil {
 		ms.Metrics = make(map[string]model.Metric)
 	}
 	ms.Metrics[met.MetType] = met
 }
 
-func (ms *MemStorage) GetMetric(key string) model.Metric {
-	return ms.Metrics[key]
+func (ms *memStorage) GetMetric(key string) (model.Metric, error) {
+	if _, inMap := ms.Metrics[key]; inMap {
+		return ms.Metrics[key], nil
+	}
+	err := errors.New("В хранилище отсутствует запрошенный тип метрики")
+	return model.Metric{}, err
 }
 
-func (ms *MemStorage) NewStorage() Storage {
+func (ms *memStorage) GetMetrics() map[string]model.Metric {
+	return ms.Metrics
+}
+
+func (ms *memStorage) NewStorage() Storage {
 	return ms
 }
 
-func NewStorage() (a Storage) {
-	return a.NewStorage()
+func NewStorage() *memStorage {
+	return &memStorage{}
 }
 
 func SM(s Storage, m model.Metric) {
@@ -40,9 +48,12 @@ func SM(s Storage, m model.Metric) {
 }
 
 func GM(s Storage, key string) (model.Metric, error) {
-	if _, inMap := s[key]; inMap {
-		return s.GetMetric(key), nil
+	if _, err := s.GetMetric(key); err != nil {
+		return model.Metric{}, err
 	}
-	err := errors.New("Данные в хранилище отсутствуют")
-	return nil, err
+	return s.GetMetric(key)
+}
+
+func GMs(s Storage) map[string]model.Metric {
+	return s.GetMetrics()
 }

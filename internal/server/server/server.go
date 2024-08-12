@@ -12,9 +12,11 @@ type server struct {
 	store mapstorage.Storage
 }
 
+var srv *server
+
 func Start() {
 	store := mapstorage.NewStorage()
-	srv := NewServer(store)
+	srv = NewServer(store)
 	fmt.Println("Запущен сервер:", constants.Addr)
 	err := http.ListenAndServe(constants.Addr, srv)
 	if err != nil {

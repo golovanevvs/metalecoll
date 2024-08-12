@@ -12,7 +12,6 @@ import (
 )
 
 var (
-	//mapStore mapstorage.MemStorage
 	hcount int
 )
 
@@ -145,8 +144,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
 	fmt.Println("Обновление метрики...")
 
-	getMetric, err := mapstorage.GM(store, receivedMetric.MetType)
-	//calcMetric := service.ProcMetric(receivedMetric,)
+	calcMetric := procMetric(receivedMetric)
 
 	fmt.Println("Обновление метрики прошло успешно")
 
@@ -161,9 +159,9 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
 	fmt.Println("Обновление хранилища...")
 
-	//mapstorage.SM(server.store, *calcMetric)
+	mapstorage.SM(srv.store, *calcMetric)
 
 	fmt.Println("Обновление хранилища прошло успешно")
 	fmt.Println("")
-	//fmt.Println("Обновлённое хранилище:", server.store.)
+	fmt.Println("Обновлённое хранилище:", mapstorage.GMs(srv.store))
 }
