@@ -35,10 +35,6 @@ func (ms *memStorage) GetMetrics() map[string]model.Metric {
 	return ms.Metrics
 }
 
-func (ms *memStorage) NewStorage() Storage {
-	return ms
-}
-
 func NewStorage() *memStorage {
 	return &memStorage{}
 }
