@@ -8,7 +8,7 @@ import (
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
-	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
+	"github.com/golovanevvs/metalecoll/internal/server/util"
 )
 
 var (
@@ -159,9 +159,9 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
 	fmt.Println("Обновление хранилища...")
 
-	mapstorage.SM(srv.store, *calcMetric)
+	util.SM(srv.store, *calcMetric)
 
 	fmt.Println("Обновление хранилища прошло успешно")
 	fmt.Println("")
-	fmt.Println("Обновлённое хранилище:", mapstorage.GMs(srv.store))
+	fmt.Println("Обновлённое хранилище:", util.GMs(srv.store))
 }

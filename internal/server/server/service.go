@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
-	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
+	"github.com/golovanevvs/metalecoll/internal/server/util"
 )
 
 func procMetric(recMet model.Metric) *model.Metric {
@@ -12,7 +12,7 @@ func procMetric(recMet model.Metric) *model.Metric {
 	case constants.GaugeType:
 		newValue = recMet.MetValue.(float64)
 	case constants.CounterType:
-		if getValue, err := mapstorage.GM(srv.store, recMet.MetType); err != nil {
+		if getValue, err := util.GM(srv.store, recMet.MetType); err != nil {
 			newValue = recMet.MetValue.(int64)
 		} else {
 			newValue = getValue.MetValue.(int64) + recMet.MetValue.(int64)
