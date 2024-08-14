@@ -1,0 +1,1 @@
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && start server && cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build && start agent
