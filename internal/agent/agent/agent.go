@@ -1,46 +1,69 @@
 package agent
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
+	"github.com/golovanevvs/metalecoll/internal/agent/autil"
 	"github.com/golovanevvs/metalecoll/internal/agent/storage/amapstorage"
+	"github.com/golovanevvs/metalecoll/internal/server/constants"
 )
 
 type agent struct {
-	store        amapstorage.AStorage
-	updatingTime int
-	sendingTime  int
+	store          amapstorage.AStorage
+	pollInterval   int
+	reportInterval int
 }
 
 var ag *agent
 
 func Start() {
-	var updatingTime int = 2
-	var sendingTime int = 10
+	var pollInterval int = 2
+	var reportInterval int = 10
 	var t1, t2 int
+	var putString string
 
 	store := amapstorage.NewStorage()
 
-	ag = NewAgent(store, updatingTime, sendingTime)
+	ag = NewAgent(store, pollInterval, reportInterval)
 
-	t1 = ag.sendingTime / ag.updatingTime
-	t2 = ag.sendingTime % ag.updatingTime
+	t1 = ag.reportInterval / ag.pollInterval
+	t2 = ag.reportInterval % ag.pollInterval
+
+	client := &http.Client{}
 
 	for {
-		for i := 0; i < t1; i++ {
+		for i := 0; i <= t1; i++ {
 			RegisterMetrics()
-			time.Sleep(time.Duration(ag.updatingTime) * time.Second)
+			if i != t1 {
+				time.Sleep(time.Duration(ag.pollInterval) * time.Second)
+			}
 		}
 		time.Sleep(time.Duration(t2) * time.Second)
-		//TODO: добавить отправку метрик методом POST
+
+		fmt.Println("-------------------------------------------------------------------------")
+		fmt.Println("Reporting...")
+
+		mapstore, err := autil.GMM(ag.store)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		for _, value := range mapstore {
+			putString = fmt.Sprintf("http://localhost:8080/update/%s/%s/%v", value.MetType, value.MetName, value.MetValue)
+			response, err := client.Post(putString, constants.ContentType, nil)
+			fmt.Println(response, err)
+		}
+		time.Sleep(time.Duration(ag.pollInterval-t2) * time.Second)
 	}
 }
 
-func NewAgent(store amapstorage.AStorage, updatingTime, sendingTime int) *agent {
+func NewAgent(store amapstorage.AStorage, pollInterval, reportInterval int) *agent {
 	s := &agent{
-		store:        store,
-		updatingTime: updatingTime,
-		sendingTime:  sendingTime,
+		store:          store,
+		pollInterval:   pollInterval,
+		reportInterval: reportInterval,
 	}
 	return s
 }

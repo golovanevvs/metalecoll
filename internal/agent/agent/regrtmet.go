@@ -1,6 +1,8 @@
 package agent
 
 import (
+	"fmt"
+	"math/rand"
 	"runtime"
 
 	"github.com/golovanevvs/metalecoll/internal/agent/autil"
@@ -8,14 +10,19 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
 
+var pCount int64
+
 func RegisterMetrics() {
 	var rtMet runtime.MemStats
 	var newMet model.Metric
-	newMet = model.Metric{
-		MetType:  constants.CounterType,
-		MetName:  "PollCount",
-		MetValue: 1,
-	}
+	var rV float64
+
+	pCount++
+
+	rV = rand.Float64()
+
+	fmt.Println("-------------------------------------------------------------------------")
+	fmt.Println("Updating №", pCount)
 
 	runtime.ReadMemStats(&rtMet)
 	newMet = model.Metric{
@@ -24,6 +31,7 @@ func RegisterMetrics() {
 		MetValue: float64(rtMet.Alloc),
 	}
 	autil.SM(ag.store, newMet)
+
 	newMet = model.Metric{
 		MetType:  constants.GaugeType,
 		MetName:  "BuckHashSys",
@@ -186,4 +194,19 @@ func RegisterMetrics() {
 		MetValue: float64(rtMet.TotalAlloc),
 	}
 	autil.SM(ag.store, newMet)
+
+	newMet = model.Metric{
+		MetType:  constants.CounterType,
+		MetName:  "PollCount",
+		MetValue: pCount,
+	}
+	autil.SM(ag.store, newMet)
+
+	newMet = model.Metric{
+		MetType:  constants.GaugeType,
+		MetName:  "RandomValue",
+		MetValue: rV,
+	}
+	autil.SM(ag.store, newMet)
+
 }
