@@ -52,8 +52,11 @@ func Start() {
 		}
 		for _, value := range mapstore {
 			putString = fmt.Sprintf("http://localhost:8080/update/%s/%s/%v", value.MetType, value.MetName, value.MetValue)
-			response, err := client.Post(putString, constants.ContentType, nil)
-			fmt.Println(response, err)
+			request, err := client.Post(putString, constants.ContentType, nil)
+			if err != nil {
+				fmt.Println("Ошибка отправки POST-запроса:", err)
+			}
+			fmt.Println(request.StatusCode)
 		}
 		time.Sleep(time.Duration(ag.pollInterval-t2) * time.Second)
 	}

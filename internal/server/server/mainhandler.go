@@ -149,8 +149,8 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Обновление метрики прошло успешно")
 
 	fmt.Println("")
-	fmt.Println("Отправлен Content-Type: text/plain")
-	w.Header().Set("Content-Type", "text/plain")
+	fmt.Println("Отправлен Content-Type: text/plain; charset=utf-8")
+	w.Header().Set("Content-Type", constants.ContentType)
 
 	fmt.Println("")
 	fmt.Println("Отправлен код:", http.StatusOK)

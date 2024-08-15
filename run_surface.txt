@@ -1,0 +1,9 @@
+cd /c/Dev/Projects/YaPracticum/metalecoll/cmd/server && start server && cd /c/Dev/Projects/YaPracticum/metalecoll/cmd/agent && start agent
+
+cd /c/Dev/Projects/YaPracticum/metalecoll/cmd/server && start server && cd /c/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build && start agent
+
+cd /c/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && start server && cd /c/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build && start agent
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration1$ -binary-path=C:\\dev\\projects\\yapracticum\\metalecoll\\cmd\\server\\server
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration2$ -binary-path=C:\\dev\\projects\\yapracticum\\metalecoll\\cmd\\agent\\agent
