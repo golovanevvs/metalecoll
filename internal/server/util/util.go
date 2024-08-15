@@ -1,12 +1,16 @@
 package util
 
 import (
+	"fmt"
+
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 )
 
 func SM(s mapstorage.Storage, m model.Metric) {
+	fmt.Println("Запуск SM")
 	s.SaveMetric(m)
+	fmt.Println("Завершение SM")
 }
 
 func GM(s mapstorage.Storage, key string) (model.Metric, error) {

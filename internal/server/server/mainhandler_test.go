@@ -8,10 +8,13 @@ import (
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
+	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMainHandler(t *testing.T) {
+	store := mapstorage.NewStorage()
+	srv := NewServer(store)
 	type want struct {
 		code        int
 		contentType string
@@ -106,7 +109,8 @@ func TestMainHandler(t *testing.T) {
 				request := httptest.NewRequest(http.MethodPost, target[i], nil)
 				request.Header.Set("Content-Type", constants.ContentType)
 				w := httptest.NewRecorder()
-				MainHandler(w, request)
+				//MainHandler(w, request)
+				srv.ServeHTTP(w, request)
 				res := w.Result()
 				assert.Equal(t, test.want.code, res.StatusCode)
 				assert.Equal(t, test.want.contentType, res.Header.Get("Content-Type"))

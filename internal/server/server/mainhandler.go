@@ -145,7 +145,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Обновление метрики...")
 
 	calcMetric := procMetric(receivedMetric)
-
+	fmt.Println(calcMetric)
 	fmt.Println("Обновление метрики прошло успешно")
 
 	fmt.Println("")
@@ -157,8 +157,8 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	fmt.Println("")
+	fmt.Println(srv.store)
 	fmt.Println("Обновление хранилища...")
-
 	util.SM(srv.store, *calcMetric)
 
 	fmt.Println("Обновление хранилища прошло успешно")
