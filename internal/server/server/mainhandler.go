@@ -157,7 +157,6 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	fmt.Println("")
-	fmt.Println(srv.store)
 	fmt.Println("Обновление хранилища...")
 	util.SM(srv.store, *calcMetric)
 

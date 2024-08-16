@@ -2,7 +2,6 @@ package mapstorage
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
@@ -18,13 +17,10 @@ type memStorage struct {
 }
 
 func (ms *memStorage) SaveMetric(met model.Metric) {
-	fmt.Println("Запуск SaveMetric")
 	if ms.Metrics == nil {
 		ms.Metrics = make(map[string]model.Metric)
 	}
-	fmt.Println("Мапа есть, записываем")
 	ms.Metrics[met.MetType] = met
-	fmt.Println("Завершение SaveMetric")
 }
 
 func (ms *memStorage) GetMetric(key string) (model.Metric, error) {
