@@ -9,7 +9,9 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
+	"github.com/golovanevvs/metalecoll/internal/server/util"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMainHandler(t *testing.T) {
@@ -48,7 +50,7 @@ func TestMainHandler(t *testing.T) {
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name1",
-					MetValue: 5.3,
+					MetValue: float64(5.3),
 				},
 			},
 		},
@@ -68,7 +70,7 @@ func TestMainHandler(t *testing.T) {
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name2",
-					MetValue: 100.12,
+					MetValue: float64(100.12),
 				},
 			},
 		},
@@ -88,7 +90,7 @@ func TestMainHandler(t *testing.T) {
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name3",
-					MetValue: 100,
+					MetValue: int64(100),
 				},
 			},
 		},
@@ -108,7 +110,7 @@ func TestMainHandler(t *testing.T) {
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name4",
-					MetValue: 105,
+					MetValue: int64(105),
 				},
 			},
 		},
@@ -128,7 +130,7 @@ func TestMainHandler(t *testing.T) {
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name5",
-					MetValue: 0,
+					MetValue: float64(100.12),
 				},
 			},
 		},
@@ -148,7 +150,7 @@ func TestMainHandler(t *testing.T) {
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name6",
-					MetValue: 0,
+					MetValue: int64(105),
 				},
 			},
 		},
@@ -168,7 +170,7 @@ func TestMainHandler(t *testing.T) {
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name7",
-					MetValue: 0,
+					MetValue: int64(105),
 				},
 			},
 		},
@@ -186,7 +188,7 @@ func TestMainHandler(t *testing.T) {
 				code:        400,
 				contentType: constants.ContentType,
 				metricCalc: model.Metric{
-					MetType:  constants.CounterType,
+					MetType:  "Unknown",
 					MetName:  "Name8",
 					MetValue: 0,
 				},
@@ -196,7 +198,7 @@ func TestMainHandler(t *testing.T) {
 			name: "test №9 (negative)",
 			in: metCalc{
 				metric: model.Metric{
-					MetType:  "Unknown",
+					MetType:  constants.GaugeType,
 					MetName:  "Name9",
 					MetValue: 5.5,
 				},
@@ -206,9 +208,9 @@ func TestMainHandler(t *testing.T) {
 				code:        400,
 				contentType: constants.ContentType,
 				metricCalc: model.Metric{
-					MetType:  constants.CounterType,
+					MetType:  constants.GaugeType,
 					MetName:  "Name9",
-					MetValue: 0,
+					MetValue: float64(100.12),
 				},
 			},
 		},
@@ -220,7 +222,7 @@ func TestMainHandler(t *testing.T) {
 					MetName:  "",
 					MetValue: 5.5,
 				},
-				contType: "application/json",
+				contType: constants.ContentType,
 			},
 			want: want{
 				code:        404,
@@ -228,7 +230,7 @@ func TestMainHandler(t *testing.T) {
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name10",
-					MetValue: 0,
+					MetValue: float64(100.12),
 				},
 			},
 		},
@@ -239,14 +241,29 @@ func TestMainHandler(t *testing.T) {
 
 			target := fmt.Sprintf("http://localhost:8080/update/%s/%s/%v", test.in.metric.MetType, test.in.metric.MetName, test.in.metric.MetValue)
 			request := httptest.NewRequest(http.MethodPost, target, nil)
-			request.Header.Set("Content-Type", constants.ContentType)
+			request.Header.Set("Content-Type", test.in.contType)
 			w := httptest.NewRecorder()
 			//MainHandler(w, request)
 			srv.ServeHTTP(w, request)
 			res := w.Result()
-			assert.Equal(t, test.want.code, res.StatusCode)
-			assert.Equal(t, test.want.contentType, res.Header.Get("Content-Type"))
 
+			switch test.name {
+			case "test №1 (positive)", "test №2 (positive)", "test №3 (positive)", "test №4 (positive)":
+				assert.Equal(t, test.want.code, res.StatusCode)
+				assert.Equal(t, test.want.contentType, res.Header.Get("Content-Type"))
+				v, err := util.GM(srv.store, test.want.metricCalc.MetType)
+				require.NoError(t, err)
+				assert.Equal(t, test.want.metricCalc.MetValue, v.MetValue)
+			case "test №8 (negative)":
+				assert.Equal(t, test.want.code, res.StatusCode)
+				_, err := util.GM(srv.store, test.want.metricCalc.MetType)
+				assert.Error(t, err)
+			default:
+				assert.Equal(t, test.want.code, res.StatusCode)
+				v, err := util.GM(srv.store, test.want.metricCalc.MetType)
+				require.NoError(t, err)
+				assert.Equal(t, test.want.metricCalc.MetValue, v.MetValue)
+			}
 		})
 	}
 }
