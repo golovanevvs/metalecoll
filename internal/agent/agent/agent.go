@@ -19,8 +19,8 @@ type agent struct {
 var ag *agent
 
 func Start() {
-	var pollInterval int = 2
-	var reportInterval int = 10
+	var pollInterval = 2
+	var reportInterval = 10
 	var t1, t2 int
 	var putString string
 
@@ -52,11 +52,12 @@ func Start() {
 		}
 		for _, value := range mapstore {
 			putString = fmt.Sprintf("http://localhost:8080/update/%s/%s/%v", value.MetType, value.MetName, value.MetValue)
-			//request, err := client.Post(putString, constants.AContentType, nil)
-			_, err := client.Post(putString, constants.AContentType, nil)
+			request, err := client.Post(putString, constants.AContentType, nil)
+			//_, err := client.Post(putString, constants.AContentType, nil)
 			if err != nil {
 				fmt.Println("Ошибка отправки POST-запроса:", err)
 			}
+			defer request.Body.Close()
 			//fmt.Println(request.StatusCode)
 		}
 		time.Sleep(time.Duration(ag.pollInterval-t2) * time.Second)

@@ -246,6 +246,7 @@ func TestMainHandler(t *testing.T) {
 			//MainHandler(w, request)
 			srv.ServeHTTP(w, request)
 			res := w.Result()
+			defer res.Body.Close()
 
 			switch test.name {
 			case "test №1 (positive)", "test №2 (positive)", "test №3 (positive)", "test №4 (positive)":
