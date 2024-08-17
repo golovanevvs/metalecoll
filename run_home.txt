@@ -1,0 +1,18 @@
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && start server && cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build && start agent
+
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && start server && cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build && start agent
+
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build
+
+
+
+Тесты для iter1:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration1$ -binary-path=C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\cmd\\server\\server
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration1$ -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server
+
+
+Тесты для iter2:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration2[AB]*$ -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent
