@@ -43,7 +43,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	cT := r.Header.Get("Content-Type")
 
 	switch cT {
-	case constants.ContentType:
+	case constants.ContentType, constants.AContentType:
 	default:
 		fmt.Println("Недопустимый content-type:", cT)
 		fmt.Println("")

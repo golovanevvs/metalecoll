@@ -2,6 +2,11 @@
 
 cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build
 
+
+Компиляция сервера:
+
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server
+
 Компиляция агента:
 
 cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build
