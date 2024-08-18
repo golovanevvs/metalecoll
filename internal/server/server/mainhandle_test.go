@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMainHandler(t *testing.T) {
+func TestMainHandle(t *testing.T) {
 	store := mapstorage.NewStorage()
 	srv = NewServer(store)
 

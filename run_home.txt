@@ -32,3 +32,7 @@ metricstest-windows-amd64 -test.v -test.run=^TestIteration1$ -binary-path=/C/Gol
 Тесты для iter2:
 
 metricstest-windows-amd64 -test.v -test.run=^TestIteration2[AB]*$ -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent
+
+Тесты для iter3:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration3[AB]*$ -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server

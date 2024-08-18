@@ -20,7 +20,7 @@ func (ms *memStorage) SaveMetric(met model.Metric) {
 	if ms.Metrics == nil {
 		ms.Metrics = make(map[string]model.Metric)
 	}
-	ms.Metrics[met.MetType] = met
+	ms.Metrics[met.MetName] = met
 }
 
 func (ms *memStorage) GetMetric(key string) (model.Metric, error) {

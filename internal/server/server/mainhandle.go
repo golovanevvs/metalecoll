@@ -15,7 +15,7 @@ var (
 	hcount int
 )
 
-func MainHandler(w http.ResponseWriter, r *http.Request) {
+func MainHandle(w http.ResponseWriter, r *http.Request) {
 	var mVParse any
 	var err error
 
@@ -43,7 +43,7 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 	cT := r.Header.Get("Content-Type")
 
 	switch cT {
-	case constants.ContentType, constants.AContentType:
+	case constants.ContentType, constants.AContentType, "":
 	default:
 		fmt.Println("Недопустимый content-type:", cT)
 		fmt.Println("")

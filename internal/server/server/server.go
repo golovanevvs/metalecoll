@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-chi/chi"
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 )
 
 type server struct {
-	store mapstorage.Storage
+	store  mapstorage.Storage
+	router *chi.Mux
 }
 
 var srv *server
@@ -27,11 +29,19 @@ func Start() {
 
 func NewServer(store mapstorage.Storage) *server {
 	s := &server{
-		store: store,
+		store:  store,
+		router: chi.NewRouter(),
 	}
+	s.configureRouter()
 	return s
 }
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	MainHandler(w, r)
+	s.router.ServeHTTP(w, r)
+}
+
+func (s *server) configureRouter() {
+	s.router.Post("/update/{metType}/{metName}/{matValue}", MainHandle)
+	s.router.Get("/", GetMetricNamesHandle)
+	s.router.Get("/value/{metType}/{metName}", GetMetricValueHandle)
 }
