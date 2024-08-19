@@ -29,8 +29,7 @@ func Start() {
 	store := mapstorage.NewStorage()
 	srv = NewServer(store)
 	fmt.Println("Запущен сервер:", flagRunAddr)
-	addr := fmt.Sprintf("%s", flagRunAddr)
-	err := http.ListenAndServe(addr, srv)
+	err := http.ListenAndServe(flagRunAddr, srv)
 	if err != nil {
 		fmt.Println("Ошибка сервера")
 		panic(err)
