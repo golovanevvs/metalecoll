@@ -21,15 +21,16 @@ var flagRunAddr string
 func Start() {
 	parseFlags()
 
-	if flag.NFlag() == 0 {
-		flag.Usage()
-		return
-	}
+	// if flag.NFlag() == 0 {
+	// 	flag.Usage()
+	// 	return
+	// }
 
 	store := mapstorage.NewStorage()
 	srv = NewServer(store)
 	fmt.Println("Запущен сервер:", flagRunAddr)
-	err := http.ListenAndServe(flagRunAddr, srv)
+	addr := fmt.Sprintf("%s", flagRunAddr)
+	err := http.ListenAndServe(addr, srv)
 	if err != nil {
 		fmt.Println("Ошибка сервера")
 		panic(err)

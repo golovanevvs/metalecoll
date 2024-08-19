@@ -30,10 +30,10 @@ func Start() {
 
 	parseFlags()
 
-	if flag.NFlag() == 0 {
-		flag.Usage()
-		return
-	}
+	// if flag.NFlag() == 0 {
+	// 	flag.Usage()
+	// 	return
+	// }
 
 	pollInterval = flagPollInt
 	reportInterval = flagRepInt
