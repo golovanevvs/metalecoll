@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/golovanevvs/metalecoll/internal/agent/autil"
@@ -90,4 +92,16 @@ func parseFlags() {
 	flag.IntVar(&flagRepInt, "r", 10, "reportInterval")
 	flag.IntVar(&flagPollInt, "p", 2, "pollInterval")
 	flag.Parse()
+
+	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
+		flagRunAddr = envRunAddr
+	}
+
+	if envRepInt := os.Getenv("REPORT_INTERVAL"); envRepInt != "" {
+		flagRepInt, _ = strconv.Atoi(envRepInt)
+	}
+
+	if envPollInt := os.Getenv("POLL_INTERVAL"); envPollInt != "" {
+		flagPollInt, _ = strconv.Atoi(envPollInt)
+	}
 }

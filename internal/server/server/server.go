@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi"
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
@@ -58,4 +59,8 @@ func (s *server) configureRouter() {
 func parseFlags() {
 	flag.StringVar(&flagRunAddr, "a", constants.Addr, "address and port to run server")
 	flag.Parse()
+
+	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
+		flagRunAddr = envRunAddr
+	}
 }

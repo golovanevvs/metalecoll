@@ -27,3 +27,7 @@ cd /c/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && start server
 Тесты для iter4:
 
 metricstest-windows-amd64 -test.v -test.run=^TestIteration4$ -agent-binary-path=/C/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Dev/Projects/YaPracticum/metalecoll/cmd/server/server -server-port="8082" -source-path=/C/Dev/Projects/YaPracticum/metalecoll
+
+Тесты для iter5:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration5$ -agent-binary-path=/C/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Dev/Projects/YaPracticum/metalecoll/cmd/server/server -server-port="8082" -source-path=/C/Dev/Projects/YaPracticum/metalecoll
