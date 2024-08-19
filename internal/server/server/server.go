@@ -1,6 +1,7 @@
 package server
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 
@@ -15,12 +16,20 @@ type server struct {
 }
 
 var srv *server
+var flagRunAddr string
 
 func Start() {
+	parseFlags()
+
+	if flag.NFlag() == 0 {
+		flag.Usage()
+		return
+	}
+
 	store := mapstorage.NewStorage()
 	srv = NewServer(store)
-	fmt.Println("Запущен сервер:", constants.Addr)
-	err := http.ListenAndServe(constants.Addr, srv)
+	fmt.Println("Запущен сервер:", flagRunAddr)
+	err := http.ListenAndServe(flagRunAddr, srv)
 	if err != nil {
 		fmt.Println("Ошибка сервера")
 		panic(err)
@@ -44,4 +53,9 @@ func (s *server) configureRouter() {
 	s.router.Post("/update/{metType}/{metName}/{matValue}", MainHandle)
 	s.router.Get("/", GetMetricNamesHandle)
 	s.router.Get("/value/{metType}/{metName}", GetMetricValueHandle)
+}
+
+func parseFlags() {
+	flag.StringVar(&flagRunAddr, "a", constants.Addr, "address and port to run server")
+	flag.Parse()
 }

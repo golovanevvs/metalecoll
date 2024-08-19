@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"time"
@@ -17,12 +18,25 @@ type agent struct {
 }
 
 var ag *agent
+var flagRunAddr string
+var flagRepInt int
+var flagPollInt int
 
 func Start() {
-	var pollInterval = 2
-	var reportInterval = 10
+	var pollInterval int
+	var reportInterval int
 	var t1, t2 int
 	var putString string
+
+	parseFlags()
+
+	if flag.NFlag() == 0 {
+		flag.Usage()
+		return
+	}
+
+	pollInterval = flagPollInt
+	reportInterval = flagRepInt
 
 	store := amapstorage.NewStorage()
 
@@ -51,14 +65,12 @@ func Start() {
 			return
 		}
 		for _, value := range mapstore {
-			putString = fmt.Sprintf("http://localhost:8080/update/%s/%s/%v", value.MetType, value.MetName, value.MetValue)
+			putString = fmt.Sprintf("http://%s/update/%s/%s/%v", flagRunAddr, value.MetType, value.MetName, value.MetValue)
 			request, err := client.Post(putString, constants.AContentType, nil)
-			//_, err := client.Post(putString, constants.AContentType, nil)
 			if err != nil {
 				fmt.Println("Ошибка отправки POST-запроса:", err)
 			}
 			defer request.Body.Close()
-			//fmt.Println(request.StatusCode)
 		}
 		time.Sleep(time.Duration(ag.pollInterval-t2) * time.Second)
 	}
@@ -71,4 +83,11 @@ func NewAgent(store amapstorage.AStorage, pollInterval, reportInterval int) *age
 		reportInterval: reportInterval,
 	}
 	return s
+}
+
+func parseFlags() {
+	flag.StringVar(&flagRunAddr, "a", constants.Addr, "address and port of server")
+	flag.IntVar(&flagRepInt, "r", 10, "reportInterval")
+	flag.IntVar(&flagPollInt, "p", 2, "pollInterval")
+	flag.Parse()
 }
