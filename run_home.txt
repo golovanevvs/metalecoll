@@ -1,0 +1,38 @@
+Компиляция сервера и агента:
+
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build
+
+
+Компиляция сервера:
+
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server
+
+Компиляция агента:
+
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build
+
+
+Компиляция и запуск сервера и агента:
+
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && start server && cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build && start agent
+
+
+Компиляция агента и запуск сервера и агента:
+
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && start server && cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build && start agent
+
+
+Тесты для iter1:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration1$ -binary-path=C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\cmd\\server\\server
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration1$ -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server
+
+
+Тесты для iter2:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration2[AB]*$ -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent
+
+Тесты для iter3:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration3[AB]*$ -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server
