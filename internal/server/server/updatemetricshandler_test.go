@@ -8,15 +8,22 @@ import (
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
+	"github.com/golovanevvs/metalecoll/internal/server/storage"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
-	"github.com/golovanevvs/metalecoll/internal/server/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestMainHandle(t *testing.T) {
+func TestUpdateMetricsHandler(t *testing.T) {
+	configtest := &Config{
+		Addr:           constants.AddrS,
+		GaugeType:      constants.GaugeType,
+		CounterType:    constants.CounterType,
+		UpdateMethod:   constants.UpdateMethod,
+		GetValueMethod: constants.GetValueMethod,
+	}
 	store := mapstorage.NewStorage()
-	srv = NewServer(store)
+	srv = NewServer(store, configtest)
 
 	type metCalc struct {
 		metric   model.Metric
@@ -239,11 +246,10 @@ func TestMainHandle(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 
-			target := fmt.Sprintf("http://localhost:8080/update/%s/%s/%v", test.in.metric.MetType, test.in.metric.MetName, test.in.metric.MetValue)
+			target := fmt.Sprintf("http://%s/%s/%s/%s/%v", constants.AddrA, constants.UpdateMethod, test.in.metric.MetType, test.in.metric.MetName, test.in.metric.MetValue)
 			request := httptest.NewRequest(http.MethodPost, target, nil)
 			request.Header.Set("Content-Type", test.in.contType)
 			w := httptest.NewRecorder()
-			//MainHandler(w, request)
 			srv.ServeHTTP(w, request)
 			res := w.Result()
 			defer res.Body.Close()
@@ -252,18 +258,15 @@ func TestMainHandle(t *testing.T) {
 			case "test №1 (positive)", "test №2 (positive)", "test №3 (positive)", "test №4 (positive)":
 				assert.Equal(t, test.want.code, res.StatusCode)
 				assert.Equal(t, test.want.contentType, res.Header.Get("Content-Type"))
-				v, err := util.GM(srv.store, test.want.metricCalc.MetName)
+				v, err := storage.GM(store, test.want.metricCalc.MetName)
 				require.NoError(t, err)
 				assert.Equal(t, test.want.metricCalc.MetValue, v.MetValue)
 			case "test №8 (negative)":
 				assert.Equal(t, test.want.code, res.StatusCode)
-				_, err := util.GM(srv.store, test.want.metricCalc.MetName)
+				_, err := storage.GM(store, test.want.metricCalc.MetName)
 				assert.Error(t, err)
 			default:
 				assert.Equal(t, test.want.code, res.StatusCode)
-				// v, err := util.GM(srv.store, test.want.metricCalc.MetName)
-				// require.NoError(t, err)
-				// assert.Equal(t, test.want.metricCalc.MetValue, v.MetValue)
 			}
 		})
 	}

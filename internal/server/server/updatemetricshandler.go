@@ -6,16 +6,18 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-chi/chi"
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
-	"github.com/golovanevvs/metalecoll/internal/server/util"
+	"github.com/golovanevvs/metalecoll/internal/server/service"
+	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
 var (
 	hcount int
 )
 
-func MainHandle(w http.ResponseWriter, r *http.Request) {
+func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
 	var mVParse any
 	var err error
 
@@ -73,11 +75,14 @@ func MainHandle(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Параметры полученной метрики:")
 	mM := sbody[1] // Тип метода
 	fmt.Println("Тип метода:", mM)
-	mT := sbody[2] // Тип метрики
+	//mT := sbody[2] // Тип метрики
+	mT := chi.URLParam(r, constants.MetTypeURL)
 	fmt.Println("Тип метрики:", mT)
-	mN := sbody[3] // Имя метрики
+	//mN := sbody[3] // Имя метрики
+	mN := chi.URLParam(r, constants.MetNameURL)
 	fmt.Println("Имя метрики:", mN)
-	mV := sbody[4] // Значение метрики
+	//mV := sbody[4] // Значение метрики
+	mV := chi.URLParam(r, constants.MetValueURL)
 	fmt.Println("Значение метрики:", mV)
 
 	fmt.Println("")
@@ -115,7 +120,7 @@ func MainHandle(w http.ResponseWriter, r *http.Request) {
 	case constants.GaugeType:
 		mVParse, err = strconv.ParseFloat(mV, 64)
 		if err != nil || mVParse.(float64) < 0 {
-			fmt.Println("Значение метрики не соответствует требуемому типу float64:", mV)
+			fmt.Println("Значение метрики не соответствует требуемому типу float64 или меньше нуля:", mV)
 			fmt.Println("")
 			fmt.Println("Отправлен код:", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
@@ -124,7 +129,7 @@ func MainHandle(w http.ResponseWriter, r *http.Request) {
 	case constants.CounterType:
 		mVParse, err = strconv.ParseInt(mV, 10, 64)
 		if err != nil || mVParse.(int64) < 0 {
-			fmt.Println("Значение метрики не соответствует требуемому типу int64:", mV)
+			fmt.Println("Значение метрики не соответствует требуемому типу int64 или меньше нуля:", mV)
 			fmt.Println("")
 			fmt.Println("Отправлен код:", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
@@ -144,7 +149,7 @@ func MainHandle(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
 	fmt.Println("Обновление метрики...")
 
-	calcMetric := procMetric(receivedMetric)
+	calcMetric := service.ProcMetric(receivedMetric, store)
 	fmt.Println(calcMetric)
 	fmt.Println("Обновление метрики прошло успешно")
 
@@ -158,9 +163,9 @@ func MainHandle(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("")
 	fmt.Println("Обновление хранилища...")
-	util.SM(srv.store, *calcMetric)
+	storage.SM(store, *calcMetric)
 
 	fmt.Println("Обновление хранилища прошло успешно")
 	fmt.Println("")
-	fmt.Println("Обновлённое хранилище:", util.GMs(srv.store))
+	fmt.Println("Обновлённое хранилище:", storage.GMs(store))
 }

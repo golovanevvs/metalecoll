@@ -5,7 +5,8 @@ import (
 )
 
 func main() {
-	server.Start()
+	config := server.MewConfig()
+	server.Start(config)
 }
 
 //Для запуска теста iter1

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/golovanevvs/metalecoll/internal/server/util"
+	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
 type metNameValue struct {
@@ -13,12 +13,12 @@ type metNameValue struct {
 	BMetValue string `json:"value"`
 }
 
-func GetMetricNamesHandle(w http.ResponseWriter, r *http.Request) {
+func GetMetricNamesHandler(w http.ResponseWriter, r *http.Request) {
 	var metrics []metNameValue
 
 	fmt.Println("")
 	fmt.Println("Получение всех известных метрик из хранилища...")
-	metricsMap := util.GMs(srv.store)
+	metricsMap := storage.GMs(srv.store)
 	fmt.Println("Получение всех известных метрик из хранилища прошло успешно")
 
 	fmt.Println("")

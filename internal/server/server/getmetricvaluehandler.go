@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
-	"github.com/golovanevvs/metalecoll/internal/server/util"
+	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
-func GetMetricValueHandle(w http.ResponseWriter, r *http.Request) {
+func GetMetricValueHandler(w http.ResponseWriter, r *http.Request) {
 
 	sbody := strings.Split(r.URL.Path, "/")
 
@@ -48,7 +48,7 @@ func GetMetricValueHandle(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("")
 	fmt.Println("Получение данных из хранилища...")
-	metric, err := util.GM(srv.store, mN)
+	metric, err := storage.GM(srv.store, mN)
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println("Отправлен код:", http.StatusNotFound)
