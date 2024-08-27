@@ -13,6 +13,7 @@ type Config struct {
 	CounterType    string
 	UpdateMethod   string
 	GetValueMethod string
+	LogLevel       string
 }
 
 func MewConfig() *Config {
@@ -23,11 +24,13 @@ func MewConfig() *Config {
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		flagRunAddr = envRunAddr
 	}
+
 	return &Config{
 		Addr:           flagRunAddr,
 		GaugeType:      constants.GaugeType,
 		CounterType:    constants.CounterType,
 		UpdateMethod:   constants.UpdateMethod,
 		GetValueMethod: constants.GetValueMethod,
+		LogLevel:       "info",
 	}
 }
