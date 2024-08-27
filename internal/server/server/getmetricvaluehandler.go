@@ -53,6 +53,7 @@ func GetMetricValueHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		fmt.Println("Отправлен код:", http.StatusNotFound)
 		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 	fmt.Println("Получение данных из хранилища прошло успешно")
 

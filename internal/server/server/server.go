@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
@@ -54,6 +55,10 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) configureRouter(config *Config) {
+	s.router.Use(func(h http.Handler) http.Handler {
+		return WithLogging(h)
+	})
+
 	str := fmt.Sprintf("/%s/{%s}/{%s}/{%s}",
 		config.UpdateMethod,
 		constants.MetTypeURL,
@@ -73,9 +78,20 @@ func (s *server) configureRouter(config *Config) {
 	s.router.Get(str, GetMetricValueHandler)
 }
 
-// func WithLogging(h http.Handler) http.Handler {
-// 	logFn := func(w http.ResponseWriter, r *http.Request) {
-// 		h.ServeHTTP(w, r)
-// 	}
-// 	return http.HandlerFunc(logFn)
-// }
+func WithLogging(h http.Handler) http.Handler {
+	logFn := func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		uri := r.RequestURI
+		method := r.Method
+
+		h.ServeHTTP(w, r)
+
+		duration := time.Since(start)
+		srv.logger.Infoln(
+			"uri", uri,
+			"method", method,
+			"duration", duration,
+		)
+	}
+	return http.HandlerFunc(logFn)
+}
