@@ -19,9 +19,13 @@ var srv *server
 
 func Start(config *Config) {
 	store := mapstorage.NewStorage()
+
 	srv = NewServer(store, config)
+
 	//fmt.Println("Запущен сервер:", config.Addr)
+
 	srv.logger.Info("Запущен сервер: ", zap.String("Addr", config.Addr))
+
 	if err := http.ListenAndServe(config.Addr, srv); err != nil {
 		srv.logger.Fatal("Ошибка запуска сервера", zap.Error(err))
 	}
@@ -36,7 +40,7 @@ func NewServer(store storage.Storage, config *Config) *server {
 
 	//sugar := logger.Sugar()
 
-	log, err := Initialize("info")
+	log, err := InitializeLogger("info")
 	if err != nil {
 		panic("cannot initialize zap")
 	}

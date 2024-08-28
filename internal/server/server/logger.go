@@ -18,7 +18,7 @@ type loggingResponseWriter struct {
 	responseData *responseData
 }
 
-func Initialize(level string) (*zap.Logger, error) {
+func InitializeLogger(level string) (*zap.Logger, error) {
 	lvl, err := zap.ParseAtomicLevel(level)
 	if err != nil {
 		return nil, err
