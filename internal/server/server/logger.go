@@ -65,9 +65,9 @@ func WithLogging(h http.Handler) http.Handler {
 			"Логер",
 			zap.String("uri", r.RequestURI),
 			zap.String("method", r.Method),
-			zap.String("status", fmt.Sprintf("%s", responseData.status)),
-			zap.String("duration", fmt.Sprintf("%s", duration)),
-			zap.String("size", fmt.Sprintf("%s", responseData.size)),
+			zap.String("status", fmt.Sprintf("%v", responseData.status)),
+			zap.String("duration", fmt.Sprintf("%v", duration)),
+			zap.String("size", fmt.Sprintf("%v", responseData.size)),
 		)
 	}
 
