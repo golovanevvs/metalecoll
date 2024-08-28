@@ -12,7 +12,7 @@ import (
 type server struct {
 	store  storage.Storage
 	router *chi.Mux
-	logger *zap.SugaredLogger
+	logger *zap.Logger
 }
 
 var srv *server
@@ -21,25 +21,30 @@ func Start(config *Config) {
 	store := mapstorage.NewStorage()
 	srv = NewServer(store, config)
 	//fmt.Println("Запущен сервер:", config.Addr)
-	srv.logger.Infof("Запущен сервер: %s", config.Addr)
+	srv.logger.Info("Запущен сервер: ", zap.String("Addr", config.Addr))
 	if err := http.ListenAndServe(config.Addr, srv); err != nil {
-		srv.logger.Fatalf(err.Error(), "event", "start server")
+		srv.logger.Fatal("Ошибка запуска сервера", zap.Error(err))
 	}
 }
 
 func NewServer(store storage.Storage, config *Config) *server {
-	logger, err := zap.NewDevelopment()
+	// logger, err := zap.NewDevelopment()
+	// if err != nil {
+	// 	panic("cannot initialize zap")
+	// }
+	// defer logger.Sync()
+
+	//sugar := logger.Sugar()
+
+	log, err := Initialize("info")
 	if err != nil {
 		panic("cannot initialize zap")
 	}
-	defer logger.Sync()
-
-	sugar := logger.Sugar()
 
 	s := &server{
 		store:  store,
 		router: chi.NewRouter(),
-		logger: sugar,
+		logger: log,
 	}
 
 	s.configureRouter(config)
