@@ -13,16 +13,16 @@ type metNameValue struct {
 	BMetValue string `json:"value"`
 }
 
-func GetMetricNamesHandler(w http.ResponseWriter, r *http.Request) {
+func GetMetricNamesHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
 	var metrics []metNameValue
 
-	fmt.Println("")
-	fmt.Println("Получение всех известных метрик из хранилища...")
-	metricsMap := storage.GMs(srv.store)
-	fmt.Println("Получение всех известных метрик из хранилища прошло успешно")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Получение всех известных метрик из хранилища...")
+	metricsMap := storage.GMs(store)
+	srv.logger.Debugf("Получение всех известных метрик из хранилища прошло успешно")
 
-	fmt.Println("")
-	fmt.Println("Создание среза имя:значение...")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Создание среза имя:значение...")
 	for k, v := range metricsMap {
 		value := fmt.Sprintf("%v", v.MetValue)
 		m := metNameValue{
@@ -31,28 +31,28 @@ func GetMetricNamesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		metrics = append(metrics, m)
 	}
-	fmt.Println("Создание среза имя:значение прошло успешно")
-	fmt.Println(metrics)
+	srv.logger.Debugf("Создание среза имя:значение прошло успешно")
+	srv.logger.Debugf("%v", metrics)
 
-	fmt.Println("")
-	fmt.Println("Сериализация данных в JSON...")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Сериализация данных в JSON...")
 	resp, err := json.Marshal(metrics)
 	if err != nil {
-		fmt.Println("Ошибка сериализации данных в JSON")
+		srv.logger.Errorf("Ошибка сериализации данных в JSON")
 		return
 	}
-	fmt.Println("Сериализация данных в JSON прошла успешно")
+	srv.logger.Debugf("Сериализация данных в JSON прошла успешно")
 
-	fmt.Println("")
-	fmt.Println("Устанавливаем заголовок Content-Type для передачи информации, кодированной в JSON")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Устанавливаем заголовок Content-Type для передачи информации, кодированной в JSON")
 	w.Header().Set("content-type", "application/json")
 
-	fmt.Println("")
-	fmt.Println("Отправляем код:", http.StatusOK)
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Отправляем код: %v", http.StatusOK)
 	w.WriteHeader(http.StatusOK)
 
-	fmt.Println("")
-	fmt.Println("Отправка тела ответа...")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Отправка тела ответа...")
 	w.Write(resp)
-	fmt.Println("Отправка тела ответа прошла успешно")
+	srv.logger.Debugf("Отправка тела ответа прошла успешно")
 }

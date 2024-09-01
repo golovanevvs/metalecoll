@@ -48,7 +48,7 @@ func Start(config *config) {
 			}
 			for _, value := range mapstore {
 				putString = fmt.Sprintf("http://%s/%s/%s/%s/%v", config.addr, config.updateMethod, value.MetType, value.MetName, value.MetValue)
-				request, err := client.Post(putString, constants.AContentType, nil)
+				request, err := client.Post(putString, constants.AContentTypeTP, nil)
 				if err != nil {
 					fmt.Println("Ошибка отправки POST-запроса:", err)
 				}

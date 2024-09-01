@@ -1,8 +1,6 @@
 package storage
 
 import (
-	"fmt"
-
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
 
@@ -13,9 +11,7 @@ type Storage interface {
 }
 
 func SM(s Storage, m model.Metric) {
-	fmt.Println("Запуск SM")
 	s.SaveMetric(m)
-	fmt.Println("Завершение SM")
 }
 
 func GM(s Storage, key string) (model.Metric, error) {

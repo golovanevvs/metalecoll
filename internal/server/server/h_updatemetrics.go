@@ -1,10 +1,8 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
@@ -13,159 +11,148 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
-var (
-	hcount int
-)
-
 func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
 	var mVParse any
 	var err error
 
-	fmt.Println("")
-	fmt.Println("-----------------------------------------------------")
-	fmt.Println("")
-	hcount++
-	fmt.Println("Запрос №", hcount)
+	// srv.logger.Debugf("")
+	// srv.logger.Debugf("Проверка метода...")
 
-	fmt.Println("")
-	fmt.Println("Проверка метода...")
+	// // if r.Method != http.MethodPost {
+	// 	srv.logger.Errorf("Недопустимый метод: %s", r.Method)
+	// 	srv.logger.Errorf("")
+	// 	srv.logger.Errorf("Отправлен код: %v", http.StatusMethodNotAllowed)
+	// 	w.WriteHeader(http.StatusMethodNotAllowed)
+	// 	return
+	// }
 
-	if r.Method != http.MethodPost {
-		fmt.Println("Недопустимый метод:", r.Method)
-		fmt.Println("")
-		fmt.Println("Отправлен код:", http.StatusMethodNotAllowed)
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
-	fmt.Println("Метод:", r.Method)
-
-	fmt.Println("")
-	fmt.Println("Проверка Content-Type...")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Проверка Content-Type...")
 	cT := r.Header.Get("Content-Type")
 
 	switch cT {
-	case constants.ContentType, constants.AContentType, "":
+	case constants.ContentTypeTP, constants.AContentTypeTP, "":
 	default:
-		fmt.Println("Недопустимый content-type:", cT)
-		fmt.Println("")
-		fmt.Println("Отправлен код:", http.StatusBadRequest)
+		srv.logger.Errorf("Недопустимый content-type: %v", cT)
+		srv.logger.Errorf("")
+		srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println("Проверка Content-Type прошла успешно")
+	srv.logger.Debugf("Проверка Content-Type прошла успешно")
 
-	fmt.Println("")
-	fmt.Println("Чтение и разделение тела запроса...")
-	sbody := strings.Split(r.URL.Path, "/")
-	if len(sbody) != 5 {
-		fmt.Println("Структура тела запроса не соответствует ожидаемой. Получено тело запроса:", r.URL.Path)
-		fmt.Println("")
-		fmt.Println("Отправлен код:", http.StatusNotFound)
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
+	// srv.logger.Debugf("")
+	// srv.logger.Debugf("Чтение и разделение тела запроса...")
 
-	fmt.Println("Чтение и разделение тела запроса прошло успешно")
-	fmt.Println("")
-	fmt.Println("Тело запроса:", r.URL.Path)
+	// sbody := strings.Split(r.URL.Path, "/")
+	// if len(sbody) != 5 {
+	// 	srv.logger.Errorf("Структура тела запроса не соответствует ожидаемой. Получено тело запроса: %v", r.URL.Path)
+	// 	srv.logger.Errorf("")
+	// 	srv.logger.Errorf("Отправлен код: %v", http.StatusNotFound)
+	// 	w.WriteHeader(http.StatusNotFound)
+	// 	return
+	// }
 
-	fmt.Println("")
-	fmt.Println("Параметры полученной метрики:")
-	mM := sbody[1] // Тип метода
-	fmt.Println("Тип метода:", mM)
+	// srv.logger.Debugf("Чтение и разделение тела запроса прошло успешно")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Тело запроса: %v", r.URL.Path)
+
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Параметры полученной метрики:")
+	// mM := sbody[1] // Тип метода
+	// srv.logger.Debugf("Тип метода: %v", mM)
 	//mT := sbody[2] // Тип метрики
 	mT := chi.URLParam(r, constants.MetTypeURL)
-	fmt.Println("Тип метрики:", mT)
+	srv.logger.Debugf("Тип метрики: %v", mT)
 	//mN := sbody[3] // Имя метрики
 	mN := chi.URLParam(r, constants.MetNameURL)
-	fmt.Println("Имя метрики:", mN)
+	srv.logger.Debugf("Имя метрики: %v", mN)
 	//mV := sbody[4] // Значение метрики
 	mV := chi.URLParam(r, constants.MetValueURL)
-	fmt.Println("Значение метрики:", mV)
+	srv.logger.Debugf("Значение метрики: %v", mV)
 
-	fmt.Println("")
-	fmt.Println("Проверка типа метода...")
+	// srv.logger.Debugf("")
+	// srv.logger.Debugf("Проверка типа метода...")
 
-	switch mM {
-	case constants.UpdateMethod:
-	default:
-		fmt.Println("Неизвестный тип метода:", mM)
-		fmt.Println("")
-		fmt.Println("Отправлен код:", http.StatusBadRequest)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	// switch mM {
+	// case constants.UpdateMethod:
+	// default:
+	// 	srv.logger.Errorf("Неизвестный тип метода: %v", mM)
+	// 	srv.logger.Errorf("")
+	// 	srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
 
-	fmt.Println("Проверка типа метода прошла успешно")
+	// srv.logger.Debugf("Проверка типа метода прошла успешно")
 
-	fmt.Println("")
-	fmt.Println("Проверка наличия имени метрики...")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Проверка наличия имени метрики...")
 
 	if mN == "" {
-		fmt.Println("Имя метрики не задано")
-		fmt.Println("")
-		fmt.Println("Отправлен код:", http.StatusNotFound)
+		srv.logger.Errorf("Имя метрики не задано")
+		srv.logger.Errorf("")
+		srv.logger.Errorf("Отправлен код: %v", http.StatusNotFound)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	fmt.Println("Проверка наличия имени метрики прошла успешно")
+	srv.logger.Debugf("Проверка наличия имени метрики прошла успешно")
 
-	fmt.Println("")
-	fmt.Println("Проверка значения метрики...")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Проверка значения метрики...")
 
 	switch mT {
 	case constants.GaugeType:
 		mVParse, err = strconv.ParseFloat(mV, 64)
 		if err != nil || mVParse.(float64) < 0 {
-			fmt.Println("Значение метрики не соответствует требуемому типу float64 или меньше нуля:", mV)
-			fmt.Println("")
-			fmt.Println("Отправлен код:", http.StatusBadRequest)
+			srv.logger.Errorf("Значение метрики не соответствует требуемому типу float64 или меньше нуля: %v", mV)
+			srv.logger.Errorf("")
+			srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 	case constants.CounterType:
 		mVParse, err = strconv.ParseInt(mV, 10, 64)
 		if err != nil || mVParse.(int64) < 0 {
-			fmt.Println("Значение метрики не соответствует требуемому типу int64 или меньше нуля:", mV)
-			fmt.Println("")
-			fmt.Println("Отправлен код:", http.StatusBadRequest)
+			srv.logger.Errorf("Значение метрики не соответствует требуемому типу int64 или меньше нуля: %v", mV)
+			srv.logger.Errorf("")
+			srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 	default:
-		fmt.Println("Неизвестный тип метрики")
-		fmt.Println("")
-		fmt.Println("Отправлен код:", http.StatusBadRequest)
+		srv.logger.Errorf("Неизвестный тип метрики")
+		srv.logger.Errorf("")
+		srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	fmt.Println("Проверка значения метрики прошла успешно")
+	srv.logger.Debugf("Проверка значения метрики прошла успешно")
 
 	receivedMetric := model.Metric{MetType: mT, MetName: mN, MetValue: mVParse}
 
-	fmt.Println("")
-	fmt.Println("Обновление метрики...")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Обновление метрики...")
 
 	calcMetric := service.ProcMetric(receivedMetric, store)
-	fmt.Println(calcMetric)
-	fmt.Println("Обновление метрики прошло успешно")
+	srv.logger.Debugf("%v", calcMetric)
+	srv.logger.Debugf("Обновление метрики прошло успешно")
 
-	fmt.Println("")
-	fmt.Println("Отправлен Content-Type: text/plain; charset=utf-8")
-	w.Header().Set("Content-Type", constants.ContentType)
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Отправлен Content-Type: text/plain; charset=utf-8")
+	w.Header().Set("Content-Type", constants.ContentTypeTP)
 
-	fmt.Println("")
-	fmt.Println("Отправлен код:", http.StatusOK)
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Отправлен код: %v", http.StatusOK)
 	w.WriteHeader(http.StatusOK)
 
-	fmt.Println("")
-	fmt.Println("Обновление хранилища...")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Обновление хранилища...")
 	storage.SM(store, *calcMetric)
 
-	fmt.Println("Обновление хранилища прошло успешно")
-	fmt.Println("")
-	fmt.Println("Обновлённое хранилище:", storage.GMs(store))
+	srv.logger.Debugf("Обновление хранилища прошло успешно")
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Обновлённое хранилище: %v", storage.GMs(store))
 }

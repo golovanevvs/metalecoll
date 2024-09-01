@@ -31,9 +31,9 @@ func TestUpdateMetricsHandler(t *testing.T) {
 	}
 
 	type want struct {
-		code        int
-		contentType string
-		metricCalc  model.Metric
+		code          int
+		ContentTypeTP string
+		metricCalc    model.Metric
 	}
 
 	tests := []struct {
@@ -49,11 +49,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name1",
 					MetValue: 5.3,
 				},
-				contType: constants.ContentType,
+				contType: constants.ContentTypeTP,
 			},
 			want: want{
-				code:        200,
-				contentType: constants.ContentType,
+				code:          200,
+				ContentTypeTP: constants.ContentTypeTP,
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name1",
@@ -69,11 +69,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name2",
 					MetValue: 100.12,
 				},
-				contType: constants.ContentType,
+				contType: constants.ContentTypeTP,
 			},
 			want: want{
-				code:        200,
-				contentType: constants.ContentType,
+				code:          200,
+				ContentTypeTP: constants.ContentTypeTP,
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name2",
@@ -89,11 +89,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name3",
 					MetValue: 100,
 				},
-				contType: constants.ContentType,
+				contType: constants.ContentTypeTP,
 			},
 			want: want{
-				code:        200,
-				contentType: constants.ContentType,
+				code:          200,
+				ContentTypeTP: constants.ContentTypeTP,
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name3",
@@ -109,11 +109,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name3",
 					MetValue: 5,
 				},
-				contType: constants.ContentType,
+				contType: constants.ContentTypeTP,
 			},
 			want: want{
-				code:        200,
-				contentType: constants.ContentType,
+				code:          200,
+				ContentTypeTP: constants.ContentTypeTP,
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name3",
@@ -129,11 +129,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name5",
 					MetValue: "строка",
 				},
-				contType: constants.ContentType,
+				contType: constants.ContentTypeTP,
 			},
 			want: want{
-				code:        400,
-				contentType: constants.ContentType,
+				code:          400,
+				ContentTypeTP: constants.ContentTypeTP,
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name5",
@@ -149,11 +149,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name6",
 					MetValue: "строка",
 				},
-				contType: constants.ContentType,
+				contType: constants.ContentTypeTP,
 			},
 			want: want{
-				code:        400,
-				contentType: constants.ContentType,
+				code:          400,
+				ContentTypeTP: constants.ContentTypeTP,
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name6",
@@ -169,11 +169,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name7",
 					MetValue: 5.5,
 				},
-				contType: constants.ContentType,
+				contType: constants.ContentTypeTP,
 			},
 			want: want{
-				code:        400,
-				contentType: constants.ContentType,
+				code:          400,
+				ContentTypeTP: constants.ContentTypeTP,
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name7",
@@ -189,11 +189,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name8",
 					MetValue: 5.5,
 				},
-				contType: constants.ContentType,
+				contType: constants.ContentTypeTP,
 			},
 			want: want{
-				code:        400,
-				contentType: constants.ContentType,
+				code:          400,
+				ContentTypeTP: constants.ContentTypeTP,
 				metricCalc: model.Metric{
 					MetType:  "Unknown",
 					MetName:  "Name8",
@@ -212,8 +212,8 @@ func TestUpdateMetricsHandler(t *testing.T) {
 				contType: "application/json",
 			},
 			want: want{
-				code:        400,
-				contentType: constants.ContentType,
+				code:          400,
+				ContentTypeTP: constants.ContentTypeTP,
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name9",
@@ -229,11 +229,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "",
 					MetValue: 5.5,
 				},
-				contType: constants.ContentType,
+				contType: constants.ContentTypeTP,
 			},
 			want: want{
-				code:        404,
-				contentType: constants.ContentType,
+				code:          404,
+				ContentTypeTP: constants.ContentTypeTP,
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name10",
@@ -257,7 +257,7 @@ func TestUpdateMetricsHandler(t *testing.T) {
 			switch test.name {
 			case "test №1 (positive)", "test №2 (positive)", "test №3 (positive)", "test №4 (positive)":
 				assert.Equal(t, test.want.code, res.StatusCode)
-				assert.Equal(t, test.want.contentType, res.Header.Get("Content-Type"))
+				assert.Equal(t, test.want.ContentTypeTP, res.Header.Get("Content-Type"))
 				v, err := storage.GM(store, test.want.metricCalc.MetName)
 				require.NoError(t, err)
 				assert.Equal(t, test.want.metricCalc.MetValue, v.MetValue)

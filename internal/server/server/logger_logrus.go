@@ -1,11 +1,8 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"time"
-
-	"go.uber.org/zap"
 )
 
 type responseData struct {
@@ -16,23 +13,6 @@ type responseData struct {
 type loggingResponseWriter struct {
 	http.ResponseWriter
 	responseData *responseData
-}
-
-func InitializeLogger(level string) (*zap.Logger, error) {
-	lvl, err := zap.ParseAtomicLevel(level)
-	if err != nil {
-		return nil, err
-	}
-
-	cfg := zap.NewProductionConfig()
-	cfg.Level = lvl
-
-	zl, err := cfg.Build()
-	if err != nil {
-		return nil, err
-	}
-
-	return zl, nil
 }
 
 func (r *loggingResponseWriter) Write(b []byte) (int, error) {
@@ -61,14 +41,11 @@ func WithLogging(h http.Handler) http.Handler {
 
 		duration := time.Since(start)
 
-		srv.logger.Info(
-			"Логер",
-			zap.String("uri", r.RequestURI),
-			zap.String("method", r.Method),
-			zap.String("status", fmt.Sprintf("%v", responseData.status)),
-			zap.String("duration", fmt.Sprintf("%v", duration)),
-			zap.String("size", fmt.Sprintf("%v", responseData.size)),
-		)
+		srv.logger.Infof("uri: %s", r.RequestURI)
+		srv.logger.Infof("method: %s", r.Method)
+		srv.logger.Infof("status: %v", responseData.status)
+		srv.logger.Infof("duration: %v", duration)
+		srv.logger.Infof("size: %v", responseData.size)
 	}
 
 	return http.HandlerFunc(logFn)

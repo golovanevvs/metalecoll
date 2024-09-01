@@ -7,8 +7,10 @@ const (
 	AddrS = ":8080"
 	AddrA = "localhost:8080"
 
-	ContentType  = "text/plain; charset=utf-8"
-	AContentType = "text/plain"
+	ContentTypeTP  = "text/plain; charset=utf-8"
+	AContentTypeTP = "text/plain"
+	ContentTypeAJ  = "application/json"
+	AContentTypeAJ = "application/json"
 
 	MetMethodURL = "metMethod"
 	MetTypeURL   = "metType"
