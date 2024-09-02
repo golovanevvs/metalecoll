@@ -60,9 +60,9 @@ func UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request, store stor
 
 	switch req.MType {
 	case constants.GaugeType:
-		mVParse = req.Value
+		mVParse = *req.Value
 	case constants.CounterType:
-		mVParse = req.Delta
+		mVParse = *req.Delta
 	default:
 		srv.logger.Errorf("Неизвестный тип метрики")
 		srv.logger.Errorf("")
@@ -110,21 +110,27 @@ func UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request, store stor
 	srv.logger.Debugf("Формирование тела ответа прошло успешно")
 
 	srv.logger.Debugf("")
-	srv.logger.Debugf("Отправлен Content-Type: %v", constants.ContentTypeAJ)
-	w.Header().Set("Content-Type", constants.ContentTypeAJ)
-
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Кодирование в JSON...")
-	enc := json.NewEncoder(w)
-	if err := enc.Encode(resp); err != nil {
-		srv.logger.Errorf("Ошибка кодирования JSON: %v", err)
-		srv.logger.Errorf("Отправлен код: %v", http.StatusInternalServerError)
-		w.WriteHeader(http.StatusInternalServerError)
+	// enc := json.NewEncoder(w)
+	// if err := enc.Encode(resp); err != nil {
+	// 	srv.logger.Errorf("Ошибка кодирования JSON: %v", err)
+	// 	srv.logger.Errorf("Отправлен код: %v", http.StatusInternalServerError)
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	return
+	// }
+	enc, err := json.Marshal(resp)
+	if err != nil {
+		srv.logger.Errorf("Ошибка кодирования: %v", err)
 		return
 	}
 	srv.logger.Debugf("Кодирование в JSON прошло успешно")
 
 	srv.logger.Debugf("")
+	srv.logger.Debugf("Отправлен Content-Type: %v", constants.ContentTypeAJ)
+	w.Header().Set("Content-Type", "application/json")
+
+	srv.logger.Debugf("")
 	srv.logger.Debugf("Отправлен код: %v", http.StatusOK)
 	w.WriteHeader(http.StatusOK)
+	w.Write(enc)
 }
