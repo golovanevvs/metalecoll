@@ -15,6 +15,14 @@ func (s *server) configureRouter(config *Config) {
 		return WithLogging(h)
 	})
 
+	s.router.Use(func(h http.Handler) http.Handler {
+		return Compressgzip(h)
+	})
+
+	s.router.Use(func(h http.Handler) http.Handler {
+		return Decompressgzip(h)
+	})
+
 	str = fmt.Sprintf("/{%s}/{%s}/{%s}",
 		constants.MetTypeURL,
 		constants.MetNameURL,

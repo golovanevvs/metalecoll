@@ -76,7 +76,7 @@ func Start(config *config) {
 						Delta: &v,
 					}
 				}
-				fmt.Printf("Формирование запроса прошло успешно. Запрос: %v. Метрика: %v", putString, body)
+				fmt.Printf("Формирование запроса прошло успешно. Запрос: %v. Метрика: %v\n", putString, body)
 				fmt.Println("Кодирование в JSON...")
 				enc, err := json.Marshal(body)
 				if err != nil {
@@ -87,12 +87,13 @@ func Start(config *config) {
 
 				fmt.Println("Сжатие...")
 				gzipWr := gzip.NewWriter(&gzipB)
-				_, err = gzipB.Write(enc)
+				_, err = gzipWr.Write(enc)
 				if err != nil {
 					fmt.Println("Ошибка сжатия в gzip:", err)
 					gzipWr.Close()
 					continue
 				}
+				fmt.Println("Сжатие прошло успешно")
 				gzipWr.Close()
 
 				request, err := http.NewRequest("POST", putString, &gzipB)
@@ -103,11 +104,13 @@ func Start(config *config) {
 				request.Header.Set("Content-Encoding", "gzip")
 				request.Header.Set("Content-Type", "application/json")
 
+				fmt.Println("Отправка запроса...")
 				response, err := client.Do(request)
 				if err != nil {
 					fmt.Println("Ошибка отправки запроса:", err)
 					continue
 				}
+				fmt.Println("Отправка запроса прошла успешно")
 				response.Body.Close()
 
 				// fmt.Println("Отправка запроса...")
