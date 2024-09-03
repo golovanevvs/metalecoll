@@ -9,6 +9,7 @@ import (
 
 	"github.com/golovanevvs/metalecoll/internal/agent/storage"
 	"github.com/golovanevvs/metalecoll/internal/agent/storage/mapstorage"
+	"github.com/golovanevvs/metalecoll/internal/server/constants"
 )
 
 type agent struct {
@@ -27,7 +28,7 @@ func Start(config *config) {
 
 	ag = NewAgent(store, config.pollInterval, config.reportInterval)
 
-	//client := &http.Client{}
+	client := &http.Client{}
 
 	pollIntTime := time.NewTicker(time.Duration(ag.pollInterval) * time.Second)
 	reportIntTime := time.NewTicker(time.Duration(ag.reportInterval) * time.Second)
@@ -46,7 +47,7 @@ func Start(config *config) {
 			mapstore, err := storage.GMM(ag.store)
 			if err != nil {
 				fmt.Println("Ошибка получения данных из хранилища:", err)
-				return
+				continue
 			}
 			// for _, value := range mapstore {
 			// 	putString = fmt.Sprintf("http://%s/%s/%s/%s/%v", config.addr, config.updateMethod, value.MetType, value.MetName, value.MetValue)
@@ -74,7 +75,7 @@ func Start(config *config) {
 						Delta: &v,
 					}
 				}
-				fmt.Println("Формирование запроса прошло успешно")
+				fmt.Printf("Формирование запроса прошло успешно. Запрос: %v. Метрика: %v", putString, body)
 				fmt.Println("Кодирование в JSON...")
 				enc, err := json.Marshal(body)
 				if err != nil {
@@ -83,7 +84,7 @@ func Start(config *config) {
 				}
 				fmt.Println("Кодирование в JSON прошло успешно")
 				fmt.Println("Отправка запроса...")
-				request, err := http.Post(putString, "application/json", bytes.NewBuffer(enc))
+				request, err := client.Post(putString, constants.AContentTypeAJ, bytes.NewBuffer(enc))
 				if err != nil {
 					fmt.Println("Ошибка отправки запроса:", err)
 					continue

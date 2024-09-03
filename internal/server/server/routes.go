@@ -21,11 +21,13 @@ func (s *server) configureRouter(config *Config) {
 		constants.MetValueURL,
 	)
 
-	s.router.Route(fmt.Sprintf("/%s", constants.UpdateMethod), func(r chi.Router) {
+	s.router.Route(fmt.Sprintf("/%s", config.UpdateMethod), func(r chi.Router) {
 		r.Post(str, func(w http.ResponseWriter, r *http.Request) {
+			srv.logger.Debugf("Запуск UpdateMetricsHandler")
 			UpdateMetricsHandler(w, r, s.store)
 		})
 		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+			srv.logger.Debugf("Запуск UpdateMetricsJSONHandler")
 			UpdateMetricsJSONHandler(w, r, s.store)
 		})
 	})
@@ -39,12 +41,14 @@ func (s *server) configureRouter(config *Config) {
 		constants.MetTypeURL,
 		constants.MetNameURL,
 	)
-	s.router.Route(fmt.Sprintf("/%s", constants.GetValueMethod), func(r chi.Router) {
+	s.router.Route(fmt.Sprintf("/%s", config.GetValueMethod), func(r chi.Router) {
 		r.Get(str, func(w http.ResponseWriter, r *http.Request) {
+			srv.logger.Debugf("Запуск GetMetricValueHandler")
 			GetMetricValueHandler(w, r, s.store)
 
 		})
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+			srv.logger.Debugf("Запуск GetMetricValueJSONHandler")
 			GetMetricValueJSONHandler(w, r, s.store)
 
 		})
