@@ -2,6 +2,7 @@ package agent
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/golovanevvs/metalecoll/internal/agent/storage"
 	"github.com/golovanevvs/metalecoll/internal/agent/storage/mapstorage"
-	"github.com/golovanevvs/metalecoll/internal/server/constants"
 )
 
 type agent struct {
@@ -23,6 +23,7 @@ var ag *agent
 func Start(config *config) {
 	var putString string
 	var body Metrics
+	var gzipB bytes.Buffer
 
 	store := mapstorage.NewStorage()
 
@@ -83,14 +84,40 @@ func Start(config *config) {
 					continue
 				}
 				fmt.Println("Кодирование в JSON прошло успешно")
-				fmt.Println("Отправка запроса...")
-				request, err := client.Post(putString, constants.AContentTypeAJ, bytes.NewBuffer(enc))
+
+				fmt.Println("Сжатие...")
+				gzipWr := gzip.NewWriter(&gzipB)
+				_, err = gzipB.Write(enc)
+				if err != nil {
+					fmt.Println("Ошибка сжатия в gzip:", err)
+					gzipWr.Close()
+					continue
+				}
+				gzipWr.Close()
+
+				request, err := http.NewRequest("POST", putString, &gzipB)
+				if err != nil {
+					fmt.Println("Ошибка формирования запроса:", err)
+				}
+
+				request.Header.Set("Content-Encoding", "gzip")
+				request.Header.Set("Content-Type", "application/json")
+
+				response, err := client.Do(request)
 				if err != nil {
 					fmt.Println("Ошибка отправки запроса:", err)
 					continue
 				}
-				fmt.Println("Отправка запроса прошло успешно")
-				request.Body.Close()
+				response.Body.Close()
+
+				// fmt.Println("Отправка запроса...")
+				// resp, err := client.Post(putString, constants.AContentTypeAJ, bytes.NewBuffer(enc))
+				// if err != nil {
+				// 	fmt.Println("Ошибка отправки запроса:", err)
+				// 	continue
+				// }
+				// fmt.Println("Отправка запроса прошло успешно")
+				// resp.Body.Close()
 			}
 		}
 	}
