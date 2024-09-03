@@ -31,7 +31,7 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 	cT := r.Header.Get("Content-Type")
 
 	switch cT {
-	case constants.ContentTypeTP, constants.AContentTypeTP:
+	case constants.ContentTypeTP, constants.AContentTypeTP, "":
 	default:
 		srv.logger.Errorf("Недопустимый content-type: %v", cT)
 		srv.logger.Errorf("")
