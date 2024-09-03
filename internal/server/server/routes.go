@@ -36,8 +36,7 @@ func (s *server) configureRouter(config *Config) {
 		GetMetricNamesHandler(w, r, s.store)
 	})
 
-	str = fmt.Sprintf("/%s/{%s}/{%s}",
-		config.GetValueMethod,
+	str = fmt.Sprintf("/{%s}/{%s}",
 		constants.MetTypeURL,
 		constants.MetNameURL,
 	)
