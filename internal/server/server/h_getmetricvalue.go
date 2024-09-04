@@ -10,6 +10,19 @@ import (
 )
 
 func GetMetricValueHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
+	srv.logger.Debugf("")
+	srv.logger.Debugf("Проверка Content-Type...")
+	cT := r.Header.Get("Content-Type")
+
+	switch cT {
+	case constants.ContentTypeTP, constants.AContentTypeTP, constants.ContentTypeTH:
+	default:
+		srv.logger.Errorf("Недопустимый content-type: %v", cT)
+		srv.logger.Errorf("")
+		srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	sbody := strings.Split(r.URL.Path, "/")
 

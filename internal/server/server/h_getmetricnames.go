@@ -1,58 +1,67 @@
 package server
 
 import (
-	"encoding/json"
-	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
 type metNameValue struct {
-	BMetName  string `json:"name"`
+	BMetName  string `json:"id"`
 	BMetValue string `json:"value"`
 }
 
 func GetMetricNamesHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
-	var metrics []metNameValue
-
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Получение всех известных метрик из хранилища...")
 	metricsMap := storage.GMs(store)
 	srv.logger.Debugf("Получение всех известных метрик из хранилища прошло успешно")
 
-	srv.logger.Debugf("")
-	srv.logger.Debugf("Создание среза имя:значение...")
-	for k, v := range metricsMap {
-		value := fmt.Sprintf("%v", v.MetValue)
-		m := metNameValue{
-			BMetName:  k,
-			BMetValue: value,
-		}
-		metrics = append(metrics, m)
-	}
-	srv.logger.Debugf("Создание среза имя:значение прошло успешно")
-	srv.logger.Debugf("%v", metrics)
+	srv.logger.Debugf("Отправка тела ответа...")
 
-	srv.logger.Debugf("")
-	srv.logger.Debugf("Сериализация данных в JSON...")
-	resp, err := json.Marshal(metrics)
+	tmpl := `
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<title>Метрики</title>
+		</head>
+		<body>
+			<h1>Список метрик</h1>
+			<table border="1">
+				<tr>
+					<th>Имя метрики</th>
+					<th>Тип метрики</th>
+					<th>Значение</th>
+				</tr>
+				{{range .}}
+				<tr>
+					<td>{{.Name}}</td>
+					<td>{{.Type}}</td>
+					<td>{{.Value}}</td>
+				</tr>
+				{{end}}
+			</table>
+		</body>
+		</html>
+	`
+
+	t, err := template.New("metrics").Parse(tmpl)
 	if err != nil {
-		srv.logger.Errorf("Ошибка сериализации данных в JSON")
+		srv.logger.Errorf("Ошибка создания шаблона: %v", err)
+		srv.logger.Debugf("Отправлен код: %v", http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	srv.logger.Debugf("Сериализация данных в JSON прошла успешно")
 
-	srv.logger.Debugf("")
-	srv.logger.Debugf("Устанавливаем заголовок Content-Type для передачи информации, кодированной в JSON")
-	w.Header().Set("content-type", "application/json")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := t.Execute(w, metricsMap); err != nil {
+		srv.logger.Errorf("Ошибка применения шаблона: %v", err)
+		srv.logger.Debugf("Отправлен код: %v", http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 
-	srv.logger.Debugf("")
+	srv.logger.Debugf("Отправка тела ответа прошла успешно")
+
 	srv.logger.Debugf("Отправляем код: %v", http.StatusOK)
 	w.WriteHeader(http.StatusOK)
-
-	srv.logger.Debugf("")
-	srv.logger.Debugf("Отправка тела ответа...")
-	w.Write(resp)
-	srv.logger.Debugf("Отправка тела ответа прошла успешно")
 }

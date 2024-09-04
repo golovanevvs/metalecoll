@@ -11,6 +11,7 @@ const (
 	AContentTypeTP = "text/plain"
 	ContentTypeAJ  = "application/json"
 	AContentTypeAJ = "application/json"
+	ContentTypeTH  = "text/html"
 
 	MetMethodURL = "metMethod"
 	MetTypeURL   = "metType"

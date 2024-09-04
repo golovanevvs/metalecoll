@@ -24,22 +24,19 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	defer r.Body.Close()
 	srv.logger.Debugf("Декодирование JSON прошло успешно")
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Проверка Content-Type...")
 	cT := r.Header.Get("Content-Type")
 	switch cT {
-	case constants.ContentTypeAJ:
+	case constants.ContentTypeAJ, constants.ContentTypeTH:
 	default:
 		srv.logger.Errorf("Недопустимый content-type: %v", cT)
-		srv.logger.Errorf("")
 		srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	srv.logger.Debugf("Проверка Content-Type прошла успешно")
 
-	srv.logger.Debugf("")
-	srv.logger.Debugf("Получение данных из хранилища...")
+	srv.logger.Debugf("Получение данных из хранилища по name %v...", req.ID)
 	metric, err := storage.GM(store, req.ID)
 	if err != nil {
 		fmt.Println(err)
@@ -50,7 +47,6 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	}
 	srv.logger.Debugf("Получение данных из хранилища прошло успешно")
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Формирование тела ответа...")
 	switch req.MType {
 	case constants.GaugeType:
@@ -72,11 +68,9 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	}
 	srv.logger.Debugf("Формирование тела ответа прошло успешно")
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Отправлен Content-Type: %v", constants.ContentTypeAJ)
 	w.Header().Set("Content-Type", constants.ContentTypeAJ)
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Кодирование в JSON...")
 	// enc := json.NewEncoder(w)
 	// if err := enc.Encode(resp); err != nil {
@@ -93,7 +87,6 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	}
 	srv.logger.Debugf("Кодирование в JSON прошло успешно")
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Отправлен код: %v", http.StatusOK)
 	w.WriteHeader(http.StatusOK)
 	w.Write(enc)

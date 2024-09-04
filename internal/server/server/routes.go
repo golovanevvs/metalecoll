@@ -41,6 +41,7 @@ func (s *server) configureRouter(config *Config) {
 	})
 
 	s.router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		srv.logger.Debugf("Запуск GetMetricNamesHandler")
 		GetMetricNamesHandler(w, r, s.store)
 	})
 
