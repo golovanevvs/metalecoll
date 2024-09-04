@@ -27,7 +27,7 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	srv.logger.Debugf("Проверка Content-Type...")
 	cT := r.Header.Get("Content-Type")
 	switch cT {
-	case constants.ContentTypeAJ, constants.ContentTypeTH:
+	case constants.ContentTypeAJ:
 	default:
 		srv.logger.Errorf("Недопустимый content-type: %v", cT)
 		srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
