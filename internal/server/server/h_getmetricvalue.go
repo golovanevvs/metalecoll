@@ -65,8 +65,8 @@ func GetMetricValueHandler(w http.ResponseWriter, r *http.Request, store storage
 	if err != nil {
 		fmt.Println(err)
 		srv.logger.Errorf("Ошибка получения данных из хранилища")
-		srv.logger.Errorf("Отправлен код: %v", http.StatusNotFound)
-		w.WriteHeader(http.StatusNotFound)
+		srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	srv.logger.Debugf("Получение данных из хранилища прошло успешно")
