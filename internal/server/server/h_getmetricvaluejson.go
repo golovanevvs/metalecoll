@@ -24,17 +24,17 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	defer r.Body.Close()
 	srv.logger.Debugf("Декодирование JSON прошло успешно")
 
-	srv.logger.Debugf("Проверка Content-Type...")
-	cT := r.Header.Get("Content-Type")
-	switch cT {
-	case constants.ContentTypeAJ:
-	default:
-		srv.logger.Errorf("Недопустимый content-type: %v", cT)
-		srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	srv.logger.Debugf("Проверка Content-Type прошла успешно")
+	// srv.logger.Debugf("Проверка Content-Type...")
+	// cT := r.Header.Get("Content-Type")
+	// switch cT {
+	// case constants.ContentTypeAJ:
+	// default:
+	// 	srv.logger.Errorf("Недопустимый content-type: %v", cT)
+	// 	srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
+	// srv.logger.Debugf("Проверка Content-Type прошла успешно")
 
 	srv.logger.Debugf("Получение данных из хранилища по name %v...", req.ID)
 	metric, err := storage.GM(store, req.ID)

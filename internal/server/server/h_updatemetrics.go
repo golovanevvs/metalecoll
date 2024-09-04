@@ -26,21 +26,19 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 	// 	return
 	// }
 
-	srv.logger.Debugf("")
-	srv.logger.Debugf("Проверка Content-Type...")
-	cT := r.Header.Get("Content-Type")
+	// srv.logger.Debugf("Проверка Content-Type...")
+	// cT := r.Header.Get("Content-Type")
 
-	switch cT {
-	case constants.ContentTypeTP, constants.AContentTypeTP, "":
-	default:
-		srv.logger.Errorf("Недопустимый content-type: %v", cT)
-		srv.logger.Errorf("")
-		srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	// switch cT {
+	// case constants.ContentTypeTP, constants.AContentTypeTP, "":
+	// default:
+	// 	srv.logger.Errorf("Недопустимый content-type: %v", cT)
+	// 	srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
 
-	srv.logger.Debugf("Проверка Content-Type прошла успешно")
+	// srv.logger.Debugf("Проверка Content-Type прошла успешно")
 
 	// srv.logger.Debugf("")
 	// srv.logger.Debugf("Чтение и разделение тела запроса...")
@@ -55,10 +53,8 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 	// }
 
 	// srv.logger.Debugf("Чтение и разделение тела запроса прошло успешно")
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Тело запроса: %v", r.URL.Path)
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Параметры полученной метрики:")
 	// mM := sbody[1] // Тип метода
 	// srv.logger.Debugf("Тип метода: %v", mM)
@@ -87,12 +83,10 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 
 	// srv.logger.Debugf("Проверка типа метода прошла успешно")
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Проверка наличия имени метрики...")
 
 	if mN == "" {
 		srv.logger.Errorf("Имя метрики не задано")
-		srv.logger.Errorf("")
 		srv.logger.Errorf("Отправлен код: %v", http.StatusNotFound)
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -100,7 +94,6 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 
 	srv.logger.Debugf("Проверка наличия имени метрики прошла успешно")
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Проверка значения метрики...")
 
 	switch mT {
@@ -108,7 +101,6 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 		mVParse, err = strconv.ParseFloat(mV, 64)
 		if err != nil || mVParse.(float64) < 0 {
 			srv.logger.Errorf("Значение метрики не соответствует требуемому типу float64 или меньше нуля: %v", mV)
-			srv.logger.Errorf("")
 			srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -117,14 +109,12 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 		mVParse, err = strconv.ParseInt(mV, 10, 64)
 		if err != nil || mVParse.(int64) < 0 {
 			srv.logger.Errorf("Значение метрики не соответствует требуемому типу int64 или меньше нуля: %v", mV)
-			srv.logger.Errorf("")
 			srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 	default:
 		srv.logger.Errorf("Неизвестный тип метрики")
-		srv.logger.Errorf("")
 		srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -133,26 +123,21 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 
 	receivedMetric := model.Metric{MetType: mT, MetName: mN, MetValue: mVParse}
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Обновление метрики...")
 
 	calcMetric := service.ProcMetric(receivedMetric, store)
 	srv.logger.Debugf("%v", calcMetric)
 	srv.logger.Debugf("Обновление метрики прошло успешно")
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Отправлен Content-Type: text/plain; charset=utf-8")
 	w.Header().Set("Content-Type", constants.ContentTypeTP)
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Отправлен код: %v", http.StatusOK)
 	w.WriteHeader(http.StatusOK)
 
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Обновление хранилища...")
 	storage.SM(store, *calcMetric)
 
 	srv.logger.Debugf("Обновление хранилища прошло успешно")
-	srv.logger.Debugf("")
 	srv.logger.Debugf("Обновлённое хранилище: %v", storage.GMs(store))
 }
