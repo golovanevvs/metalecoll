@@ -1,4 +1,4 @@
-package server
+package dto
 
 type Metrics struct {
 	ID    string   `json:"id"`

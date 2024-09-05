@@ -6,11 +6,12 @@ import (
 	"net/http"
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
+	"github.com/golovanevvs/metalecoll/internal/server/dto"
 	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
 func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
-	var req, resp Metrics
+	var req, resp dto.Metrics
 
 	srv.logger.Debugf("Декодирование JSON...")
 
@@ -23,18 +24,6 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	}
 	defer r.Body.Close()
 	srv.logger.Debugf("Декодирование JSON прошло успешно")
-
-	// srv.logger.Debugf("Проверка Content-Type...")
-	// cT := r.Header.Get("Content-Type")
-	// switch cT {
-	// case constants.ContentTypeAJ:
-	// default:
-	// 	srv.logger.Errorf("Недопустимый content-type: %v", cT)
-	// 	srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-	// srv.logger.Debugf("Проверка Content-Type прошла успешно")
 
 	srv.logger.Debugf("Получение данных из хранилища по name %v...", req.ID)
 	metric, err := storage.GM(store, req.ID)
@@ -51,7 +40,7 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	switch req.MType {
 	case constants.GaugeType:
 		if v, ok := metric.MetValue.(float64); ok {
-			resp = Metrics{
+			resp = dto.Metrics{
 				ID:    metric.MetName,
 				MType: metric.MetType,
 				Value: &v,
@@ -59,7 +48,7 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 		}
 	case constants.CounterType:
 		if v, ok := metric.MetValue.(int64); ok {
-			resp = Metrics{
+			resp = dto.Metrics{
 				ID:    metric.MetName,
 				MType: metric.MetType,
 				Delta: &v,
@@ -72,13 +61,7 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	w.Header().Set("Content-Type", constants.ContentTypeAJ)
 
 	srv.logger.Debugf("Кодирование в JSON...")
-	// enc := json.NewEncoder(w)
-	// if err := enc.Encode(resp); err != nil {
-	// 	srv.logger.Errorf("Ошибка кодирования JSON: %v", err)
-	// 	srv.logger.Errorf("Отправлен код: %v", http.StatusInternalServerError)
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
+
 	enc, err := json.Marshal(resp)
 	if err != nil {
 		srv.logger.Errorf("Ошибка кодирования: %v", err)

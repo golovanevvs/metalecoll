@@ -50,14 +50,6 @@ func Start(config *config) {
 				fmt.Println("Ошибка получения данных из хранилища:", err)
 				continue
 			}
-			// for _, value := range mapstore {
-			// 	putString = fmt.Sprintf("http://%s/%s/%s/%s/%v", config.addr, config.updateMethod, value.MetType, value.MetName, value.MetValue)
-			// 	request, err := client.Post(putString, constants.AContentTypeTP, nil)
-			// 	if err != nil {
-			// 		fmt.Println("Ошибка отправки POST-запроса:", err)
-			// 	}
-			// 	defer request.Body.Close()
-			// }
 
 			fmt.Println("Формирование запроса...")
 			for _, value := range mapstore {
@@ -113,14 +105,6 @@ func Start(config *config) {
 				fmt.Println("Отправка запроса прошла успешно")
 				response.Body.Close()
 
-				// fmt.Println("Отправка запроса...")
-				// resp, err := client.Post(putString, constants.AContentTypeAJ, bytes.NewBuffer(enc))
-				// if err != nil {
-				// 	fmt.Println("Ошибка отправки запроса:", err)
-				// 	continue
-				// }
-				// fmt.Println("Отправка запроса прошло успешно")
-				// resp.Body.Close()
 			}
 		}
 	}
