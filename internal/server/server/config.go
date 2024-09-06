@@ -58,7 +58,7 @@ func MewConfig() (*Config, error) {
 		CounterType:     constants.CounterType,
 		UpdateMethod:    constants.UpdateMethod,
 		GetValueMethod:  constants.GetValueMethod,
-		LogLevel:        "info",
+		LogLevel:        "debug",
 		StoreInterval:   flagStoreInterval,
 		FileStoragePath: flagFileStoragePath,
 		Restore:         flagRestore,
