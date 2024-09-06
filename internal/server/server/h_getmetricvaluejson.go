@@ -55,7 +55,7 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 			}
 		}
 	}
-	srv.logger.Debugf("Формирование тела ответа прошло успешно")
+	srv.logger.Debugf("Формирование тела ответа прошло успешно: %v", resp)
 
 	srv.logger.Debugf("Отправлен Content-Type: %v", constants.ContentTypeAJ)
 	w.Header().Set("Content-Type", constants.ContentTypeAJ)
