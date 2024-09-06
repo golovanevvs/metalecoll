@@ -11,6 +11,7 @@ const (
 	ContentTypeTP     = "text/plain"
 	ContentTypeAJ     = "application/json"
 	ContentTypeTH     = "text/html"
+	ContentTypeTHUTF8 = "text/html; charset=utf-8"
 
 	UpdateMethod   = "update"
 	GetValueMethod = "value"

@@ -48,7 +48,7 @@ func GetMetricNamesHandler(w http.ResponseWriter, r *http.Request, store storage
 		return
 	}
 
-	w.Header().Set("Content-Type", constants.ContentTypeTPUTF8)
+	w.Header().Set("Content-Type", constants.ContentTypeTHUTF8)
 	if err := t.Execute(w, metricsMap); err != nil {
 		srv.logger.Errorf("Ошибка применения шаблона: %v", err)
 		srv.logger.Debugf("Отправлен код: %v", http.StatusInternalServerError)
