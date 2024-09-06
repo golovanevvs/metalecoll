@@ -7,10 +7,10 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
-type metNameValue struct {
-	BMetName  string `json:"id"`
-	BMetValue string `json:"value"`
-}
+// type metNameValue struct {
+// 	BMetName  string `json:"id"`
+// 	BMetValue string `json:"value"`
+// }
 
 func GetMetricNamesHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
 	srv.logger.Debugf("Получение всех известных метрик из хранилища...")

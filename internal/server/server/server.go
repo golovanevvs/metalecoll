@@ -53,6 +53,8 @@ func Start(config *Config) {
 	saveIntTime := time.NewTicker(time.Duration(config.StoreInterval) * time.Second)
 	defer saveIntTime.Stop()
 
+	stop := make(chan bool)
+
 	go func() {
 		for {
 			select {
@@ -61,6 +63,8 @@ func Start(config *Config) {
 				if err := filestorage.SaveToFile(config.FileStoragePath, &srv.store); err != nil {
 					srv.logger.Errorf("Ошибка сохранения в файл: %v", err)
 				}
+			case <-stop:
+				srv.logger.Infof("Стоп")
 			}
 		}
 	}()

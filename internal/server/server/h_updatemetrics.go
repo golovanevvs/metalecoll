@@ -122,12 +122,12 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 	srv.logger.Debugf("Проверка значения метрики прошла успешно")
 
 	receivedMetric := model.Metric{MetType: mT, MetName: mN, MetValue: mVParse}
+	srv.logger.Debugf("Полученная метрика: %v", receivedMetric)
 
 	srv.logger.Debugf("Обновление метрики...")
 
 	calcMetric := service.ProcMetric(receivedMetric, store)
-	srv.logger.Debugf("%v", calcMetric)
-	srv.logger.Debugf("Обновление метрики прошло успешно")
+	srv.logger.Debugf("Обновление метрики прошло успешно: %v", calcMetric)
 
 	srv.logger.Debugf("Отправлен Content-Type: text/plain; charset=utf-8")
 	w.Header().Set("Content-Type", constants.ContentTypeTP)

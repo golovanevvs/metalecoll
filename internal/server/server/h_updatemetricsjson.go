@@ -53,11 +53,11 @@ func UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request, store stor
 	}
 
 	receivedMetric := model.Metric{MetType: req.MType, MetName: req.ID, MetValue: mVParse}
+	srv.logger.Debugf("Полученная метрика: %v", receivedMetric)
 
 	srv.logger.Debugf("Обновление метрики...")
 	calcMetric := service.ProcMetric(receivedMetric, store)
-	srv.logger.Debugf("%v", calcMetric)
-	srv.logger.Debugf("Обновление метрики прошло успешно")
+	srv.logger.Debugf("Обновление метрики прошло успешно: %v", calcMetric)
 
 	srv.logger.Debugf("Обновление хранилища...")
 	storage.SM(store, *calcMetric)
