@@ -93,7 +93,8 @@ func NewServer(store storage.Storage, config *Config) *server {
 	// }
 
 	logLogrus := logrus.New()
-	logLogrus.SetLevel(logrus.DebugLevel)
+	l, _ := logrus.ParseLevel((config.LogLevel))
+	logLogrus.SetLevel(l)
 	logLogrus.SetFormatter(&logrus.TextFormatter{
 		DisableColors: false,
 		FullTimestamp: false,

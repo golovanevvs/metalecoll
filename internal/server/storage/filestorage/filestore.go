@@ -3,7 +3,6 @@ package filestorage
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"os"
 
 	"github.com/golovanevvs/metalecoll/internal/server/model"
@@ -13,24 +12,9 @@ import (
 func SaveToFile(fileStoragePath string, store *storage.Storage) error {
 	var str string
 	var file *os.File
-	_, err := os.Stat(fileStoragePath)
-	if err == nil {
-		fmt.Println("Open")
-		file, err = os.OpenFile(fileStoragePath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			return err
-		}
-	} else if os.IsNotExist(err) {
-		fmt.Println("Create")
-		file, err = os.Create(fileStoragePath)
-		if err != nil {
-			return err
-		}
-		fmt.Println("Create Open")
-		file, err = os.OpenFile(fileStoragePath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			return err
-		}
+	file, err := os.OpenFile(fileStoragePath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, os.ModePerm|os.ModeDir)
+	if err != nil {
+		return err
 	}
 
 	defer file.Close()

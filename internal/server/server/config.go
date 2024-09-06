@@ -26,8 +26,8 @@ func MewConfig() (*Config, error) {
 	var flagRestore bool
 
 	flag.StringVar(&flagRunAddr, "a", constants.AddrS, "address and port to run server")
-	flag.IntVar(&flagStoreInterval, "i", 15, "the interval for saving to a file")
-	flag.StringVar(&flagFileStoragePath, "f", "storage/filestorage/metrics.txt", "the path to the metric file")
+	flag.IntVar(&flagStoreInterval, "i", 300, "the interval for saving to a file")
+	flag.StringVar(&flagFileStoragePath, "f", "metrics.txt", "the path to the metric file")
 	flag.BoolVar(&flagRestore, "r", true, "get saved metrics from a file")
 	flag.Parse()
 
@@ -58,7 +58,7 @@ func MewConfig() (*Config, error) {
 		CounterType:     constants.CounterType,
 		UpdateMethod:    constants.UpdateMethod,
 		GetValueMethod:  constants.GetValueMethod,
-		LogLevel:        "debug",
+		LogLevel:        "info",
 		StoreInterval:   flagStoreInterval,
 		FileStoragePath: flagFileStoragePath,
 		Restore:         flagRestore,
