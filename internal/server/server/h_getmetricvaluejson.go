@@ -23,18 +23,18 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 		return
 	}
 	defer r.Body.Close()
-	srv.logger.Debugf("Декодирование JSON прошло успешно")
+	srv.logger.Debugf("Декодирование JSON прошло успешно: %v", req)
 
 	srv.logger.Debugf("Получение данных из хранилища по name %v...", req.ID)
 	metric, err := storage.GM(store, req.ID)
 	if err != nil {
 		fmt.Println(err)
-		srv.logger.Errorf("Ошибка получения данных из хранилища")
+		srv.logger.Errorf("Ошибка получения данных из хранилища: %v", err)
 		srv.logger.Errorf("Отправлен код: %v", http.StatusNotFound)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	srv.logger.Debugf("Получение данных из хранилища прошло успешно")
+	srv.logger.Debugf("Получение данных из хранилища прошло успешно: %v", metric)
 
 	srv.logger.Debugf("Формирование тела ответа...")
 	switch req.MType {
