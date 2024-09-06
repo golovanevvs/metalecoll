@@ -59,13 +59,13 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 	// mM := sbody[1] // Тип метода
 	// srv.logger.Debugf("Тип метода: %v", mM)
 	//mT := sbody[2] // Тип метрики
-	mT := chi.URLParam(r, constants.MetTypeURL)
+	mT := chi.URLParam(r, "type")
 	srv.logger.Debugf("Тип метрики: %v", mT)
 	//mN := sbody[3] // Имя метрики
-	mN := chi.URLParam(r, constants.MetNameURL)
+	mN := chi.URLParam(r, "name")
 	srv.logger.Debugf("Имя метрики: %v", mN)
 	//mV := sbody[4] // Значение метрики
-	mV := chi.URLParam(r, constants.MetValueURL)
+	mV := chi.URLParam(r, "value")
 	srv.logger.Debugf("Значение метрики: %v", mV)
 
 	// srv.logger.Debugf("")
@@ -130,7 +130,7 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 	srv.logger.Debugf("Обновление метрики прошло успешно: %v", calcMetric)
 
 	srv.logger.Debugf("Отправлен Content-Type: text/plain; charset=utf-8")
-	w.Header().Set("Content-Type", constants.ContentTypeTP)
+	w.Header().Set("Content-Type", constants.ContentTypeTPUTF8)
 
 	srv.logger.Debugf("Отправлен код: %v", http.StatusOK)
 	w.WriteHeader(http.StatusOK)

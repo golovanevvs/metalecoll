@@ -7,16 +7,10 @@ const (
 	AddrS = ":8080"
 	AddrA = "localhost:8080"
 
-	ContentTypeTP  = "text/plain; charset=utf-8"
-	AContentTypeTP = "text/plain"
-	ContentTypeAJ  = "application/json"
-	AContentTypeAJ = "application/json"
-	ContentTypeTH  = "text/html"
-
-	MetMethodURL = "metMethod"
-	MetTypeURL   = "metType"
-	MetNameURL   = "metName"
-	MetValueURL  = "metValue"
+	ContentTypeTPUTF8 = "text/plain; charset=utf-8"
+	ContentTypeTP     = "text/plain"
+	ContentTypeAJ     = "application/json"
+	ContentTypeTH     = "text/html"
 
 	UpdateMethod   = "update"
 	GetValueMethod = "value"

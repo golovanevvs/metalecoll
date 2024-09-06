@@ -5,12 +5,9 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/golovanevvs/metalecoll/internal/server/constants"
 )
 
 func (s *server) configureRouter(config *Config) {
-	var str string
-
 	s.router.Use(func(h http.Handler) http.Handler {
 		return WithLogging(h)
 	})
@@ -23,14 +20,8 @@ func (s *server) configureRouter(config *Config) {
 		return Decompressgzip(h)
 	})
 
-	str = fmt.Sprintf("/{%s}/{%s}/{%s}",
-		constants.MetTypeURL,
-		constants.MetNameURL,
-		constants.MetValueURL,
-	)
-
 	s.router.Route(fmt.Sprintf("/%s", config.UpdateMethod), func(r chi.Router) {
-		r.Post(str, func(w http.ResponseWriter, r *http.Request) {
+		r.Post("/{type}/{name}/{value}", func(w http.ResponseWriter, r *http.Request) {
 			srv.logger.Debugf("Запуск UpdateMetricsHandler")
 			UpdateMetricsHandler(w, r, s.store)
 		})
@@ -45,12 +36,8 @@ func (s *server) configureRouter(config *Config) {
 		GetMetricNamesHandler(w, r, s.store)
 	})
 
-	str = fmt.Sprintf("/{%s}/{%s}",
-		constants.MetTypeURL,
-		constants.MetNameURL,
-	)
 	s.router.Route(fmt.Sprintf("/%s", config.GetValueMethod), func(r chi.Router) {
-		r.Get(str, func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/{type}/{name}", func(w http.ResponseWriter, r *http.Request) {
 			srv.logger.Debugf("Запуск GetMetricValueHandler")
 			GetMetricValueHandler(w, r, s.store)
 

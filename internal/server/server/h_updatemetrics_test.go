@@ -49,11 +49,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name1",
 					MetValue: 5.3,
 				},
-				contType: constants.ContentTypeTP,
+				contType: constants.ContentTypeTPUTF8,
 			},
 			want: want{
 				code:          200,
-				ContentTypeTP: constants.ContentTypeTP,
+				ContentTypeTP: constants.ContentTypeTPUTF8,
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name1",
@@ -69,11 +69,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name2",
 					MetValue: 100.12,
 				},
-				contType: constants.ContentTypeTP,
+				contType: constants.ContentTypeTPUTF8,
 			},
 			want: want{
 				code:          200,
-				ContentTypeTP: constants.ContentTypeTP,
+				ContentTypeTP: constants.ContentTypeTPUTF8,
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name2",
@@ -89,11 +89,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name3",
 					MetValue: 100,
 				},
-				contType: constants.ContentTypeTP,
+				contType: constants.ContentTypeTPUTF8,
 			},
 			want: want{
 				code:          200,
-				ContentTypeTP: constants.ContentTypeTP,
+				ContentTypeTP: constants.ContentTypeTPUTF8,
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name3",
@@ -109,11 +109,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name3",
 					MetValue: 5,
 				},
-				contType: constants.ContentTypeTP,
+				contType: constants.ContentTypeTPUTF8,
 			},
 			want: want{
 				code:          200,
-				ContentTypeTP: constants.ContentTypeTP,
+				ContentTypeTP: constants.ContentTypeTPUTF8,
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name3",
@@ -129,11 +129,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name5",
 					MetValue: "строка",
 				},
-				contType: constants.ContentTypeTP,
+				contType: constants.ContentTypeTPUTF8,
 			},
 			want: want{
 				code:          400,
-				ContentTypeTP: constants.ContentTypeTP,
+				ContentTypeTP: constants.ContentTypeTPUTF8,
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name5",
@@ -149,11 +149,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name6",
 					MetValue: "строка",
 				},
-				contType: constants.ContentTypeTP,
+				contType: constants.ContentTypeTPUTF8,
 			},
 			want: want{
 				code:          400,
-				ContentTypeTP: constants.ContentTypeTP,
+				ContentTypeTP: constants.ContentTypeTPUTF8,
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name6",
@@ -169,11 +169,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name7",
 					MetValue: 5.5,
 				},
-				contType: constants.ContentTypeTP,
+				contType: constants.ContentTypeTPUTF8,
 			},
 			want: want{
 				code:          400,
-				ContentTypeTP: constants.ContentTypeTP,
+				ContentTypeTP: constants.ContentTypeTPUTF8,
 				metricCalc: model.Metric{
 					MetType:  constants.CounterType,
 					MetName:  "Name7",
@@ -189,11 +189,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "Name8",
 					MetValue: 5.5,
 				},
-				contType: constants.ContentTypeTP,
+				contType: constants.ContentTypeTPUTF8,
 			},
 			want: want{
 				code:          400,
-				ContentTypeTP: constants.ContentTypeTP,
+				ContentTypeTP: constants.ContentTypeTPUTF8,
 				metricCalc: model.Metric{
 					MetType:  "Unknown",
 					MetName:  "Name8",
@@ -209,11 +209,11 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					MetName:  "",
 					MetValue: 5.5,
 				},
-				contType: constants.ContentTypeTP,
+				contType: constants.ContentTypeTPUTF8,
 			},
 			want: want{
 				code:          404,
-				ContentTypeTP: constants.ContentTypeTP,
+				ContentTypeTP: constants.ContentTypeTPUTF8,
 				metricCalc: model.Metric{
 					MetType:  constants.GaugeType,
 					MetName:  "Name9",

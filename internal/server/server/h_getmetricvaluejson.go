@@ -56,13 +56,9 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 			}
 		} else {
 			d := metric.MetValue.(float64)
-			srv.logger.Debugf("d: %v", d)
 			d1 := fmt.Sprintf("%.0f", d)
-			srv.logger.Debugf("d1: %v", d1)
 			d2, _ := strconv.Atoi(d1)
-			srv.logger.Debugf("d2: %v", d2)
 			d3 := int64(d2)
-			srv.logger.Debugf("d3: %v", d3)
 			resp = dto.Metrics{
 				ID:    metric.MetName,
 				MType: metric.MetType,
