@@ -24,4 +24,5 @@ vendor/
 .idea
 .vscode
 
-storage/storage.txt
+.te/
+.run/
