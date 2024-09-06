@@ -11,6 +11,9 @@ import (
 )
 
 func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
+	var v float64
+	var d int64
+
 	srv.logger.Debugf("Декодирование JSON...")
 
 	req := dto.Metrics{}
@@ -39,20 +42,18 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	srv.logger.Debugf("Формирование тела ответа...")
 	switch metric.MetType {
 	case constants.GaugeType:
-		if v, ok := metric.MetValue.(float64); ok {
-			resp = dto.Metrics{
-				ID:    metric.MetName,
-				MType: metric.MetType,
-				Value: &v,
-			}
+		v = metric.MetValue.(float64)
+		resp = dto.Metrics{
+			ID:    metric.MetName,
+			MType: metric.MetType,
+			Value: &v,
 		}
 	case constants.CounterType:
-		if v, ok := metric.MetValue.(int64); ok {
-			resp = dto.Metrics{
-				ID:    metric.MetName,
-				MType: metric.MetType,
-				Delta: &v,
-			}
+		d = metric.MetValue.(int64)
+		resp = dto.Metrics{
+			ID:    metric.MetName,
+			MType: metric.MetType,
+			Delta: &d,
 		}
 	}
 	srv.logger.Debugf("Формирование тела ответа прошло успешно: %v", resp)
