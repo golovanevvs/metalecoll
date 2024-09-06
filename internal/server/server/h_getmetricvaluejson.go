@@ -11,10 +11,9 @@ import (
 )
 
 func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
-	var req, resp dto.Metrics
-
 	srv.logger.Debugf("Декодирование JSON...")
 
+	req := dto.Metrics{}
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&req); err != nil {
 		srv.logger.Errorf("Ошибка декодирования JSON: %v", err)
@@ -36,8 +35,9 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	}
 	srv.logger.Debugf("Получение данных из хранилища прошло успешно: %v", metric)
 
+	resp := dto.Metrics{}
 	srv.logger.Debugf("Формирование тела ответа...")
-	switch req.MType {
+	switch metric.MetType {
 	case constants.GaugeType:
 		if v, ok := metric.MetValue.(float64); ok {
 			resp = dto.Metrics{
