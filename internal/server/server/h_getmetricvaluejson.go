@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/dto"
@@ -50,10 +51,17 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 		}
 	case constants.CounterType:
 		d = metric.MetValue.(int64)
+		srv.logger.Debugf("d: %v", d)
+		d1 := fmt.Sprintf("%d", d)
+		srv.logger.Debugf("d1: %v", d1)
+		d2, _ := strconv.Atoi(d1)
+		srv.logger.Debugf("d2: %v", d2)
+		d3 := int64(d2)
+		srv.logger.Debugf("d3: %v", d3)
 		resp = dto.Metrics{
 			ID:    metric.MetName,
 			MType: metric.MetType,
-			Delta: &d,
+			Delta: &d3,
 		}
 	}
 	srv.logger.Debugf("Формирование тела ответа прошло успешно: %v", resp)
