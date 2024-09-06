@@ -38,8 +38,6 @@ func Start(config *Config) {
 		}
 	}
 
-	//fmt.Println("Запущен сервер:", config.Addr)
-
 	//srv.logger.Info("Запущен сервер: ", zap.String("Addr", config.Addr))
 
 	go func() {

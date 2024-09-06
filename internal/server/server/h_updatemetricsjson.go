@@ -16,7 +16,6 @@ func UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request, store stor
 	var req, resp dto.Metrics
 
 	srv.logger.Debugf("Декодирование JSON...")
-
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&req); err != nil {
 		srv.logger.Errorf("Ошибка декодирования JSON: %v", err)
@@ -27,17 +26,13 @@ func UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request, store stor
 	defer r.Body.Close()
 	srv.logger.Debugf("Декодирование JSON прошло успешно")
 
-	srv.logger.Debugf("Проверка типа метода...")
-
 	srv.logger.Debugf("Проверка наличия имени метрики...")
-
 	if req.ID == "" {
 		srv.logger.Errorf("Имя метрики не задано")
 		srv.logger.Errorf("Отправлен код: %v", http.StatusNotFound)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-
 	srv.logger.Debugf("Проверка наличия имени метрики прошла успешно")
 
 	switch req.MType {
@@ -62,7 +57,6 @@ func UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request, store stor
 	srv.logger.Debugf("Обновление хранилища...")
 	storage.SM(store, *calcMetric)
 	srv.logger.Debugf("Обновление хранилища прошло успешно")
-
 	srv.logger.Debugf("Обновлённое хранилище: %v", storage.GMs(store))
 
 	srv.logger.Debugf("Формирование тела ответа...")
@@ -87,7 +81,6 @@ func UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request, store stor
 	srv.logger.Debugf("Формирование тела ответа прошло успешно")
 
 	srv.logger.Debugf("Кодирование в JSON...")
-
 	enc, err := json.Marshal(resp)
 	if err != nil {
 		srv.logger.Errorf("Ошибка кодирования: %v", err)
@@ -96,9 +89,10 @@ func UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request, store stor
 	srv.logger.Debugf("Кодирование в JSON прошло успешно")
 
 	srv.logger.Debugf("Отправлен Content-Type: %v", constants.ContentTypeAJ)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", constants.ContentTypeAJ)
 
 	srv.logger.Debugf("Отправлен код: %v", http.StatusOK)
 	w.WriteHeader(http.StatusOK)
+
 	w.Write(enc)
 }

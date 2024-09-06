@@ -36,8 +36,8 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	}
 	srv.logger.Debugf("Получение данных из хранилища прошло успешно: %v", metric)
 
-	resp := dto.Metrics{}
 	srv.logger.Debugf("Формирование тела ответа...")
+	resp := dto.Metrics{}
 	switch metric.MetType {
 	case constants.GaugeType:
 		v := metric.MetValue.(float64)
@@ -72,7 +72,6 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	w.Header().Set("Content-Type", constants.ContentTypeAJ)
 
 	srv.logger.Debugf("Кодирование в JSON...")
-
 	enc, err := json.Marshal(resp)
 	if err != nil {
 		srv.logger.Errorf("Ошибка кодирования: %v", err)

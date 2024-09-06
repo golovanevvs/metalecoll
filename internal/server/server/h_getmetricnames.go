@@ -4,13 +4,9 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
-
-// type metNameValue struct {
-// 	BMetName  string `json:"id"`
-// 	BMetValue string `json:"value"`
-// }
 
 func GetMetricNamesHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
 	srv.logger.Debugf("Получение всех известных метрик из хранилища...")
@@ -18,7 +14,6 @@ func GetMetricNamesHandler(w http.ResponseWriter, r *http.Request, store storage
 	srv.logger.Debugf("Получение всех известных метрик из хранилища прошло успешно")
 
 	srv.logger.Debugf("Отправка тела ответа...")
-
 	tmpl := `
 		<!DOCTYPE html>
 		<html>
@@ -53,7 +48,7 @@ func GetMetricNamesHandler(w http.ResponseWriter, r *http.Request, store storage
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Content-Type", constants.ContentTypeTPUTF8)
 	if err := t.Execute(w, metricsMap); err != nil {
 		srv.logger.Errorf("Ошибка применения шаблона: %v", err)
 		srv.logger.Debugf("Отправлен код: %v", http.StatusInternalServerError)

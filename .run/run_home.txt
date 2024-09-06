@@ -59,3 +59,7 @@ metricstest-windows-amd64 -test.v -test.run=^TestIteration7$ -agent-binary-path=
 Тесты для iter8:
 
 metricstest-windows-amd64 -test.v -test.run=^TestIteration8$ -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server -server-port="8080" -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll
+
+Тесты для iter9:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration9$ -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server -file-storage-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/metrics.txt -server-port="8080" -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll

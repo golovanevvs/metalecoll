@@ -45,14 +45,16 @@ func Start(config *config) {
 			fmt.Println("-------------------------------------------------------------------------")
 			fmt.Println("Reporting...")
 
+			fmt.Println("Получение данных из хранилища...")
 			mapstore, err := storage.GMM(ag.store)
 			if err != nil {
 				fmt.Println("Ошибка получения данных из хранилища:", err)
 				continue
 			}
+			fmt.Println("Получение данных из хранилища прошло успешно")
 
-			fmt.Println("Формирование запроса...")
 			for _, value := range mapstore {
+				fmt.Println("Формирование метрики...")
 				putString = fmt.Sprintf("http://%s/%s/", config.addr, config.updateMethod)
 				switch v := value.MetValue.(type) {
 				case float64:
@@ -68,7 +70,8 @@ func Start(config *config) {
 						Delta: &v,
 					}
 				}
-				fmt.Printf("Формирование запроса прошло успешно. Запрос: %v. Метрика: %v\n", putString, body)
+				fmt.Printf("Формирование метрики прошло успешно. Запрос: %v. Метрика: %v\n", putString, body)
+
 				fmt.Println("Кодирование в JSON...")
 				enc, err := json.Marshal(body)
 				if err != nil {
@@ -77,7 +80,7 @@ func Start(config *config) {
 				}
 				fmt.Println("Кодирование в JSON прошло успешно")
 
-				fmt.Println("Сжатие...")
+				fmt.Println("Сжатие в gzip...")
 				gzipWr := gzip.NewWriter(&gzipB)
 				_, err = gzipWr.Write(enc)
 				if err != nil {
@@ -85,16 +88,20 @@ func Start(config *config) {
 					gzipWr.Close()
 					continue
 				}
-				fmt.Println("Сжатие прошло успешно")
 				gzipWr.Close()
+				fmt.Println("Сжатие в gzip прошло успешно")
 
+				fmt.Println("Формирование запроса POST...")
 				request, err := http.NewRequest("POST", putString, &gzipB)
 				if err != nil {
 					fmt.Println("Ошибка формирования запроса:", err)
 				}
+				fmt.Println("Формирование запроса POST прошло успешно")
 
+				fmt.Println("Установка заголовков...")
 				request.Header.Set("Content-Encoding", "gzip")
 				request.Header.Set("Content-Type", "application/json")
+				fmt.Println("Установка заголовков прошла успешно")
 
 				fmt.Println("Отправка запроса...")
 				response, err := client.Do(request)
@@ -102,9 +109,9 @@ func Start(config *config) {
 					fmt.Println("Ошибка отправки запроса:", err)
 					continue
 				}
-				fmt.Println("Отправка запроса прошла успешно")
 				response.Body.Close()
-
+				fmt.Println("Отправка запроса прошла успешно")
+				fmt.Println("Reporting completed")
 			}
 		}
 	}
