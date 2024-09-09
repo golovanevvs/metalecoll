@@ -1,11 +1,17 @@
 package main
 
 import (
+	"log"
+
 	"github.com/golovanevvs/metalecoll/internal/server/server"
 )
 
 func main() {
-	server.Start()
+	config, err := server.MewConfig()
+	if err != nil {
+		log.Fatalf("Ошибка конфигурирования сервера: %v", err)
+	}
+	server.Start(config)
 }
 
 //Для запуска теста iter1
