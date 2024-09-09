@@ -9,7 +9,7 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
-func SaveToFile(fileStoragePath string, store *storage.Storage) error {
+func SaveToFile(fileStoragePath string, store storage.Storage) error {
 	var str string
 	var file *os.File
 	file, err := os.OpenFile(fileStoragePath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, os.ModePerm|os.ModeDir)
@@ -18,7 +18,7 @@ func SaveToFile(fileStoragePath string, store *storage.Storage) error {
 	}
 
 	defer file.Close()
-	metrics := storage.GMs(*store)
+	metrics := store.GetMetrics()
 
 	for _, v := range metrics {
 		enc, err := json.Marshal(v)
@@ -36,7 +36,7 @@ func SaveToFile(fileStoragePath string, store *storage.Storage) error {
 	return nil
 }
 
-func GetFromFile(fileStoragePath string, store *storage.Storage) error {
+func GetFromFile(fileStoragePath string, store storage.Storage) error {
 	var metric model.Metric
 
 	file, err := os.Open(fileStoragePath)
@@ -51,7 +51,7 @@ func GetFromFile(fileStoragePath string, store *storage.Storage) error {
 		if err := json.Unmarshal([]byte(str), &metric); err != nil {
 			return err
 		}
-		storage.SM(*store, metric)
+		store.SaveMetric(metric)
 	}
 	return nil
 }

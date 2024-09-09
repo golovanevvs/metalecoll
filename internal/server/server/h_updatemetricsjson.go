@@ -55,9 +55,9 @@ func UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request, store stor
 	srv.logger.Debugf("Обновление метрики прошло успешно: %v", calcMetric)
 
 	srv.logger.Debugf("Обновление хранилища...")
-	storage.SM(store, *calcMetric)
+	store.SaveMetric(*calcMetric)
 	srv.logger.Debugf("Обновление хранилища прошло успешно")
-	srv.logger.Debugf("Обновлённое хранилище: %v", storage.GMs(store))
+	srv.logger.Debugf("Обновлённое хранилище: %v", store.GetMetrics())
 
 	srv.logger.Debugf("Формирование тела ответа...")
 	switch req.MType {

@@ -15,7 +15,7 @@ func ProcMetric(recMet model.Metric, store storage.Storage) *model.Metric {
 		newValue = recMet.MetValue.(float64)
 
 	case constants.CounterType:
-		if getValue, err := storage.GM(store, recMet.MetName); err != nil {
+		if getValue, err := store.GetMetric(recMet.MetName); err != nil {
 			newValue = recMet.MetValue.(int64)
 		} else {
 			newValue = getValue.MetValue.(int64) + recMet.MetValue.(int64)

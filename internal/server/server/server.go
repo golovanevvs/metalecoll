@@ -30,7 +30,7 @@ func Start(config *Config) {
 
 	if config.Restore {
 		srv.logger.Debugf("Восстановление метрик из файла %v...", config.FileStoragePath)
-		err := filestorage.GetFromFile(config.FileStoragePath, &srv.store)
+		err := filestorage.GetFromFile(config.FileStoragePath, srv.store)
 		if err != nil {
 			srv.logger.Errorf("Ошибка чтения данных из файла: %v. Сервер будет запущен без восстановления метрик", err)
 		} else {
@@ -58,7 +58,7 @@ func Start(config *Config) {
 			select {
 			case <-saveIntTime.C:
 				srv.logger.Debugf("Сохранение метрик в файл %v...", config.FileStoragePath)
-				if err := filestorage.SaveToFile(config.FileStoragePath, &srv.store); err != nil {
+				if err := filestorage.SaveToFile(config.FileStoragePath, srv.store); err != nil {
 					srv.logger.Errorf("Ошибка сохранения в файл: %v", err)
 				}
 			case <-stop:
@@ -73,7 +73,7 @@ func Start(config *Config) {
 	srv.logger.Infof("Завершение работы сервера...")
 
 	srv.logger.Debugf("Сохранение метрик в файл %v...", config.FileStoragePath)
-	if err := filestorage.SaveToFile(config.FileStoragePath, &srv.store); err != nil {
+	if err := filestorage.SaveToFile(config.FileStoragePath, srv.store); err != nil {
 		srv.logger.Errorf("Ошибка сохранения в файл: %v", err)
 	}
 

@@ -20,7 +20,7 @@ func GetMetricValueHandler(w http.ResponseWriter, r *http.Request, store storage
 	srv.logger.Debugf("Значение метрики: %v", mV)
 
 	srv.logger.Debugf("Получение данных из хранилища...")
-	metric, err := storage.GM(store, mN)
+	metric, err := store.GetMetric(mN)
 	if err != nil {
 		fmt.Println(err)
 		srv.logger.Errorf("Ошибка получения данных из хранилища")

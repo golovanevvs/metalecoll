@@ -8,7 +8,6 @@ import (
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
-	"github.com/golovanevvs/metalecoll/internal/server/storage"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -238,12 +237,12 @@ func TestUpdateMetricsHandler(t *testing.T) {
 			case "test №1 (positive)", "test №2 (positive)", "test №3 (positive)", "test №4 (positive)":
 				assert.Equal(t, test.want.code, res.StatusCode)
 				//assert.Equal(t, test.want.ContentTypeTP, res.Header.Get("Content-Type"))
-				v, err := storage.GM(store, test.want.metricCalc.MetName)
+				v, err := store.GetMetric(test.want.metricCalc.MetName)
 				require.NoError(t, err)
 				assert.Equal(t, test.want.metricCalc.MetValue, v.MetValue)
 			case "test №8 (negative)":
 				assert.Equal(t, test.want.code, res.StatusCode)
-				_, err := storage.GM(store, test.want.metricCalc.MetName)
+				_, err := store.GetMetric(test.want.metricCalc.MetName)
 				assert.Error(t, err)
 			default:
 				assert.Equal(t, test.want.code, res.StatusCode)

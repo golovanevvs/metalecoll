@@ -74,7 +74,7 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 	w.WriteHeader(http.StatusOK)
 
 	srv.logger.Debugf("Обновление хранилища...")
-	storage.SM(store, *calcMetric)
+	store.SaveMetric(*calcMetric)
 	srv.logger.Debugf("Обновление хранилища прошло успешно")
-	srv.logger.Debugf("Обновлённое хранилище: %v", storage.GMs(store))
+	srv.logger.Debugf("Обновлённое хранилище: %v", store.GetMetrics())
 }
