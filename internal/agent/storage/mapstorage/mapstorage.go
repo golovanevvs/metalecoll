@@ -1,15 +1,10 @@
-package amapstorage
+package mapstorage
 
 import (
 	"errors"
 
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
-
-type AStorage interface {
-	SaveMetric(met model.Metric)
-	GetMetricsMap() (map[string]model.Metric, error)
-}
 
 type aMemStorage struct {
 	metrics map[string]model.Metric
