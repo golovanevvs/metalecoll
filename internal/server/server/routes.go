@@ -36,6 +36,11 @@ func (s *server) configureRouter(config *Config) {
 		GetMetricNamesHandler(w, r, s.store)
 	})
 
+	s.router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+		srv.logger.Debugf("Запуск PingDatabaseHandler")
+		PingDatabaseHandler(w, r, config.DatabaseDNS)
+	})
+
 	s.router.Route(fmt.Sprintf("/%s", config.GetValueMethod), func(r chi.Router) {
 		r.Get("/{type}/{name}", func(w http.ResponseWriter, r *http.Request) {
 			srv.logger.Debugf("Запуск GetMetricValueHandler")
