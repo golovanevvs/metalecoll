@@ -18,10 +18,11 @@ type Config struct {
 	StoreInterval   int
 	FileStoragePath string
 	Restore         bool
+	Database        string
 }
 
 func MewConfig() (*Config, error) {
-	var flagRunAddr, flagFileStoragePath string
+	var flagRunAddr, flagFileStoragePath, flagDatabase string
 	var flagStoreInterval int
 	var flagRestore bool
 
@@ -29,6 +30,7 @@ func MewConfig() (*Config, error) {
 	flag.IntVar(&flagStoreInterval, "i", 300, "the interval for saving to a file")
 	flag.StringVar(&flagFileStoragePath, "f", "metrics.txt", "the path to the metric file")
 	flag.BoolVar(&flagRestore, "r", true, "get saved metrics from a file")
+	flag.StringVar(&flagDatabase, "d", "host=localhost port=5433 user=postgres password=password dbname=metalecoll sslmode=disable", "database")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
@@ -51,6 +53,9 @@ func MewConfig() (*Config, error) {
 		}
 		flagRestore = v
 	}
+	if envDatabase := os.Getenv("DATABASE_DSN"); envDatabase != "" {
+		flagDatabase = envDatabase
+	}
 
 	return &Config{
 		Addr:            flagRunAddr,
@@ -62,5 +67,6 @@ func MewConfig() (*Config, error) {
 		StoreInterval:   flagStoreInterval,
 		FileStoragePath: flagFileStoragePath,
 		Restore:         flagRestore,
+		Database:        flagDatabase,
 	}, nil
 }
