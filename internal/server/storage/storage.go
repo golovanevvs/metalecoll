@@ -9,3 +9,8 @@ type Storage interface {
 	GetMetric(key string) (model.Metric, error)
 	GetMetrics() map[string]model.Metric
 }
+
+type StorageDB interface {
+	SaveToDB(store Storage)
+	GetFromDB(store Storage)
+}

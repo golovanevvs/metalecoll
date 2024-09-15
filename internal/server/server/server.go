@@ -1,6 +1,7 @@
 package server
 
 import (
+	"database/sql"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,7 +16,8 @@ import (
 )
 
 type server struct {
-	store  storage.Storage
+	store storage.Storage
+	storeDB
 	router *chi.Mux
 	//logger *zap.Logger
 	logger *logrus.Logger
@@ -23,8 +25,15 @@ type server struct {
 
 var srv *server
 
-func Start(config *Config) {
+func Start(config *Config) error {
 	store := mapstorage.NewStorage()
+
+	db, err := newDB(config.DatabaseDNS)
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
 
 	srv = NewServer(store, config)
 
@@ -62,7 +71,7 @@ func Start(config *Config) {
 					srv.logger.Errorf("Ошибка сохранения в файл: %v", err)
 				}
 			case <-stop:
-				srv.logger.Infof("Стоп")
+				srv.logger.Debugf("Стоп")
 			}
 		}
 	}()
@@ -115,4 +124,17 @@ func NewServer(store storage.Storage, config *Config) *server {
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
+}
+
+func newDB(databaseDNS string) (*sql.DB, error) {
+	db, err := sql.Open("pgx", databaseDNS)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
