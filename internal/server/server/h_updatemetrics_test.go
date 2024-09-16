@@ -22,7 +22,7 @@ func TestUpdateMetricsHandler(t *testing.T) {
 		GetValueMethod: constants.GetValueMethod,
 	}
 	store := mapstorage.NewStorage()
-	srv = NewServer(store, configtest)
+	srv = NewServer(store, nil, configtest)
 
 	type metCalc struct {
 		metric   model.Metric

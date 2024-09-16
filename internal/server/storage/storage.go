@@ -11,6 +11,6 @@ type Storage interface {
 }
 
 type StorageDB interface {
-	SaveToDB(store Storage)
-	GetFromDB(store Storage)
+	SaveToDB(m *model.Metric) error
+	GetFromDB(name string) (model.Metric, error)
 }

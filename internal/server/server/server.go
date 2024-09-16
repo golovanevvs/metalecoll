@@ -1,6 +1,10 @@
 package server
 
 import (
+	"context"
+	"database/sql"
+	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,29 +15,34 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/storage"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/filestorage"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
+	"github.com/golovanevvs/metalecoll/internal/server/storage/sqlstorage"
+	_ "github.com/jackc/pgx/v5"
 	"github.com/sirupsen/logrus"
 )
 
 type server struct {
-	store  storage.Storage
-	router *chi.Mux
+	store   storage.Storage
+	storeDB storage.StorageDB
+	router  *chi.Mux
 	//logger *zap.Logger
 	logger *logrus.Logger
 }
 
 var srv *server
 
-func Start(config *Config) {
+func Start(config *Config) error {
 	store := mapstorage.NewStorage()
 
-	//db, err := newDB(config.DatabaseDNS)
-	// if err != nil {
-	// 	return err
-	// }
+	db, err := newDB(config.DatabaseDNS)
+	if err != nil {
+		return err
+	}
 
-	//defer db.Close()
+	defer db.Close()
 
-	srv = NewServer(store, config)
+	storeDB := sqlstorage.New(db)
+
+	srv = NewServer(store, storeDB, config)
 
 	if config.Restore {
 		srv.logger.Debugf("Восстановление метрик из файла %v...", config.FileStoragePath)
@@ -85,9 +94,10 @@ func Start(config *Config) {
 	}
 
 	srv.logger.Infof("Работа сервера завершена. Всем спасибо.")
+	return nil
 }
 
-func NewServer(store storage.Storage, config *Config) *server {
+func NewServer(store storage.Storage, storeDB storage.StorageDB, config *Config) *server {
 	// logger, err := zap.NewDevelopment()
 	// if err != nil {
 	// 	panic("cannot initialize zap")
@@ -110,9 +120,10 @@ func NewServer(store storage.Storage, config *Config) *server {
 	})
 
 	s := &server{
-		store:  store,
-		router: chi.NewRouter(),
-		logger: logLogrus,
+		store:   store,
+		storeDB: storeDB,
+		router:  chi.NewRouter(),
+		logger:  logLogrus,
 	}
 
 	s.configureRouter(config)
@@ -124,15 +135,67 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 
-// func newDB(databaseDNS string) (*sql.DB, error) {
-// 	db, err := sql.Open("pgx", databaseDNS)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func newDB(databaseDNS string) (*sql.DB, error) {
+	tableMetrics := "metrics"
 
-// 	if err := db.Ping(); err != nil {
-// 		return nil, err
-// 	}
+	db, err := sql.Open("pgx", databaseDNS)
+	if err != nil {
+		return nil, err
+	}
 
-// 	return db, nil
-// }
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	exist, err := tablesExist(ctx, db, tableMetrics)
+	if err != nil {
+		fmt.Printf("Ошибка: %v\n", err)
+		return nil, err
+	}
+
+	if !exist {
+		fmt.Printf("Создание таблицы %v...\n", tableMetrics)
+		_, err = db.ExecContext(ctx, "CREATE TABLE metrics (id INTEGER PRIMARY KEY)")
+		if err != nil {
+			fmt.Printf("Ошибка создания таблицы %v: %v\n", tableMetrics, err)
+			return nil, err
+		}
+		exist2, err := tablesExist(ctx, db, tableMetrics)
+		if err != nil {
+			fmt.Printf("Ошибка: %v\n", err)
+			return nil, err
+		}
+		if !exist2 {
+			return nil, errors.New("неизвестная ошибка создания табюлицы metrics")
+		}
+		fmt.Printf("Создание таблицы %v прошло успешно\n", tableMetrics)
+	}
+
+	return db, nil
+}
+
+func tablesExist(ctx context.Context, db *sql.DB, nameTable string) (bool, error) {
+	var exists bool
+
+	fmt.Printf("Проверка, что таблица %v существует...\n", nameTable)
+
+	row := db.QueryRowContext(ctx,
+		"SELECT EXISTS "+
+			"(SELECT FROM information_schema.tables "+
+			"WHERE table_name = 'metrics')")
+
+	err := row.Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	if exists {
+		fmt.Printf("Таблица %v существует\n", nameTable)
+		return true, nil
+	}
+	fmt.Printf("Таблицы %v не существует\n", nameTable)
+	return false, nil
+}

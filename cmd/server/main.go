@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/golovanevvs/metalecoll/internal/server/server"
 )
@@ -11,10 +12,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Ошибка конфигурирования сервера: %v", err)
 	}
-	server.Start(config)
-	// if err != nil {
-	// 	log.Fatalf("Ошибка: %v", err)
-	// }
+	err = server.Start(config)
+	if err != nil {
+		time.Sleep(10 * time.Second)
+		log.Fatalf("Ошибка: %v", err)
+	}
 }
 
 //Для запуска теста iter1
