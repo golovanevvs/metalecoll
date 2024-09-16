@@ -11,10 +11,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Ошибка конфигурирования сервера: %v", err)
 	}
-	err = server.Start(config)
-	if err != nil {
-		log.Fatalf("Ошибка: %v", err)
-	}
+	server.Start(config)
+	// if err != nil {
+	// 	log.Fatalf("Ошибка: %v", err)
+	// }
 }
 
 //Для запуска теста iter1

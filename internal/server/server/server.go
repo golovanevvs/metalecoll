@@ -1,7 +1,6 @@
 package server
 
 import (
-	"database/sql"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,8 +15,7 @@ import (
 )
 
 type server struct {
-	store storage.Storage
-	storeDB
+	store  storage.Storage
 	router *chi.Mux
 	//logger *zap.Logger
 	logger *logrus.Logger
@@ -25,15 +23,15 @@ type server struct {
 
 var srv *server
 
-func Start(config *Config) error {
+func Start(config *Config) {
 	store := mapstorage.NewStorage()
 
-	db, err := newDB(config.DatabaseDNS)
-	if err != nil {
-		return err
-	}
+	//db, err := newDB(config.DatabaseDNS)
+	// if err != nil {
+	// 	return err
+	// }
 
-	defer db.Close()
+	//defer db.Close()
 
 	srv = NewServer(store, config)
 
@@ -126,15 +124,15 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 
-func newDB(databaseDNS string) (*sql.DB, error) {
-	db, err := sql.Open("pgx", databaseDNS)
-	if err != nil {
-		return nil, err
-	}
+// func newDB(databaseDNS string) (*sql.DB, error) {
+// 	db, err := sql.Open("pgx", databaseDNS)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	if err := db.Ping(); err != nil {
-		return nil, err
-	}
+// 	if err := db.Ping(); err != nil {
+// 		return nil, err
+// 	}
 
-	return db, nil
-}
+// 	return db, nil
+// }
