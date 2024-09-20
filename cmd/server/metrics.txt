@@ -1,0 +1,3 @@
+{"MetType":"counter","MetName":"counter1","MetValue":60}
+{"MetType":"gauge","MetName":"gauge1","MetValue":0.1}
+{"MetType":"gauge","MetName":"gauge2","MetValue":0.2}

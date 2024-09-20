@@ -13,4 +13,5 @@ type Storage interface {
 type StorageDB interface {
 	SaveToDB(m *model.Metric) error
 	GetFromDB(name string) (model.Metric, error)
+	Ping() error
 }

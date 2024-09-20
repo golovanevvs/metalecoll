@@ -22,34 +22,34 @@ func (s *server) configureRouter(config *Config) {
 
 	s.router.Route(fmt.Sprintf("/%s", config.UpdateMethod), func(r chi.Router) {
 		r.Post("/{type}/{name}/{value}", func(w http.ResponseWriter, r *http.Request) {
-			srv.logger.Debugf("Запуск UpdateMetricsHandler")
-			UpdateMetricsHandler(w, r, s.store)
+			s.logger.Debugf("Запуск UpdateMetricsHandler")
+			s.UpdateMetricsHandler(w, r)
 		})
 		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-			srv.logger.Debugf("Запуск UpdateMetricsJSONHandler")
-			UpdateMetricsJSONHandler(w, r, s.store)
+			s.logger.Debugf("Запуск UpdateMetricsJSONHandler")
+			s.UpdateMetricsJSONHandler(w, r)
 		})
 	})
 
 	s.router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		srv.logger.Debugf("Запуск GetMetricNamesHandler")
-		GetMetricNamesHandler(w, r, s.store)
+		s.logger.Debugf("Запуск GetMetricNamesHandler")
+		s.GetMetricNamesHandler(w, r)
 	})
 
 	s.router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		srv.logger.Debugf("Запуск PingDatabaseHandler")
-		PingDatabaseHandler(w, r, config.DatabaseDNS)
+		s.logger.Debugf("Запуск PingDatabaseHandler")
+		s.PingDatabaseHandler(w, r)
 	})
 
 	s.router.Route(fmt.Sprintf("/%s", config.GetValueMethod), func(r chi.Router) {
 		r.Get("/{type}/{name}", func(w http.ResponseWriter, r *http.Request) {
-			srv.logger.Debugf("Запуск GetMetricValueHandler")
-			GetMetricValueHandler(w, r, s.store)
+			s.logger.Debugf("Запуск GetMetricValueHandler")
+			s.GetMetricValueHandler(w, r)
 
 		})
 		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-			srv.logger.Debugf("Запуск GetMetricValueJSONHandler")
-			GetMetricValueJSONHandler(w, r, s.store)
+			s.logger.Debugf("Запуск GetMetricValueJSONHandler")
+			s.GetMetricValueJSONHandler(w, r)
 
 		})
 

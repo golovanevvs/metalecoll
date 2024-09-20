@@ -5,12 +5,11 @@ import (
 	"net/http"
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
-	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
-func GetMetricNamesHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
+func (s *server) GetMetricNamesHandler(w http.ResponseWriter, r *http.Request) {
 	srv.logger.Debugf("Получение всех известных метрик из хранилища...")
-	metricsMap := store.GetMetrics()
+	metricsMap := s.store.GetMetrics()
 	srv.logger.Debugf("Получение всех известных метрик из хранилища прошло успешно")
 
 	srv.logger.Debugf("Отправка тела ответа...")

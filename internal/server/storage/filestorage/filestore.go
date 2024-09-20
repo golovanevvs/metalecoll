@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 
+	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
@@ -50,6 +51,12 @@ func GetFromFile(fileStoragePath string, store storage.Storage) error {
 		str := sc.Text()
 		if err := json.Unmarshal([]byte(str), &metric); err != nil {
 			return err
+		}
+		switch metric.MetType {
+		case constants.GaugeType:
+			metric.MetValue = metric.MetValue.(float64)
+		case constants.CounterType:
+			metric.MetValue = int64(metric.MetValue.(float64))
 		}
 		store.SaveMetric(metric)
 	}

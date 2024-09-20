@@ -8,10 +8,9 @@ import (
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/dto"
-	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
-func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
+func (s *server) GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request) {
 	srv.logger.Debugf("Декодирование JSON...")
 
 	req := dto.Metrics{}
@@ -26,7 +25,7 @@ func GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Request, store sto
 	srv.logger.Debugf("Декодирование JSON прошло успешно: %v", req)
 
 	srv.logger.Debugf("Получение данных из хранилища по name %v...", req.ID)
-	metric, err := store.GetMetric(req.ID)
+	metric, err := s.store.GetMetric(req.ID)
 	if err != nil {
 		fmt.Println(err)
 		srv.logger.Errorf("Ошибка получения данных из хранилища: %v", err)

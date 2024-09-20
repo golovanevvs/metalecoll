@@ -17,9 +17,9 @@ func (ms *memStorage) SaveMetric(met model.Metric) {
 	ms.Metrics[met.MetName] = met
 }
 
-func (ms *memStorage) GetMetric(key string) (model.Metric, error) {
-	if _, inMap := ms.Metrics[key]; inMap {
-		return ms.Metrics[key], nil
+func (ms *memStorage) GetMetric(name string) (model.Metric, error) {
+	if _, inMap := ms.Metrics[name]; inMap {
+		return ms.Metrics[name], nil
 	}
 	err := errors.New("в хранилище отсутствует запрошенный тип метрики")
 	return model.Metric{}, err

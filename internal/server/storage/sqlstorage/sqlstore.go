@@ -23,3 +23,10 @@ func (s *SQLDB) SaveToDB(m *model.Metric) error {
 func (s *SQLDB) GetFromDB(name string) (model.Metric, error) {
 	return model.Metric{}, nil
 }
+
+func (s *SQLDB) Ping() error {
+	if err := s.db.Ping(); err != nil {
+		return err
+	}
+	return nil
+}
