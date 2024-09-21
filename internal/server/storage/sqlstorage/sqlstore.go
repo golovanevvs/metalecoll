@@ -24,7 +24,7 @@ func New(c *config.Config) (*SQLStorage, error) {
 	}
 
 	st := &SQLStorage{
-		name: "БД Posgres " + c.Storage.DatabaseDSN,
+		name: "БД Postgres " + c.Storage.DatabaseDSN,
 		db:   db,
 	}
 

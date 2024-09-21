@@ -13,7 +13,6 @@ type Config struct {
 	Logger          Logger
 	Storage         Storage
 	MetricTypeNames MetricTypeNames
-	MethodNames     MethodNames
 }
 
 type Server struct {
@@ -30,11 +29,6 @@ type Storage struct {
 type MetricTypeNames struct {
 	GaugeType   string
 	CounterType string
-}
-
-type MethodNames struct {
-	UpdateMethod   string
-	GetValueMethod string
 }
 
 type Logger struct {
@@ -96,8 +90,5 @@ func Mew() (*Config, error) {
 			GaugeType:   constants.GaugeType,
 			CounterType: constants.CounterType,
 		},
-		MethodNames{
-			UpdateMethod:   constants.UpdateMethod,
-			GetValueMethod: constants.GetValueMethod,
-		}}, nil
+	}, nil
 }

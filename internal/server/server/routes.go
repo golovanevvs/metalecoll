@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -21,7 +20,7 @@ func (s *server) configureRouter(c *config.Config) {
 		return Decompressgzip(h)
 	})
 
-	s.router.Route(fmt.Sprintf("/%s", c.MethodNames.UpdateMethod), func(r chi.Router) {
+	s.router.Route("/update", func(r chi.Router) {
 		r.Post("/{type}/{name}/{value}", func(w http.ResponseWriter, r *http.Request) {
 			s.logger.Debugf("Запуск UpdateMetricsHandler")
 			s.UpdateMetricsHandler(w, r)
@@ -42,7 +41,12 @@ func (s *server) configureRouter(c *config.Config) {
 		s.PingDatabaseHandler(w, r)
 	})
 
-	s.router.Route(fmt.Sprintf("/%s", c.MethodNames.GetValueMethod), func(r chi.Router) {
+	s.router.Post("/updates", func(w http.ResponseWriter, r *http.Request) {
+		s.logger.Debugf("Запуск UpdatesMetricsJSONHandler")
+		s.UpdatesMetricsJSONHandler(w, r)
+	})
+
+	s.router.Route("/value", func(r chi.Router) {
 		r.Get("/{type}/{name}", func(w http.ResponseWriter, r *http.Request) {
 			s.logger.Debugf("Запуск GetMetricValueHandler")
 			s.GetMetricValueHandler(w, r)
