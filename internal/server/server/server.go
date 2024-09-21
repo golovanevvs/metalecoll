@@ -2,8 +2,6 @@ package server
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -150,67 +148,67 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 
-func newDB(databaseDNS string) (*sql.DB, error) {
-	tableMetrics := "metrics"
+// func newDB(databaseDNS string) (*sql.DB, error) {
+// 	tableMetrics := "metrics"
 
-	db, err := sql.Open("pgx", databaseDNS)
-	if err != nil {
-		return nil, err
-	}
+// 	db, err := sql.Open("pgx", databaseDNS)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	if err := db.Ping(); err != nil {
-		return nil, err
-	}
+// 	if err := db.Ping(); err != nil {
+// 		return nil, err
+// 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
+// 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+// 	defer cancel()
 
-	exist, err := tablesExist(ctx, db, tableMetrics)
-	if err != nil {
-		fmt.Printf("Ошибка: %v\n", err)
-		return nil, err
-	}
+// 	exist, err := tablesExist(ctx, db, tableMetrics)
+// 	if err != nil {
+// 		fmt.Printf("Ошибка: %v\n", err)
+// 		return nil, err
+// 	}
 
-	if !exist {
-		fmt.Printf("Создание таблицы %v...\n", tableMetrics)
-		_, err = db.ExecContext(ctx, "CREATE TABLE metrics (id INTEGER PRIMARY KEY)")
-		if err != nil {
-			fmt.Printf("Ошибка создания таблицы %v: %v\n", tableMetrics, err)
-			return nil, err
-		}
-		exist2, err := tablesExist(ctx, db, tableMetrics)
-		if err != nil {
-			fmt.Printf("Ошибка: %v\n", err)
-			return nil, err
-		}
-		if !exist2 {
-			return nil, errors.New("неизвестная ошибка создания табюлицы metrics")
-		}
-		fmt.Printf("Создание таблицы %v прошло успешно\n", tableMetrics)
-	}
+// 	if !exist {
+// 		fmt.Printf("Создание таблицы %v...\n", tableMetrics)
+// 		_, err = db.ExecContext(ctx, "CREATE TABLE metrics (id INTEGER PRIMARY KEY)")
+// 		if err != nil {
+// 			fmt.Printf("Ошибка создания таблицы %v: %v\n", tableMetrics, err)
+// 			return nil, err
+// 		}
+// 		exist2, err := tablesExist(ctx, db, tableMetrics)
+// 		if err != nil {
+// 			fmt.Printf("Ошибка: %v\n", err)
+// 			return nil, err
+// 		}
+// 		if !exist2 {
+// 			return nil, errors.New("неизвестная ошибка создания табюлицы metrics")
+// 		}
+// 		fmt.Printf("Создание таблицы %v прошло успешно\n", tableMetrics)
+// 	}
 
-	return db, nil
-}
+// 	return db, nil
+// }
 
-func tablesExist(ctx context.Context, db *sql.DB, nameTable string) (bool, error) {
-	var exists bool
+// func tablesExist(ctx context.Context, db *sql.DB, nameTable string) (bool, error) {
+// 	var exists bool
 
-	fmt.Printf("Проверка, что таблица %v существует...\n", nameTable)
+// 	fmt.Printf("Проверка, что таблица %v существует...\n", nameTable)
 
-	row := db.QueryRowContext(ctx,
-		"SELECT EXISTS "+
-			"(SELECT FROM information_schema.tables "+
-			"WHERE table_name = 'metrics')")
+// 	row := db.QueryRowContext(ctx,
+// 		"SELECT EXISTS "+
+// 			"(SELECT FROM information_schema.tables "+
+// 			"WHERE table_name = 'metrics')")
 
-	err := row.Scan(&exists)
-	if err != nil {
-		return false, err
-	}
+// 	err := row.Scan(&exists)
+// 	if err != nil {
+// 		return false, err
+// 	}
 
-	if exists {
-		fmt.Printf("Таблица %v существует\n", nameTable)
-		return true, nil
-	}
-	fmt.Printf("Таблицы %v не существует\n", nameTable)
-	return false, nil
-}
+// 	if exists {
+// 		fmt.Printf("Таблица %v существует\n", nameTable)
+// 		return true, nil
+// 	}
+// 	fmt.Printf("Таблицы %v не существует\n", nameTable)
+// 	return false, nil
+// }

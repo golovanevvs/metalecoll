@@ -48,10 +48,11 @@ func Mew() (*Config, error) {
 
 	flag.StringVar(&flagRunAddr, "a", constants.AddrS, "address and port to run server")
 	flag.IntVar(&flagStoreInterval, "i", 300, "the interval for saving to a file")
+	// flag.IntVar(&flagStoreInterval, "i", 15, "the interval for saving to a file")
 	flag.StringVar(&flagFileStoragePath, "f", "metrics.txt", "the path to the metric file")
 	flag.BoolVar(&flagRestore, "r", true, "get saved metrics from a file")
 	flag.StringVar(&flagDatabaseDSN, "d", "", "database DSN")
-	//flag.StringVar(&flagDatabaseDSN, "d", "host=localhost port=5433 user=postgres password=password dbname=metalecoll sslmode=disable", "database DSN")
+	// flag.StringVar(&flagDatabaseDSN, "d", "host=localhost port=5433 user=postgres password=password dbname=metalecoll sslmode=disable", "database DSN")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
