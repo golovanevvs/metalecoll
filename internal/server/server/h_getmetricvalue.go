@@ -19,7 +19,7 @@ func (s *server) GetMetricValueHandler(w http.ResponseWriter, r *http.Request) {
 	srv.logger.Debugf("Значение метрики: %v", mV)
 
 	srv.logger.Debugf("Получение данных из хранилища...")
-	metric, err := s.store.GetMetric(mN)
+	metric, err := s.mapStore.GetMetric(mN)
 	if err != nil {
 		fmt.Println(err)
 		srv.logger.Errorf("Ошибка получения данных из хранилища")

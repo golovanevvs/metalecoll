@@ -25,7 +25,7 @@ func (s *server) GetMetricValueJSONHandler(w http.ResponseWriter, r *http.Reques
 	srv.logger.Debugf("Декодирование JSON прошло успешно: %v", req)
 
 	srv.logger.Debugf("Получение данных из хранилища по name %v...", req.ID)
-	metric, err := s.store.GetMetric(req.ID)
+	metric, err := s.mapStore.GetMetric(req.ID)
 	if err != nil {
 		fmt.Println(err)
 		srv.logger.Errorf("Ошибка получения данных из хранилища: %v", err)

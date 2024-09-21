@@ -12,59 +12,70 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/golovanevvs/metalecoll/internal/server/config"
 	"github.com/golovanevvs/metalecoll/internal/server/storage"
-	"github.com/golovanevvs/metalecoll/internal/server/storage/filestorage"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
-	"github.com/golovanevvs/metalecoll/internal/server/storage/sqlstorage"
 	_ "github.com/jackc/pgx/v5"
 	"github.com/sirupsen/logrus"
 )
 
 type server struct {
-	store   storage.Storage
-	storeDB storage.StorageDB
-	router  *chi.Mux
+	mapStore mapstorage.Storage
+	dbStore  storage.StorageDB
+	router   *chi.Mux
 	//logger *zap.Logger
 	logger *logrus.Logger
 }
 
 var srv *server
 
-func Start(config *Config) error {
-	store := mapstorage.NewStorage()
+// Start запускает сервер
+func Start(c *config.Config) error {
+	// Инициализация map-хранилища
+	mapStore := mapstorage.New()
 
-	db, err := newDB(config.DatabaseDNS)
+	// Выбор и инициализация основного хранилища: если флаг (-d) пуст, то выбирается файловое хранилище, иначе - БД
+	dbStore, err := storage.New(c)
 	if err != nil {
+		fmt.Printf("Ошибка инициализации хранилища: %v\n", err)
 		return err
 	}
 
-	defer db.Close()
+	// Инициализация сервера
+	srv = NewServer(mapStore, dbStore, c)
 
-	storeDB := sqlstorage.New(db)
+	// Вывод информации об основном хранилище
+	nameDB := srv.dbStore.GetNameDB()
+	srv.logger.Infof("Основное хранилище: %v", nameDB)
 
-	srv = NewServer(store, storeDB, config)
+	// Инициализация контекста Background
+	ctx := context.Background()
 
-	if config.Restore {
-		srv.logger.Debugf("Восстановление метрик из файла %v...", config.FileStoragePath)
-		err := filestorage.GetFromFile(config.FileStoragePath, srv.store)
+	// Восстановление метрик в map-хранилище из БД при запуске сервера, если флаг (-r) = true
+	if c.Storage.Restore {
+		srv.logger.Debugf("Восстановление метрик из основного хранилища %v...", nameDB)
+		interFromDB, err := srv.dbStore.GetMetricsFromDB(ctx, c)
 		if err != nil {
-			srv.logger.Errorf("Ошибка чтения данных из файла: %v. Сервер будет запущен без восстановления метрик", err)
+			srv.logger.Errorf("Ошибка чтения данных из основного хранилища: %v. Сервер будет запущен без восстановления метрик", err)
 		} else {
-			srv.logger.Infof("Восстановление метрик из файла %v прошло успешно", config.FileStoragePath)
+			mapStore.Metrics = interFromDB.GetMetrics()
+			srv.logger.Infof("Восстановление метрик из основного хранилища %v прошло успешно", nameDB)
 		}
 	}
 
 	//srv.logger.Info("Запущен сервер: ", zap.String("Addr", config.Addr))
 
+	// Запуск сервера
 	go func() {
-		srv.logger.Infof("Запущен сервер: %s", config.Addr)
-		if err := http.ListenAndServe(config.Addr, srv); err != nil {
+		srv.logger.Infof("Запущен сервер: %s", c.Server.Addr)
+		if err := http.ListenAndServe(c.Server.Addr, srv); err != nil {
 			//srv.logger.Fatal("Ошибка запуска сервера", zap.Error(err))
 			srv.logger.Fatalf("Ошибка запуска сервера: %v", err)
 		}
 	}()
 
-	saveIntTime := time.NewTicker(time.Duration(config.StoreInterval) * time.Second)
+	// Сохранение метрик из map-хранилища в основное хранилище через интервал StoreInterval (-i)
+	saveIntTime := time.NewTicker(time.Duration(c.Server.StoreInterval) * time.Second)
 	defer saveIntTime.Stop()
 
 	stop := make(chan bool)
@@ -73,9 +84,11 @@ func Start(config *Config) error {
 		for {
 			select {
 			case <-saveIntTime.C:
-				srv.logger.Debugf("Сохранение метрик в файл %v...", config.FileStoragePath)
-				if err := filestorage.SaveToFile(config.FileStoragePath, srv.store); err != nil {
-					srv.logger.Errorf("Ошибка сохранения в файл: %v", err)
+				srv.logger.Debugf("Сохранение метрик в основное хранилище %v...", nameDB)
+				if err := srv.dbStore.SaveMetricsToDB(ctx, c, srv.mapStore); err != nil {
+					srv.logger.Errorf("Ошибка сохранения метрик в основное хранилище: %v", err)
+				} else {
+					srv.logger.Debugf("Сохранение метрик в основное хранилище прошло успешно")
 				}
 			case <-stop:
 				srv.logger.Debugf("Стоп")
@@ -83,21 +96,23 @@ func Start(config *Config) error {
 		}
 	}()
 
+	// Сохранение метрик из map-хранилища в основное хранилище при завершении работы сервера
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 	<-shutdown
 	srv.logger.Infof("Завершение работы сервера...")
 
-	srv.logger.Debugf("Сохранение метрик в файл %v...", config.FileStoragePath)
-	if err := filestorage.SaveToFile(config.FileStoragePath, srv.store); err != nil {
-		srv.logger.Errorf("Ошибка сохранения в файл: %v", err)
+	srv.logger.Debugf("Сохранение метрик в основное хранилище %v...", nameDB)
+	if err := srv.dbStore.SaveMetricsToDB(ctx, c, srv.mapStore); err != nil {
+		srv.logger.Errorf("Ошибка сохранения метрик в основное хранилище: %v", err)
 	}
 
 	srv.logger.Infof("Работа сервера завершена. Всем спасибо.")
 	return nil
 }
 
-func NewServer(store storage.Storage, storeDB storage.StorageDB, config *Config) *server {
+// NewServer - конструктор сервера
+func NewServer(mapStore mapstorage.Storage, dbStore storage.StorageDB, c *config.Config) *server {
 	// logger, err := zap.NewDevelopment()
 	// if err != nil {
 	// 	panic("cannot initialize zap")
@@ -112,7 +127,7 @@ func NewServer(store storage.Storage, storeDB storage.StorageDB, config *Config)
 	// }
 
 	logLogrus := logrus.New()
-	l, _ := logrus.ParseLevel((config.LogLevel))
+	l, _ := logrus.ParseLevel(c.Logger.LogLevel)
 	logLogrus.SetLevel(l)
 	logLogrus.SetFormatter(&logrus.TextFormatter{
 		DisableColors: false,
@@ -120,13 +135,13 @@ func NewServer(store storage.Storage, storeDB storage.StorageDB, config *Config)
 	})
 
 	s := &server{
-		store:   store,
-		storeDB: storeDB,
-		router:  chi.NewRouter(),
-		logger:  logLogrus,
+		mapStore: mapStore,
+		dbStore:  dbStore,
+		router:   chi.NewRouter(),
+		logger:   logLogrus,
 	}
 
-	s.configureRouter(config)
+	s.configureRouter(c)
 
 	return s
 }

@@ -12,7 +12,7 @@ func (s server) PingDatabaseHandler(w http.ResponseWriter, r *http.Request) {
 	srv.logger.Debugf("Открытие БД прошло успешно")
 
 	srv.logger.Debugf("Пингование БД...")
-	if err := s.storeDB.Ping(); err != nil {
+	if err := s.dbStore.Ping(); err != nil {
 		srv.logger.Errorf("Ошибка пингования БД: %v", err)
 		srv.logger.Errorf("Отправлен код: %v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError)

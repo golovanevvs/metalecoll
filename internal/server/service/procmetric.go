@@ -5,10 +5,10 @@ import (
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
-	"github.com/golovanevvs/metalecoll/internal/server/storage"
+	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 )
 
-func ProcMetric(recMet model.Metric, store storage.Storage) *model.Metric {
+func ProcMetric(recMet model.Metric, store mapstorage.Storage) *model.Metric {
 	fmt.Printf("____________________Запущен ProcMetric...\n")
 
 	var newValue any

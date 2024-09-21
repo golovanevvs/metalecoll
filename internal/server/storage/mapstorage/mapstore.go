@@ -6,8 +6,18 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
 
+type Storage interface {
+	SaveMetric(met model.Metric)
+	GetMetric(key string) (model.Metric, error)
+	GetMetrics() map[string]model.Metric
+}
+
 type memStorage struct {
 	Metrics map[string]model.Metric
+}
+
+func New() *memStorage {
+	return &memStorage{}
 }
 
 func (ms *memStorage) SaveMetric(met model.Metric) {
@@ -27,8 +37,4 @@ func (ms *memStorage) GetMetric(name string) (model.Metric, error) {
 
 func (ms *memStorage) GetMetrics() map[string]model.Metric {
 	return ms.Metrics
-}
-
-func NewStorage() *memStorage {
-	return &memStorage{}
 }

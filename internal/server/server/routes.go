@@ -5,9 +5,10 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/golovanevvs/metalecoll/internal/server/config"
 )
 
-func (s *server) configureRouter(config *Config) {
+func (s *server) configureRouter(c *config.Config) {
 	s.router.Use(func(h http.Handler) http.Handler {
 		return WithLogging(h)
 	})
@@ -20,7 +21,7 @@ func (s *server) configureRouter(config *Config) {
 		return Decompressgzip(h)
 	})
 
-	s.router.Route(fmt.Sprintf("/%s", config.UpdateMethod), func(r chi.Router) {
+	s.router.Route(fmt.Sprintf("/%s", c.MethodNames.UpdateMethod), func(r chi.Router) {
 		r.Post("/{type}/{name}/{value}", func(w http.ResponseWriter, r *http.Request) {
 			s.logger.Debugf("Запуск UpdateMetricsHandler")
 			s.UpdateMetricsHandler(w, r)
@@ -41,7 +42,7 @@ func (s *server) configureRouter(config *Config) {
 		s.PingDatabaseHandler(w, r)
 	})
 
-	s.router.Route(fmt.Sprintf("/%s", config.GetValueMethod), func(r chi.Router) {
+	s.router.Route(fmt.Sprintf("/%s", c.MethodNames.GetValueMethod), func(r chi.Router) {
 		r.Get("/{type}/{name}", func(w http.ResponseWriter, r *http.Request) {
 			s.logger.Debugf("Запуск GetMetricValueHandler")
 			s.GetMetricValueHandler(w, r)

@@ -9,7 +9,7 @@ import (
 
 func (s *server) GetMetricNamesHandler(w http.ResponseWriter, r *http.Request) {
 	srv.logger.Debugf("Получение всех известных метрик из хранилища...")
-	metricsMap := s.store.GetMetrics()
+	metricsMap := s.mapStore.GetMetrics()
 	srv.logger.Debugf("Получение всех известных метрик из хранилища прошло успешно")
 
 	srv.logger.Debugf("Отправка тела ответа...")

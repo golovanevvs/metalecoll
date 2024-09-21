@@ -50,13 +50,13 @@ func (s *server) UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request
 	srv.logger.Debugf("Полученная метрика: %v", receivedMetric)
 
 	srv.logger.Debugf("Обновление метрики...")
-	calcMetric := service.ProcMetric(receivedMetric, s.store)
+	calcMetric := service.ProcMetric(receivedMetric, s.mapStore)
 	srv.logger.Debugf("Обновление метрики прошло успешно: %v", calcMetric)
 
 	srv.logger.Debugf("Обновление хранилища...")
-	s.store.SaveMetric(*calcMetric)
+	s.mapStore.SaveMetric(*calcMetric)
 	srv.logger.Debugf("Обновление хранилища прошло успешно")
-	srv.logger.Debugf("Обновлённое хранилище: %v", s.store.GetMetrics())
+	srv.logger.Debugf("Обновлённое хранилище: %v", s.mapStore.GetMetrics())
 
 	srv.logger.Debugf("Формирование тела ответа...")
 	switch req.MType {
