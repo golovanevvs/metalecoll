@@ -156,6 +156,10 @@ func (s *SQLStorage) GetMetricsFromDB(ctx context.Context, c *config.Config) (ma
 		ms.SaveMetric(m)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return ms, nil
 }
 
