@@ -23,6 +23,7 @@ type server struct {
 	router   *chi.Mux
 	//logger *zap.Logger
 	logger *logrus.Logger
+	c      *config.Config
 }
 
 var srv *server
@@ -137,6 +138,7 @@ func NewServer(mapStore mapstorage.Storage, dbStore storage.StorageDB, c *config
 		dbStore:  dbStore,
 		router:   chi.NewRouter(),
 		logger:   logLogrus,
+		c:        c,
 	}
 
 	s.configureRouter(c)
