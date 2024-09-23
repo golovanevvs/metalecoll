@@ -14,7 +14,7 @@ func (s server) UpdatesMetricsJSONHandler(w http.ResponseWriter, r *http.Request
 	var mVParse any
 	var req []dto.Metrics
 
-	srv.logger.Debugf("Декодирование JSON...\n")
+	srv.logger.Debugf("Декодирование JSON...")
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&req); err != nil {
 		srv.logger.Errorf("Ошибка декодирования JSON: %v", err)
@@ -24,6 +24,7 @@ func (s server) UpdatesMetricsJSONHandler(w http.ResponseWriter, r *http.Request
 	}
 	defer r.Body.Close()
 	srv.logger.Debugf("Декодирование JSON прошло успешно")
+	srv.logger.Debugf("%v", req)
 
 	for _, m := range req {
 		switch m.MType {
@@ -32,7 +33,7 @@ func (s server) UpdatesMetricsJSONHandler(w http.ResponseWriter, r *http.Request
 		case s.c.MetricTypeNames.CounterType:
 			mVParse = *m.Delta
 		default:
-			srv.logger.Errorf("Неизвестный тип метрики")
+			srv.logger.Errorf("Неизвестный тип метрики: %v", m.MType)
 			srv.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
 			w.WriteHeader(http.StatusBadRequest)
 			return

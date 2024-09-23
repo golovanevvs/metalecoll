@@ -6,6 +6,10 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
 
+type Storage interface {
+	SaveMetric(met model.Metric)
+	GetMetricsMap() (map[string]model.Metric, error)
+}
 type aMemStorage struct {
 	metrics map[string]model.Metric
 }

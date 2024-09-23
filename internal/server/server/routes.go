@@ -41,7 +41,7 @@ func (s *server) configureRouter(c *config.Config) {
 		s.PingDatabaseHandler(w, r)
 	})
 
-	s.router.Post("/updates", func(w http.ResponseWriter, r *http.Request) {
+	s.router.Post("/updates/", func(w http.ResponseWriter, r *http.Request) {
 		s.logger.Debugf("Запуск UpdatesMetricsJSONHandler")
 		s.UpdatesMetricsJSONHandler(w, r)
 	})
