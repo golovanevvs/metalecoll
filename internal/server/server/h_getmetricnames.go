@@ -29,9 +29,9 @@ func (s *server) GetMetricNamesHandler(w http.ResponseWriter, r *http.Request) {
 				</tr>
 				{{range .}}
 				<tr>
-					<td>{{.Name}}</td>
-					<td>{{.Type}}</td>
-					<td>{{.Value}}</td>
+					<td>{{.MetName}}</td>
+					<td>{{.MetType}}</td>
+					<td>{{.MetValue}}</td>
 				</tr>
 				{{end}}
 			</table>
