@@ -3,6 +3,8 @@ package agent
 import (
 	"bytes"
 	"compress/gzip"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -55,10 +57,6 @@ func Start(config *config) {
 			fmt.Println("Получение данных из хранилища прошло успешно")
 
 			putString = fmt.Sprintf("http://%s/updates/", config.addr)
-
-			fmt.Println("Формирование dto...")
-
-			fmt.Println("Формирование dto прошло успешно")
 
 			fmt.Println("Формирование среза метрик...")
 
@@ -115,6 +113,12 @@ func Start(config *config) {
 			fmt.Println("Установка заголовков...")
 			request.Header.Set("Content-Encoding", "gzip")
 			request.Header.Set("Content-Type", "application/json")
+			if config.hashKey != "" {
+				fmt.Println("Формирование hash...")
+				hash := calcHash(gzipB, config.hashKey)
+				fmt.Println("Формирование hash прошло успешно")
+				request.Header.Set("HashSHA256", hash)
+			}
 			fmt.Println("Установка заголовков прошла успешно")
 
 			fmt.Println("Отправка запроса...")
@@ -195,4 +199,12 @@ func NewAgent(store mapstorage.Storage, pollInterval, reportInterval int) *agent
 		reportInterval: reportInterval,
 	}
 	return s
+}
+
+func calcHash(data bytes.Buffer, key string) string {
+	h := sha256.New()
+	h.Write(data.Bytes())
+	h.Write([]byte(key))
+	dst := h.Sum(nil)
+	return hex.EncodeToString(dst)
 }

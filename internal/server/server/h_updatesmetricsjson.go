@@ -13,7 +13,7 @@ import (
 func (s server) UpdatesMetricsJSONHandler(w http.ResponseWriter, r *http.Request) {
 	var mVParse any
 	var req []dto.Metrics
-
+	
 	srv.logger.Debugf("Декодирование JSON...")
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&req); err != nil {
@@ -25,7 +25,8 @@ func (s server) UpdatesMetricsJSONHandler(w http.ResponseWriter, r *http.Request
 	defer r.Body.Close()
 	srv.logger.Debugf("Декодирование JSON прошло успешно")
 	srv.logger.Debugf("%v", req)
-
+	
+	
 	for _, m := range req {
 		switch m.MType {
 		case s.c.MetricTypeNames.GaugeType:
@@ -41,6 +42,11 @@ func (s server) UpdatesMetricsJSONHandler(w http.ResponseWriter, r *http.Request
 		receivedMetric := model.Metric{MetType: m.MType, MetName: m.ID, MetValue: mVParse}
 		srv.logger.Debugf("Полученная метрика: %v", receivedMetric)
 
+		if s.c.Crypto.HashKey != "" {
+			srv.logger.Debugf("Проверка hash...")
+			
+		}
+		
 		srv.logger.Debugf("Обновление метрики...")
 		calcMetric := service.ProcMetric(receivedMetric, s.mapStore)
 		srv.logger.Debugf("Обновление метрики прошло успешно: %v", calcMetric)

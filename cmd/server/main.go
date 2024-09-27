@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	c, err := config.Mew()
+	c, err := config.New()
 	if err != nil {
 		time.Sleep(10 * time.Second)
 		log.Fatalf("Ошибка конфигурирования сервера: %v", err)
@@ -19,4 +19,5 @@ func main() {
 		time.Sleep(10 * time.Second)
 		log.Fatalf("Ошибка: %v", err)
 	}
+	time.Sleep(5 * time.Second)
 }
