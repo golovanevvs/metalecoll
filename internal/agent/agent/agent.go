@@ -25,7 +25,7 @@ var ag *agent
 func Start(config *config) {
 	var putString string
 	var body Metrics
-	var gzipB bytes.Buffer
+	var metricsJSONGZIP bytes.Buffer
 
 	store := mapstorage.NewStorage()
 
@@ -86,15 +86,16 @@ func Start(config *config) {
 			fmt.Println(metrics)
 
 			fmt.Println("Кодирование в JSON...")
-			enc, err := json.Marshal(metrics)
+			metricsJSON, err := json.Marshal(metrics)
 			if err != nil {
-				fmt.Println("Ошибка кодирования:", err)
+				fmt.Println("Ошибка кодирования в JSON:", err)
 				continue
 			}
+			fmt.Println("Кодирование в JSON прошло успешно")
 
 			fmt.Println("Сжатие в gzip...")
-			gzipWr := gzip.NewWriter(&gzipB)
-			_, err = gzipWr.Write(enc)
+			gzipWr := gzip.NewWriter(&metricsJSONGZIP)
+			_, err = gzipWr.Write(metricsJSON)
 			if err != nil {
 				fmt.Println("Ошибка сжатия в gzip:", err)
 				gzipWr.Close()
@@ -104,7 +105,7 @@ func Start(config *config) {
 			fmt.Println("Сжатие в gzip прошло успешно")
 
 			fmt.Println("Формирование запроса POST...")
-			request, err := http.NewRequest("POST", putString, &gzipB)
+			request, err := http.NewRequest("POST", putString, &metricsJSONGZIP)
 			if err != nil {
 				fmt.Println("Ошибка формирования запроса:", err)
 			}
@@ -115,7 +116,7 @@ func Start(config *config) {
 			request.Header.Set("Content-Type", "application/json")
 			if config.hashKey != "" {
 				fmt.Println("Формирование hash...")
-				hash := calcHash(gzipB, config.hashKey)
+				hash := calcHash(metricsJSON, config.hashKey)
 				fmt.Println("Формирование hash прошло успешно")
 				request.Header.Set("HashSHA256", hash)
 			}
@@ -201,9 +202,9 @@ func NewAgent(store mapstorage.Storage, pollInterval, reportInterval int) *agent
 	return s
 }
 
-func calcHash(data bytes.Buffer, key string) string {
+func calcHash(data []byte, key string) string {
 	h := sha256.New()
-	h.Write(data.Bytes())
+	h.Write(data)
 	h.Write([]byte(key))
 	dst := h.Sum(nil)
 	return hex.EncodeToString(dst)

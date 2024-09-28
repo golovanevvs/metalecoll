@@ -46,7 +46,6 @@ func New() (*Config, error) {
 	var flagRestore bool
 
 	flag.StringVar(&flagRunAddr, "a", constants.AddrS, "address and port to run server")
-	//flag.IntVar(&flagStoreInterval, "i", 300, "the interval for saving to a file")
 	flag.IntVar(&flagStoreInterval, "i", 15, "the interval for saving to a file")
 	flag.StringVar(&flagFileStoragePath, "f", "metrics.txt", "the path to the metric file")
 	flag.BoolVar(&flagRestore, "r", true, "get saved metrics from a file")
