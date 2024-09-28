@@ -49,8 +49,8 @@ func New() (*Config, error) {
 	flag.IntVar(&flagStoreInterval, "i", 15, "the interval for saving to a file")
 	flag.StringVar(&flagFileStoragePath, "f", "metrics.txt", "the path to the metric file")
 	flag.BoolVar(&flagRestore, "r", true, "get saved metrics from a file")
-	//flag.StringVar(&flagDatabaseDSN, "d", "", "database DSN")
-	flag.StringVar(&flagDatabaseDSN, "d", "host=localhost port=5433 user=postgres password=password dbname=metalecoll sslmode=disable", "database DSN")
+	flag.StringVar(&flagDatabaseDSN, "d", "", "database DSN")
+	//flag.StringVar(&flagDatabaseDSN, "d", "host=localhost port=5433 user=postgres password=password dbname=metalecoll sslmode=disable", "database DSN")
 	flag.StringVar(&flagHashKey, "k", "key", "hash key")
 	flag.Parse()
 
