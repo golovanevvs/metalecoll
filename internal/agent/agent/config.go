@@ -28,7 +28,7 @@ func NewConfig() *config {
 	flag.StringVar(&flagRunAddr, "a", constants.AddrA, "address and port of server")
 	flag.IntVar(&flagRepInt, "r", 10, "reportInterval")
 	flag.IntVar(&flagPollInt, "p", 2, "pollInterval")
-	flag.StringVar(&flagHashKey, "k", "key", "hash key")
+	flag.StringVar(&flagHashKey, "k", "", "hash key")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
