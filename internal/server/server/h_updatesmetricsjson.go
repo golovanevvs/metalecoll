@@ -14,9 +14,8 @@ import (
 
 func (s server) UpdatesMetricsJSONHandler(w http.ResponseWriter, r *http.Request) {
 	var mVParse any
-	var dtoMetrics []dto.Metrics
-	var hash string
-
+	var req []dto.Metrics
+	
 	srv.logger.Debugf("Декодирование JSON...")
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&dtoMetrics); err != nil {
@@ -27,29 +26,10 @@ func (s server) UpdatesMetricsJSONHandler(w http.ResponseWriter, r *http.Request
 	}
 	defer r.Body.Close()
 	srv.logger.Debugf("Декодирование JSON прошло успешно")
-	srv.logger.Debugf("%v", dtoMetrics)
-
-	if s.c.Crypto.HashKey != "" {
-		srv.logger.Debugf("Проверка соответствия полученного и вычисленного hash...")
-		metricsJSON, err := json.Marshal(dtoMetrics)
-		if err != nil {
-			srv.logger.Debugf("Ошибка кодирования в JSON: %v", err)
-			srv.logger.Errorf("Отправлен код: %v", http.StatusInternalServerError)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		hash = calcHash(metricsJSON, s.c.Crypto.HashKey)
-		if hash != r.Header.Get("HashSHA256") {
-			srv.logger.Debugf("Проверка соответствия полученного и вычисленного hash прошла успешно")
-			s.logger.Errorf("Вычисленный hash не соответствует полученному")
-			s.logger.Errorf("Отправлен код: %v", http.StatusBadRequest)
-			return
-		}
-		srv.logger.Debugf("Проверка соответствия полученного и вычисленного hash прошла успешно")
-		srv.logger.Debugf("Вычисленный hash соответствует полученному")
-	}
-
-	for _, m := range dtoMetrics {
+	srv.logger.Debugf("%v", req)
+	
+	
+	for _, m := range req {
 		switch m.MType {
 		case s.c.MetricTypeNames.GaugeType:
 			mVParse = *m.Value
