@@ -10,9 +10,9 @@ import (
 func TestRegrtmet(t *testing.T) {
 	store := mapstorage.NewStorage()
 
-	ag = NewAgent(store, 2, 10)
+	ag := NewAgent(store, 2, 10)
 
-	RegisterMetrics()
+	RegisterMetrics(ag)
 
 	_, err := ag.store.GetMetricsMap()
 
