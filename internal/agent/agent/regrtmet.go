@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"runtime"
 
+	"github.com/golovanevvs/metalecoll/internal/agent/model"
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
-	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
 
 var pCount int64
@@ -22,6 +22,7 @@ func RegisterMetrics() {
 
 	fmt.Println("Updating №", pCount)
 
+	// Сбор метрик и сохранение метрик в map-хранилище
 	runtime.ReadMemStats(&rtMet)
 	newMet = model.Metric{
 		MetType:  constants.GaugeType,

@@ -17,6 +17,7 @@ type config struct {
 	pollInterval   int
 	reportInterval int
 	hashKey        string
+	rateLimit      int
 }
 
 func NewConfig() *config {
@@ -24,11 +25,13 @@ func NewConfig() *config {
 	var flagRepInt int
 	var flagPollInt int
 	var flagHashKey string
+	var flagRateLimit int
 
 	flag.StringVar(&flagRunAddr, "a", constants.AddrA, "address and port of server")
 	flag.IntVar(&flagRepInt, "r", 10, "reportInterval")
 	flag.IntVar(&flagPollInt, "p", 2, "pollInterval")
 	flag.StringVar(&flagHashKey, "k", "", "hash key")
+	flag.IntVar(&flagRateLimit, "l", 5, "rate limit")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
@@ -43,6 +46,9 @@ func NewConfig() *config {
 	if envHashKey := os.Getenv("KEY"); envHashKey != "" {
 		flagHashKey = envHashKey
 	}
+	if envRateLimit := os.Getenv("RATE_LIMIT"); envRateLimit != "" {
+		flagRateLimit, _ = strconv.Atoi(envRateLimit)
+	}
 
 	return &config{
 		addr:           flagRunAddr,
@@ -53,5 +59,6 @@ func NewConfig() *config {
 		pollInterval:   flagPollInt,
 		reportInterval: flagRepInt,
 		hashKey:        flagHashKey,
+		rateLimit:      flagRateLimit,
 	}
 }
