@@ -31,7 +31,7 @@ func NewConfig() *config {
 	flag.IntVar(&flagRepInt, "r", 10, "reportInterval")
 	flag.IntVar(&flagPollInt, "p", 2, "pollInterval")
 	flag.StringVar(&flagHashKey, "k", "", "hash key")
-	flag.IntVar(&flagRateLimit, "l", 5, "rate limit")
+	flag.IntVar(&flagRateLimit, "l", 3, "rate limit")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
@@ -48,6 +48,9 @@ func NewConfig() *config {
 	}
 	if envRateLimit := os.Getenv("RATE_LIMIT"); envRateLimit != "" {
 		flagRateLimit, _ = strconv.Atoi(envRateLimit)
+	}
+	if flagRateLimit == 0 {
+		flagRateLimit = 1
 	}
 
 	return &config{

@@ -59,9 +59,9 @@ func splitMetricsSlice(metricsSlice []Metrics, limit int) [][]Metrics {
 	part := len(metricsSlice) / limit
 	a1 = 0
 	a2 = part
-	for i := 0; i < limit; i++ {
+	for i := 1; i <= limit; i++ {
 		if i != limit {
-			partSlice = metricsSlice[a1 : a2-1]
+			partSlice = metricsSlice[a1:a2]
 			a1, a2 = a2, a2+part
 		} else {
 			partSlice = metricsSlice[a1:]
