@@ -5,8 +5,8 @@ import (
 	"runtime"
 
 	"github.com/golovanevvs/metalecoll/internal/agent/model"
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/mem"
+	"github.com/shirou/gopsutil/v4/cpu"
+	"github.com/shirou/gopsutil/v4/mem"
 )
 
 type reg struct {
