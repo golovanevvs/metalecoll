@@ -21,7 +21,7 @@ func sendMetrics(metrics [][]Metrics, urlString string, hashKey string, limit in
 
 	//получение результатов из канала результатов
 	for a := 0; a < len(metrics); a++ {
-		fmt.Printf(<-results)
+		fmt.Println(<-results)
 	}
 
 	//закрытие канала на стороне отправителя
