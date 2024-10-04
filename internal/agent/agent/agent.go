@@ -1,8 +1,7 @@
 package agent
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
+	"fmt"
 	"time"
 
 	"github.com/golovanevvs/metalecoll/internal/agent/storage/mapstorage"
@@ -19,18 +18,37 @@ func Start(config *config) {
 
 	ag := NewAgent(store, config.pollInterval, config.reportInterval)
 
+	// запуск таймера обновления метрик
 	pollIntTime := time.NewTicker(time.Duration(ag.pollInterval) * time.Second)
-	reportIntTime := time.NewTicker(time.Duration(ag.reportInterval) * time.Second)
-
 	defer pollIntTime.Stop()
+
+	// запуск таймера отправки метрик
+	reportIntTime := time.NewTicker(time.Duration(ag.reportInterval) * time.Second)
 	defer reportIntTime.Stop()
 
+	// работа таймеров
 	for {
 		select {
 		case <-pollIntTime.C:
-			go regNSave(ag)
+			regNSave(ag)
+
 		case <-reportIntTime.C:
-			go sendMetrics(ag, config)
+			fmt.Println("-------------------------------------------------------------------------")
+			fmt.Println("Reporting...")
+
+			metrics, err := getMetricsSlice(ag)
+			if err != nil {
+				fmt.Printf("Ошибка получения метрик: %v", err)
+				continue
+			}
+
+			splitMetrics := splitMetricsSlice(metrics, config.rateLimit)
+
+			urlString := fmt.Sprintf("http://%s/updates/", config.addr)
+
+			sendMetrics(splitMetrics, urlString, config.hashKey, config.rateLimit)
+
+			fmt.Println("Reporting completed")
 		}
 	}
 }
@@ -42,12 +60,4 @@ func NewAgent(store mapstorage.Storage, pollInterval, reportInterval int) *agent
 		reportInterval: reportInterval,
 	}
 	return s
-}
-
-func calcHash(data []byte, key string) string {
-	h := sha256.New()
-	h.Write(data)
-	h.Write([]byte(key))
-	dst := h.Sum(nil)
-	return hex.EncodeToString(dst)
 }

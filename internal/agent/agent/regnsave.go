@@ -38,35 +38,34 @@ func regNSave(ag *agent) {
 		r.cpuUt = []float64{0}
 	}
 
-	// количество работ для вывода результата
-	newNumJobs := numJobs + len(r.cpuUt) - 1
+	// количество результатов работ
+	numResults := numJobs + len(r.cpuUt) - 1
 
-	// создаём буферизованный канал для принятия задач в воркер
+	// создание буферизованного канала для принятия задач в воркер
 	jobs := make(chan int, numJobs)
 
-	// создаём буферизованный канал для отправки результатов
-	results := make(chan model.Metric, newNumJobs)
+	// создание буферизованного канала для отправки результатов
+	results := make(chan model.Metric, numResults)
 
-	// создаём и запускаем воркеры
+	// создание и запуск воркеров
 	for i := 0; i < w; i++ {
 		go regRTMetWorker(r, jobs, results)
 	}
 
-	// в канал задач отправляем id задачи
+	// отправка id задачи в канал задач
 	for j := 0; j < numJobs; j++ {
 		jobs <- j
 	}
 
-	// забираем из канала результатов результаты
-	for a := 0; a < newNumJobs; a++ {
+	// получение результатов из канала результатов и сохранение их в map-хранилище
+	for a := 0; a < numResults; a++ {
 		ag.store.SaveMetric(<-results)
 	}
 
-	// закрываем канал на стороне отправителя
+	// закрытие канала на стороне отправителя
 	close(jobs)
-	close(results)
 
-	// выводим полученное map-хранилище
+	// вывод полученного map-хранилища
 	count := 0
 	mapa, _ := ag.store.GetMetricsMap()
 	for _, m := range mapa {
