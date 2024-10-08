@@ -8,10 +8,9 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 	"github.com/golovanevvs/metalecoll/internal/server/service"
-	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
-func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
+func (s *server) UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	var mVParse any
 	var err error
 
@@ -64,7 +63,7 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 	srv.logger.Debugf("Полученная метрика: %v", receivedMetric)
 
 	srv.logger.Debugf("Обновление метрики...")
-	calcMetric := service.ProcMetric(receivedMetric, store)
+	calcMetric := service.ProcMetric(receivedMetric, s.mapStore)
 	srv.logger.Debugf("Обновление метрики прошло успешно: %v", calcMetric)
 
 	srv.logger.Debugf("Отправлен Content-Type: %v", constants.ContentTypeTPUTF8)
@@ -74,7 +73,7 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request, store storage.
 	w.WriteHeader(http.StatusOK)
 
 	srv.logger.Debugf("Обновление хранилища...")
-	store.SaveMetric(*calcMetric)
+	s.mapStore.SaveMetric(*calcMetric)
 	srv.logger.Debugf("Обновление хранилища прошло успешно")
-	srv.logger.Debugf("Обновлённое хранилище: %v", store.GetMetrics())
+	srv.logger.Debugf("Обновлённое хранилище: %v", s.mapStore.GetMetrics())
 }

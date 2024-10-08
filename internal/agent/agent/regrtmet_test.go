@@ -3,7 +3,6 @@ package agent
 import (
 	"testing"
 
-	"github.com/golovanevvs/metalecoll/internal/agent/storage"
 	"github.com/golovanevvs/metalecoll/internal/agent/storage/mapstorage"
 	"github.com/stretchr/testify/assert"
 )
@@ -11,11 +10,11 @@ import (
 func TestRegrtmet(t *testing.T) {
 	store := mapstorage.NewStorage()
 
-	ag = NewAgent(store, 2, 10)
+	ag := NewAgent(store, 2, 10)
 
-	RegisterMetrics()
+	RegisterMetrics(ag)
 
-	_, err := storage.GMM(ag.store)
+	_, err := ag.store.GetMetricsMap()
 
 	assert.NoError(t, err)
 }

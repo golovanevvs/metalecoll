@@ -5,10 +5,9 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
-func GetMetricValueHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
+func (s *server) GetMetricValueHandler(w http.ResponseWriter, r *http.Request) {
 	srv.logger.Debugf("Тело запроса: %v", r.URL.Path)
 
 	srv.logger.Debugf("Параметры полученной метрики:")
@@ -20,7 +19,7 @@ func GetMetricValueHandler(w http.ResponseWriter, r *http.Request, store storage
 	srv.logger.Debugf("Значение метрики: %v", mV)
 
 	srv.logger.Debugf("Получение данных из хранилища...")
-	metric, err := store.GetMetric(mN)
+	metric, err := s.mapStore.GetMetric(mN)
 	if err != nil {
 		fmt.Println(err)
 		srv.logger.Errorf("Ошибка получения данных из хранилища")

@@ -3,18 +3,19 @@ package mapstorage
 import (
 	"errors"
 
-	"github.com/golovanevvs/metalecoll/internal/server/model"
+	"github.com/golovanevvs/metalecoll/internal/agent/model"
 )
 
+type Storage interface {
+	SaveMetric(met model.Metric)
+	GetMetricsMap() (map[string]model.Metric, error)
+}
 type aMemStorage struct {
 	metrics map[string]model.Metric
 }
 
 func (ams *aMemStorage) SaveMetric(met model.Metric) {
-	if ams.metrics == nil {
-		ams.metrics = make(map[string]model.Metric)
-	}
-	ams.metrics[met.MetName] = met
+	ams.metrics[met.Name] = met
 }
 
 func (ams *aMemStorage) GetMetricsMap() (map[string]model.Metric, error) {
@@ -26,5 +27,7 @@ func (ams *aMemStorage) GetMetricsMap() (map[string]model.Metric, error) {
 }
 
 func NewStorage() *aMemStorage {
-	return &aMemStorage{}
+	return &aMemStorage{
+		metrics: make(map[string]model.Metric),
+	}
 }

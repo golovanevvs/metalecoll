@@ -8,10 +8,9 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/dto"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 	"github.com/golovanevvs/metalecoll/internal/server/service"
-	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
-func UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request, store storage.Storage) {
+func (s *server) UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request) {
 	var mVParse any
 	var req, resp dto.Metrics
 
@@ -51,13 +50,13 @@ func UpdateMetricsJSONHandler(w http.ResponseWriter, r *http.Request, store stor
 	srv.logger.Debugf("Полученная метрика: %v", receivedMetric)
 
 	srv.logger.Debugf("Обновление метрики...")
-	calcMetric := service.ProcMetric(receivedMetric, store)
+	calcMetric := service.ProcMetric(receivedMetric, s.mapStore)
 	srv.logger.Debugf("Обновление метрики прошло успешно: %v", calcMetric)
 
 	srv.logger.Debugf("Обновление хранилища...")
-	store.SaveMetric(*calcMetric)
+	s.mapStore.SaveMetric(*calcMetric)
 	srv.logger.Debugf("Обновление хранилища прошло успешно")
-	srv.logger.Debugf("Обновлённое хранилище: %v", store.GetMetrics())
+	srv.logger.Debugf("Обновлённое хранилище: %v", s.mapStore.GetMetrics())
 
 	srv.logger.Debugf("Формирование тела ответа...")
 	switch req.MType {
