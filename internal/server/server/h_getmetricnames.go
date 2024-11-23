@@ -39,7 +39,7 @@ func (s *server) GetMetricNamesHandler(w http.ResponseWriter, r *http.Request) {
 		</html>
 	`
 
-	t, err := template.New("metrics").Parse(tmpl)
+	t, err := template.New("metricArr").Parse(tmpl)
 	if err != nil {
 		srv.logger.Errorf("Ошибка создания шаблона: %v", err)
 		srv.logger.Debugf("Отправлен код: %v", http.StatusInternalServerError)
@@ -55,7 +55,4 @@ func (s *server) GetMetricNamesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	srv.logger.Debugf("Отправка тела ответа прошла успешно")
-
-	srv.logger.Debugf("Отправляем код: %v", http.StatusOK)
-	w.WriteHeader(http.StatusOK)
 }

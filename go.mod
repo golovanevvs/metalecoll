@@ -4,7 +4,6 @@ go 1.22.3
 
 require (
 	github.com/go-chi/chi v1.5.5
-	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/stretchr/testify v1.9.0
 )
 
