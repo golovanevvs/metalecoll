@@ -6,7 +6,7 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/config"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/filestorage"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
-	"github.com/golovanevvs/metalecoll/internal/server/storage/sqlstorage"
+	"github.com/golovanevvs/metalecoll/internal/server/storage/postgres"
 )
 
 // StorageDB - интерфейс работы с основным хранилищем
@@ -17,14 +17,14 @@ type StorageDB interface {
 	Ping() error
 }
 
-// New - выбор основного хранилища: если флаг (-d) пуст, то выбирается файловое хранилище, иначе - БД
-func New(c *config.Config) (StorageDB, error) {
+// NewStorage - выбор основного хранилища: если флаг (-d) пуст, то выбирается файловое хранилище, иначе - БД
+func NewStorage(c *config.Config) (StorageDB, error) {
 	switch c.Storage.DatabaseDSN {
 	case "":
-		s := filestorage.New(c)
+		s := filestorage.NewFileStorage(c.Storage.FileStoragePath)
 		return s, nil
 	default:
-		s, err := sqlstorage.New(c)
+		s, err := postgres.NewPostgres(c.Storage.DatabaseDSN)
 		if err != nil {
 			return nil, err
 		}

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/golovanevvs/metalecoll/internal/server/config"
+	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 )
@@ -17,11 +18,11 @@ type FileStorage struct {
 	FileStoragePath string
 }
 
-// New - конструктор файлового хранилища
-func New(c *config.Config) *FileStorage {
+// NewFileStorage - конструктор файлового хранилища
+func NewFileStorage(fileStoragePath string) *FileStorage {
 	return &FileStorage{
-		Name:            "Файловое хранилище: " + c.Storage.FileStoragePath,
-		FileStoragePath: c.Storage.FileStoragePath,
+		Name:            "Файловое хранилище: " + fileStoragePath,
+		FileStoragePath: fileStoragePath,
 	}
 }
 
@@ -75,9 +76,9 @@ func (f *FileStorage) GetMetricsFromDB(ctx context.Context, c *config.Config) (m
 			return nil, err
 		}
 		switch metric.MetType {
-		case c.MetricTypeNames.GaugeType:
+		case constants.GaugeType:
 			metric.MetValue = metric.MetValue.(float64)
-		case c.MetricTypeNames.CounterType:
+		case constants.CounterType:
 			metric.MetValue = int64(metric.MetValue.(float64))
 		}
 		ms.SaveMetric(metric)

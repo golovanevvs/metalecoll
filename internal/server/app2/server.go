@@ -34,7 +34,7 @@ func Start(c *config.Config) error {
 	mapStore := mapstorage.New()
 
 	// Выбор и инициализация основного хранилища: если флаг (-d) пуст, то выбирается файловое хранилище, иначе - БД
-	dbStore, err := storage.New(c)
+	dbStore, err := storage.NewStorage(c)
 	if err != nil {
 		fmt.Printf("Ошибка инициализации хранилища: %v\n", err)
 		return err

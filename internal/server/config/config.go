@@ -9,11 +9,11 @@ import (
 )
 
 type Config struct {
-	Server          Server
-	Logger          Logger
-	Storage         Storage
-	MetricTypeNames MetricTypeNames
-	Crypto          Crypto
+	Server Server
+	//Logger          Logger
+	Storage Storage
+	//MetricTypeNames MetricTypeNames
+	Crypto Crypto
 }
 
 type Server struct {
@@ -27,20 +27,20 @@ type Storage struct {
 	DatabaseDSN     string
 }
 
-type MetricTypeNames struct {
-	GaugeType   string
-	CounterType string
-}
+// type MetricTypeNames struct {
+// 	GaugeType   string
+// 	CounterType string
+// }
 
-type Logger struct {
-	LogLevel string
-}
+// type Logger struct {
+// 	LogLevel string
+// }
 
 type Crypto struct {
 	HashKey string
 }
 
-func New() (*Config, error) {
+func NewConfig() (*Config, error) {
 	var flagRunAddr, flagFileStoragePath, flagDatabaseDSN, flagHashKey string
 	var flagStoreInterval int
 	var flagRestore bool
@@ -83,23 +83,23 @@ func New() (*Config, error) {
 
 	return &Config{
 		Server{
-			Addr:          flagRunAddr,
-			StoreInterval: flagStoreInterval,
+			Addr:          flagRunAddr,       // флаг: адрес сервера
+			StoreInterval: flagStoreInterval, // флаг: интервал сохранения данных
 		},
-		Logger{
-			LogLevel: "debug",
-		},
+		// Logger{
+		// 	LogLevel: "debug",
+		//},
 		Storage{
-			Restore:         flagRestore,
-			FileStoragePath: flagFileStoragePath,
-			DatabaseDSN:     flagDatabaseDSN,
+			Restore:         flagRestore,         // флаг: восстановление данных при запусае сервера
+			FileStoragePath: flagFileStoragePath, // флаг: путь к файлу сохранения данных
+			DatabaseDSN:     flagDatabaseDSN,     //флаг: DSN базы данных
 		},
-		MetricTypeNames{
-			GaugeType:   constants.GaugeType,
-			CounterType: constants.CounterType,
-		},
+		// MetricTypeNames{
+		// 	GaugeType:   constants.GaugeType,
+		// 	CounterType: constants.CounterType,
+		// },
 		Crypto{
-			HashKey: flagHashKey,
+			HashKey: flagHashKey, // флаг: хэш ключ
 		},
 	}, nil
 }
