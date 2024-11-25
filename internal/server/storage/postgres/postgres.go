@@ -5,8 +5,8 @@ import (
 
 	"github.com/golovanevvs/metalecoll/internal/server/config"
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
+	"github.com/golovanevvs/metalecoll/internal/server/mapstorage"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
-	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
@@ -17,9 +17,9 @@ type allPostgres struct {
 }
 
 // NewPostgres - конструктор
-func NewPostgres(databaseURI string) (*allPostgres, error) {
+func NewPostgres(databaseDSN string) (*allPostgres, error) {
 	// открытие БД
-	db, err := sqlx.Open("pgx", databaseURI)
+	db, err := sqlx.Open("pgx", databaseDSN)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func NewPostgres(databaseURI string) (*allPostgres, error) {
 
 	// создание экземпляра allPostgres
 	st := &allPostgres{
-		name: "БД Postgres " + databaseURI,
+		name: "БД Postgres " + databaseDSN,
 		db:   db,
 	}
 
@@ -48,7 +48,7 @@ func (s *allPostgres) SaveMetricsToDB(ctx context.Context, c *config.Config, map
 	s.db.ExecContext(ctx, `
 	TRUNCATE TABLE metrics RESTART IDENTITY;
 	`)
-	mapMetrics := mapStore.GetMetrics()
+	mapMetrics := mapStore.GetMetricsFromMap()
 	for _, metric := range mapMetrics {
 		switch metric.MetType {
 		case constants.GaugeType:
@@ -82,7 +82,7 @@ func (s *allPostgres) GetMetricsFromDB(ctx context.Context, c *config.Config) (m
 		gaugeValue   float64
 		counterValue int64
 	)
-	ms := mapstorage.New()
+	ms := mapstorage.NewMapStorage()
 	rows, err := s.db.QueryContext(ctx, `
 	SELECT
 		metric_name,
@@ -107,7 +107,7 @@ func (s *allPostgres) GetMetricsFromDB(ctx context.Context, c *config.Config) (m
 		case constants.CounterType:
 			m.MetValue = counterValue
 		}
-		ms.SaveMetric(m)
+		ms.SaveMetricToMap(m)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -122,4 +122,8 @@ func (s *allPostgres) Ping() error {
 		return err
 	}
 	return nil
+}
+
+func (s *allPostgres) CloseDB() error {
+	return s.db.Close()
 }

@@ -8,8 +8,8 @@ import (
 
 	"github.com/golovanevvs/metalecoll/internal/server/config"
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
+	"github.com/golovanevvs/metalecoll/internal/server/mapstorage"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
-	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 )
 
 // FileStorage - тип файлового хранилища
@@ -41,7 +41,7 @@ func (f *FileStorage) SaveMetricsToDB(ctx context.Context, c *config.Config, map
 	}
 
 	defer file.Close()
-	metrics := mapStore.GetMetrics()
+	metrics := mapStore.GetMetricsFromMap()
 
 	for _, v := range metrics {
 		enc, err := json.Marshal(v)
@@ -68,7 +68,7 @@ func (f *FileStorage) GetMetricsFromDB(ctx context.Context, c *config.Config) (m
 		return nil, err
 	}
 	defer file.Close()
-	ms := mapstorage.New()
+	ms := mapstorage.NewMapStorage()
 	sc := bufio.NewScanner(file)
 	for sc.Scan() {
 		str := sc.Text()
@@ -81,12 +81,16 @@ func (f *FileStorage) GetMetricsFromDB(ctx context.Context, c *config.Config) (m
 		case constants.CounterType:
 			metric.MetValue = int64(metric.MetValue.(float64))
 		}
-		ms.SaveMetric(metric)
+		ms.SaveMetricToMap(metric)
 	}
 	return ms, nil
 }
 
 // Ping - метод-заглушка для соответствия интерфейсу
 func (f *FileStorage) Ping() error {
+	return nil
+}
+
+func (f *FileStorage) CloseDB() error {
 	return nil
 }

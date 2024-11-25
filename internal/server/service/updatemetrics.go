@@ -3,10 +3,14 @@ package service
 import (
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
-	"github.com/golovanevvs/metalecoll/internal/server/storage/mapstorage"
 )
 
-func ProcMetric(recMet model.Metric, store mapstorage.Storage) *model.Metric {
+func (sv *updateMetricsService) UpdateMetric(recMet model.Metric) {
+	updatedMetric := sv.procMetric(recMet)
+	sv.mapStorage.SaveMetricToMap(updatedMetric)
+}
+
+func (sv *updateMetricsService) procMetric(recMet model.Metric) model.Metric {
 	var newValue any
 
 	switch recMet.MetType {
@@ -15,14 +19,14 @@ func ProcMetric(recMet model.Metric, store mapstorage.Storage) *model.Metric {
 		newValue = recMet.MetValue.(float64)
 
 	case constants.CounterType:
-		if getValue, err := store.GetMetric(recMet.MetName); err != nil {
+		if getValue, err := sv.mapStorage.GetMetricFromMap(recMet.MetName); err != nil {
 			newValue = recMet.MetValue.(int64)
 		} else {
 			newValue = (getValue.MetValue.(int64)) + recMet.MetValue.(int64)
 		}
 	}
 
-	return &model.Metric{
+	return model.Metric{
 		MetType:  recMet.MetType,
 		MetName:  recMet.MetName,
 		MetValue: newValue,

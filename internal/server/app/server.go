@@ -13,7 +13,7 @@ func NewServer() *Server {
 	return &Server{}
 }
 
-func (srv *Server) RunServer(runAddress string, handler http.handler) error {
+func (srv *Server) RunServer(runAddress string, handler http.Handler) error {
 	srv.httpsrv = &http.Server{
 		Addr:    runAddress,
 		Handler: handler,
