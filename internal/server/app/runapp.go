@@ -19,16 +19,17 @@ import (
 
 func RunApp() {
 	//! подготовительные операции
-	//TODO уровень логгирования устанавливать в config
 	// инициализация логгера
 	lg := logrus.New()
-	lg.SetLevel(logrus.DebugLevel)
 
 	// инициализация конфигурации
 	cfg, err := config.NewConfig()
 	if err != nil {
 		lg.Fatalf("ошибка инициализации конфигурации сервера: %s", err.Error())
 	}
+
+	// установка уровня логгирования
+	lg.SetLevel(cfg.Logger.LogLevel)
 
 	// Выбор и инициализация основного хранилища: если флаг (-d) пуст, то выбирается файловое хранилище, иначе - БД
 	var mainStore storage.IStorageDB

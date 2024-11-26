@@ -6,14 +6,14 @@ import (
 	"strconv"
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
-	Server Server
-	//Logger          Logger
+	Server  Server
 	Storage Storage
-	//MetricTypeNames MetricTypeNames
-	Crypto Crypto
+	Logger  Logger
+	Crypto  Crypto
 }
 
 type Server struct {
@@ -27,14 +27,9 @@ type Storage struct {
 	DatabaseDSN     string
 }
 
-// type MetricTypeNames struct {
-// 	GaugeType   string
-// 	CounterType string
-// }
-
-// type Logger struct {
-// 	LogLevel string
-// }
+type Logger struct {
+	LogLevel logrus.Level
+}
 
 type Crypto struct {
 	HashKey string
@@ -86,18 +81,14 @@ func NewConfig() (*Config, error) {
 			Addr:          flagRunAddr,       // флаг: адрес сервера
 			StoreInterval: flagStoreInterval, // флаг: интервал сохранения данных
 		},
-		// Logger{
-		// 	LogLevel: "debug",
-		//},
 		Storage{
 			Restore:         flagRestore,         // флаг: восстановление данных при запусае сервера
 			FileStoragePath: flagFileStoragePath, // флаг: путь к файлу сохранения данных
 			DatabaseDSN:     flagDatabaseDSN,     //флаг: DSN базы данных
 		},
-		// MetricTypeNames{
-		// 	GaugeType:   constants.GaugeType,
-		// 	CounterType: constants.CounterType,
-		// },
+		Logger{
+			logrus.DebugLevel,
+		},
 		Crypto{
 			HashKey: flagHashKey, // флаг: хэш ключ
 		},
