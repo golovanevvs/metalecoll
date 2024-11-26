@@ -124,6 +124,7 @@ func NewServer(mapStore mapstorage.Storage, dbStore storage.StorageDB, c *config
 	// if err != nil {
 	// 	panic("cannot initialize zap")
 	// }
+	//
 
 	logLogrus := logrus.New()
 	l, _ := logrus.ParseLevel(c.Logger.LogLevel)
