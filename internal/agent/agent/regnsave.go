@@ -47,7 +47,8 @@ func regNSave(ag *agent) {
 	jobs := make(chan int, numJobs)
 
 	// создание буферизованного канала для отправки результатов
-	results := make(chan model.Metric, numResults)
+	//results := make(chan model.Metric, numResults)
+	results := make(chan model.Metric)
 
 	// создание и запуск воркеров
 	for i := 0; i < w; i++ {

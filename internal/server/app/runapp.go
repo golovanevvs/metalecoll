@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -77,8 +76,7 @@ func RunApp() {
 	//! запуск сервера
 	go func() {
 		lg.Infof("Сервер сбора метрик metalecoll запущен")
-		addr := fmt.Sprintf("http://%s", cfg.Server.Addr)
-		if err := srv.RunServer(addr, hd.InitRoutes()); err != nil {
+		if err := srv.RunServer(cfg.Server.Addr, hd.InitRoutes()); err != nil {
 			lg.Fatalf("ошибка запуска сервера: %s", err.Error())
 		}
 	}()
