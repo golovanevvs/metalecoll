@@ -46,7 +46,7 @@ func (hd *handler) InitRoutes() *chi.Mux {
 		r.Get("/{type}/{name}", hd.GetMetricValue)
 		r.Post("/", hd.GetMetricValueJSON)
 	})
-	rt.Post("/updates", hd.UpdatesMetricsJSON)
+	rt.Post("/updates/", hd.UpdatesMetricsJSON)
 	rt.Get("/ping", hd.PingDatabase)
 	rt.Get("/", hd.GetMetricNames)
 
