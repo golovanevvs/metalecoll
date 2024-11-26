@@ -3,6 +3,7 @@ package agent
 import (
 	"fmt"
 	"runtime"
+	"sync"
 
 	"github.com/golovanevvs/metalecoll/internal/agent/model"
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -22,6 +23,7 @@ func regNSave(ag *agent) {
 	var w int
 	var r reg
 	var err error
+	var mu sync.Mutex
 
 	w = 3 // количество воркеров
 
@@ -59,7 +61,9 @@ func regNSave(ag *agent) {
 
 	// получение результатов из канала результатов и сохранение их в map-хранилище
 	for a := 0; a < numResults; a++ {
+		mu.Lock()
 		ag.store.SaveMetric(<-results)
+		mu.Unlock()
 	}
 
 	// закрытие канала на стороне отправителя
