@@ -214,3 +214,4 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // 	fmt.Printf("Таблицы %v не существует\n", nameTable)
 // 	return false, nil
 // }
+//
