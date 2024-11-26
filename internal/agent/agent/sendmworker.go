@@ -53,6 +53,7 @@ func sendMetWorker(id int, urlString string, hashKey string, metrics <-chan []Me
 		response, err := client.Do(request)
 		if err != nil {
 			fmt.Printf("sendMetWorker %v: Ошибка отправки запроса: %v\n", id, err)
+			return
 		}
 		response.Body.Close()
 		fmt.Printf("sendMetWorker %v: Отправка запроса прошла успешно\n", id)
