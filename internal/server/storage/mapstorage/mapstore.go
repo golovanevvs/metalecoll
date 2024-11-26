@@ -2,6 +2,7 @@ package mapstorage
 
 import (
 	"errors"
+	"sync"
 
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
@@ -21,10 +22,13 @@ func New() *memStorage {
 }
 
 func (ms *memStorage) SaveMetric(met model.Metric) {
+	mu := new(sync.Mutex)
+	mu.Lock()
 	if ms.Metrics == nil {
 		ms.Metrics = make(map[string]model.Metric)
 	}
 	ms.Metrics[met.MetName] = met
+	mu.Unlock()
 }
 
 func (ms *memStorage) GetMetric(name string) (model.Metric, error) {

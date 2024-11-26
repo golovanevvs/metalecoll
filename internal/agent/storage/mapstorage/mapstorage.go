@@ -2,6 +2,7 @@ package mapstorage
 
 import (
 	"errors"
+	"sync"
 
 	"github.com/golovanevvs/metalecoll/internal/agent/model"
 )
@@ -15,7 +16,10 @@ type aMemStorage struct {
 }
 
 func (ams *aMemStorage) SaveMetric(met model.Metric) {
+	mu := new(sync.Mutex)
+	mu.Lock()
 	ams.metrics[met.Name] = met
+	mu.Unlock()
 }
 
 func (ams *aMemStorage) GetMetricsMap() (map[string]model.Metric, error) {
