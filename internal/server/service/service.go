@@ -7,7 +7,7 @@ import (
 )
 
 type IUpdateMetricsService interface {
-	UpdateMetric(recMet model.Metric) model.Metric
+	UpdateMetric(recMet model.Metric) *model.Metric
 }
 
 type IGetMetricsService interface {

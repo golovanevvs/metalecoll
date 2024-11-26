@@ -5,13 +5,13 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
 
-func (sv *updateMetricsService) UpdateMetric(recMet model.Metric) model.Metric {
+func (sv *updateMetricsService) UpdateMetric(recMet model.Metric) *model.Metric {
 	updatedMetric := sv.procMetric(recMet)
-	sv.mapStorage.SaveMetricToMap(updatedMetric)
+	sv.mapStorage.SaveMetricToMap(*updatedMetric)
 	return updatedMetric
 }
 
-func (sv *updateMetricsService) procMetric(recMet model.Metric) model.Metric {
+func (sv *updateMetricsService) procMetric(recMet model.Metric) *model.Metric {
 	var newValue any
 
 	switch recMet.MetType {
@@ -27,7 +27,7 @@ func (sv *updateMetricsService) procMetric(recMet model.Metric) model.Metric {
 		}
 	}
 
-	return model.Metric{
+	return &model.Metric{
 		MetType:  recMet.MetType,
 		MetName:  recMet.MetName,
 		MetValue: newValue,
