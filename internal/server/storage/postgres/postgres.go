@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	"github.com/golovanevvs/metalecoll/internal/server/config"
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
@@ -35,12 +37,66 @@ func NewPostgres(databaseDSN string) (*allPostgres, error) {
 		db:   db,
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	exist, err := st.tablesExist()
+	if err != nil {
+		return nil, err
+	}
+
+	if !exist {
+		_, err = db.ExecContext(ctx, `
+		CREATE TABLE metrics (
+			id SERIAL PRIMARY KEY,
+			metric_name VARCHAR(250) NOT NULL,
+			metric_type VARCHAR(250) NOT NULL,
+			gauge_value DOUBLE PRECISION DEFAULT NULL,
+			counter_value INTEGER DEFAULT NULL
+		)
+		`,
+		)
+		if err != nil {
+			return nil, err
+		}
+		exist2, err := st.tablesExist()
+		if err != nil {
+			return nil, err
+		}
+		if !exist2 {
+			return nil, errors.New("неизвестная ошибка создания таблицы metrics")
+		}
+	}
+
 	return st, nil
 }
 
 // GetNameDB возвращает название хранилища
 func (s *allPostgres) GetNameDB() string {
 	return s.name
+}
+
+func (s *allPostgres) tablesExist() (bool, error) {
+	var exists bool
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	row := s.db.QueryRowContext(ctx, `
+		SELECT EXISTS
+			(SELECT FROM information_schema.tables
+			WHERE table_name = 'metrics')
+		`,
+	)
+
+	err := row.Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	if exists {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // SaveMetricsToDB сохраняет метрики в БД
