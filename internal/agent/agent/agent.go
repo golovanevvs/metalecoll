@@ -44,7 +44,8 @@ func Start(config *config) {
 
 			splitMetrics := splitMetricsSlice(metrics, config.rateLimit)
 
-			urlString := fmt.Sprintf("http://%s/updates/", config.addr)
+			//urlString := fmt.Sprintf("http://%s/updates/", config.addr)
+			urlString := fmt.Sprintf("%s/updates/", config.addr)
 
 			sendMetrics(splitMetrics, urlString, config.hashKey, config.rateLimit)
 
