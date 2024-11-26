@@ -49,7 +49,7 @@ func RunApp() {
 	// инициализация сервиса
 	sv := service.NewService(mst, st)
 	// инициализация хендлера
-	hd := handler.NewHandler(sv, lg)
+	hd := handler.NewHandler(sv, lg, cfg.Crypto.HashKey)
 	// инициализация сервера
 	srv := NewServer()
 

@@ -10,15 +10,17 @@ import (
 
 // структура handler
 type handler struct {
-	sv *service.Service
-	lg *logrus.Logger
+	sv      *service.Service
+	lg      *logrus.Logger
+	hashKey string
 }
 
 // NewHandler - конструктор *handler
-func NewHandler(sv *service.Service, lg *logrus.Logger) *handler {
+func NewHandler(sv *service.Service, lg *logrus.Logger, hashKey string) *handler {
 	return &handler{
-		sv: sv,
-		lg: lg,
+		sv:      sv,
+		lg:      lg,
+		hashKey: hashKey,
 	}
 }
 
@@ -38,7 +40,15 @@ func (hd *handler) InitRoutes() *chi.Mux {
 	// маршруты
 	rt.Route("/update", func(r chi.Router) {
 		r.Post("/{type}/{name}/{value}", hd.UpdateMetric)
+		r.Post("/", hd.UpdateMetricsJSON)
 	})
+	rt.Route("/value", func(r chi.Router) {
+		r.Get("/{type}/{name}", hd.GetMetricValue)
+		r.Post("/", hd.GetMetricValueJSON)
+	})
+	rt.Post("/updates/", hd.UpdatesMetricsJSON)
+	rt.Get("/ping", hd.PingDatabase)
+	rt.Get("/", hd.GetMetricNames)
 
 	return rt
 }

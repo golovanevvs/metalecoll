@@ -8,7 +8,7 @@ import (
 
 type Storage interface {
 	SaveMetricToMap(met model.Metric)
-	GetMetricFromMap(key string) (model.Metric, error)
+	GetMetricFromMap(name string) (model.Metric, error)
 	GetMetricsFromMap() map[string]model.Metric
 }
 

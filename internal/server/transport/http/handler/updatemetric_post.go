@@ -62,8 +62,8 @@ func (hd *handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	hd.lg.Debugf("Полученная метрика: %v", receivedMetric)
 
 	hd.lg.Debugf("Запуск сервиса обновления метрики...")
-	hd.sv.UpdateMetric(receivedMetric)
-	hd.lg.Debugf("Обновление метрики прошло успешно")
+	calcMetric := hd.sv.UpdateMetric(receivedMetric)
+	hd.lg.Debugf("Обновление метрики прошло успешно, обновлённая метрика: %v", calcMetric)
 
 	hd.lg.Debugf("Отправлен Content-Type: %v", constants.ContentTypeTPUTF8)
 	w.Header().Set("Content-Type", constants.ContentTypeTPUTF8)
@@ -71,5 +71,5 @@ func (hd *handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	hd.lg.Debugf("Отправлен код: %v", http.StatusOK)
 	w.WriteHeader(http.StatusOK)
 
-	hd.lg.Debugf("Обновлённое хранилище: %v", hd.sv.GetMetricsFromMap())
+	hd.lg.Debugf("Обновлённая мапа: %v", hd.sv.GetMetricsFromMap())
 }

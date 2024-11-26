@@ -7,14 +7,16 @@ import (
 )
 
 type IUpdateMetricsService interface {
-	UpdateMetric(recMet model.Metric)
+	UpdateMetric(recMet model.Metric) model.Metric
 }
 
 type IGetMetricsService interface {
+	GetMetricFromMap(name string) (model.Metric, error)
 	GetMetricsFromMap() map[string]model.Metric
 }
 
 type IPingDatabaseService interface {
+	Ping() error
 }
 
 type updateMetricsService struct {
