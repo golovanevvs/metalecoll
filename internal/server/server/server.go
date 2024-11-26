@@ -48,6 +48,7 @@ func NewServer(store storage.Storage, config *Config) *server {
 	// if err != nil {
 	// 	panic("cannot initialize zap")
 	// }
+	//
 
 	logLogrus := logrus.New()
 	logLogrus.SetLevel(logrus.DebugLevel)
