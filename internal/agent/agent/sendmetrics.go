@@ -3,8 +3,6 @@ package agent
 import "fmt"
 
 func sendMetrics(metrics [][]Metrics, urlString string, hashKey string, limit int) {
-	limit = 1
-
 	// создание буферизованного канала для принятия задач в воркер
 	jobs := make(chan []Metrics, len(metrics))
 
@@ -21,11 +19,14 @@ func sendMetrics(metrics [][]Metrics, urlString string, hashKey string, limit in
 		jobs <- metrics[j]
 	}
 
+	fmt.Printf("len(metrics): %d", len(metrics))
+
 	//получение результатов из канала результатов
 	for a := 0; a < len(metrics); a++ {
 		fmt.Println(<-results)
 	}
 
 	//закрытие канала на стороне отправителя
+	fmt.Println("Закрытие канала jobs")
 	close(jobs)
 }
