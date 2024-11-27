@@ -11,13 +11,13 @@ func getMetricsSlice(ag *agent) ([]Metrics, error) {
 	var metricsdto []Metrics
 	var body Metrics
 
-	fmt.Println("Получение данных из хранилища...")
+	fmt.Println("Получение данных из map-хранилища...")
 	mapStore, err := ag.store.GetMetricsMap()
 	if err != nil {
-		fmt.Println("Ошибка получения данных из хранилища:", err)
+		fmt.Println("Ошибка получения данных из map-хранилища:", err)
 		return nil, err
 	}
-	fmt.Println("Получение данных из хранилища прошло успешно")
+	fmt.Println("Получение данных из map-хранилища прошло успешно")
 
 	fmt.Println("Формирование среза метрик в соответствии с dto...")
 
@@ -47,7 +47,7 @@ func getMetricsSlice(ag *agent) ([]Metrics, error) {
 	return metricsdto, nil
 }
 
-// splitMetrisSlice делит слайс метрик на несколько частей (слайсов), количество которых соответствует RATE_LIMIT
+// splitMetricsSlice делит слайс метрик на несколько частей (слайсов), количество которых соответствует RATE_LIMIT
 func splitMetricsSlice(metricsSlice []Metrics, limit int) [][]Metrics {
 	var newSlice [][]Metrics
 	if limit == 0 || limit > len(metricsSlice) {
@@ -72,6 +72,8 @@ func splitMetricsSlice(metricsSlice []Metrics, limit int) [][]Metrics {
 	fmt.Printf("Разделение слайса метрик на %v частей прошло успешно\n", limit)
 	for i := range newSlice {
 		fmt.Printf("Длина слайса %v: %v\n", i+1, len(newSlice[i]))
+		fmt.Println("Содержимое слайса:")
+		fmt.Println(newSlice[i])
 	}
 	return newSlice
 }

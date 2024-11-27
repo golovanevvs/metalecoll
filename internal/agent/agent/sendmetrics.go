@@ -6,7 +6,7 @@ func sendMetrics(metrics [][]Metrics, urlString string, hashKey string, limit in
 	// создание буферизованного канала для принятия задач в воркер
 	jobs := make(chan []Metrics, len(metrics))
 
-	// создание буферизованного канал для отправки результатов
+	// создание буферизованного канала для отправки результатов
 	results := make(chan string, len(metrics))
 
 	// создание и запуск воркеров

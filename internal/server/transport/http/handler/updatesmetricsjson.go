@@ -19,7 +19,7 @@ func (hd *handler) UpdatesMetricsJSON(w http.ResponseWriter, r *http.Request) {
 	hd.lg.Debugf("Декодирование JSON...")
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&dtoMetrics); err != nil {
-		hd.lg.Errorf("Ошибка декодирования JSON: %v", err)
+		hd.lg.Errorf("Ошибка декодирования JSON: %s", err.Error())
 		hd.lg.Errorf("Отправлен код: %v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -32,7 +32,7 @@ func (hd *handler) UpdatesMetricsJSON(w http.ResponseWriter, r *http.Request) {
 		hd.lg.Debugf("Проверка соответствия полученного и вычисленного hash...")
 		metricsJSON, err := json.Marshal(dtoMetrics)
 		if err != nil {
-			hd.lg.Debugf("Ошибка кодирования в JSON: %v", err)
+			hd.lg.Debugf("Ошибка кодирования в JSON: %s", err.Error())
 			hd.lg.Errorf("Отправлен код: %v", http.StatusInternalServerError)
 			w.WriteHeader(http.StatusInternalServerError)
 			return

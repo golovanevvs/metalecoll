@@ -19,7 +19,7 @@ cd /c/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && cd /c/Dev/Pr
 
 Компиляция и запуск сервера и агента:
 
-cd /c/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && start server && cd /c/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build && start agent
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && start server && cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build && start agent
 
 Компиляция и запуск сервера:
 

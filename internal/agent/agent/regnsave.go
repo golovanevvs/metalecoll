@@ -18,16 +18,11 @@ type reg struct {
 
 // Реализация Worker Pool
 func regNSave(ag *agent) {
-	const numJobs = 32 // количество работ
-
-	var w int
-	var r reg
 	var err error
 	var mu sync.Mutex
 
-	w = 3 // количество воркеров
-
 	// заполнение полей объекта r
+	var r reg
 	runtime.ReadMemStats(&r.rtMet)
 
 	r.vm, err = mem.VirtualMemory()
@@ -40,6 +35,9 @@ func regNSave(ag *agent) {
 		r.cpuUt = []float64{0}
 	}
 
+	// количество работ
+	const numJobs = 32
+
 	// количество результатов работ
 	numResults := numJobs + len(r.cpuUt) - 1
 
@@ -47,10 +45,10 @@ func regNSave(ag *agent) {
 	jobs := make(chan int, numJobs)
 
 	// создание буферизованного канала для отправки результатов
-	//results := make(chan model.Metric, numResults)
-	results := make(chan model.Metric)
+	results := make(chan model.Metric, numResults)
 
 	// создание и запуск воркеров
+	w := 3 // количество воркеров
 	for i := 0; i < w; i++ {
 		go regRTMetWorker(r, jobs, results)
 	}
@@ -75,6 +73,6 @@ func regNSave(ag *agent) {
 	mapa, _ := ag.store.GetMetricsMap()
 	for _, m := range mapa {
 		count++
-		fmt.Printf("%v. Name: %v, Value:%v\n", count, m.Name, m.Value)
+		fmt.Printf("%d. Name: %s, Value: %v\n", count, m.Name, m.Value)
 	}
 }
