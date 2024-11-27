@@ -50,6 +50,9 @@ func sendMetWorker(id int, urlString string, hashKey string, metrics <-chan []Me
 			fmt.Printf("sendMetWorker %d: Установка заголовков прошла успешно\n", id)
 
 			fmt.Printf("sendMetWorker %d: Отправка запроса...\n", id)
+
+			request.Close = true
+
 			response, err := client.Do(request)
 			if err != nil {
 				fmt.Printf("sendMetWorker %d: Ошибка отправки запроса: %s\n", id, err.Error())

@@ -16,7 +16,7 @@ func (hd *handler) GetMetricValueJSON(w http.ResponseWriter, r *http.Request) {
 	req := dto.Metrics{}
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&req); err != nil {
-		hd.lg.Errorf("Ошибка декодирования JSON: %v", err)
+		hd.lg.Errorf("Ошибка декодирования JSON: %s", err.Error())
 		hd.lg.Errorf("Отправлен код: %v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -24,11 +24,10 @@ func (hd *handler) GetMetricValueJSON(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	hd.lg.Debugf("Декодирование JSON прошло успешно: %v", req)
 
-	hd.lg.Debugf("Получение данных из мапы по name %v...", req.ID)
+	hd.lg.Debugf("Получение данных из мапы по name %s...", req.ID)
 	metric, err := hd.sv.GetMetricFromMap(req.ID)
 	if err != nil {
-		fmt.Println(err)
-		hd.lg.Errorf("Ошибка получения данных из мапы: %v", err)
+		hd.lg.Errorf("Ошибка получения данных из мапы: %s", err.Error())
 		hd.lg.Errorf("Отправлен код: %v", http.StatusNotFound)
 		w.WriteHeader(http.StatusNotFound)
 		return
