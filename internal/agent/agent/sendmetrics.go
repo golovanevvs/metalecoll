@@ -3,6 +3,8 @@ package agent
 import "fmt"
 
 func sendMetrics(metrics [][]Metrics, urlString string, hashKey string, limit int) {
+	limit = 1
+
 	// создание буферизованного канала для принятия задач в воркер
 	jobs := make(chan []Metrics, len(metrics))
 
