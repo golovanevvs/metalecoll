@@ -7,14 +7,14 @@ import (
 	"net/http"
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
+	"github.com/golovanevvs/metalecoll/internal/server/dto"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
 
 func (hd *handler) UpdatesMetricsJSON(w http.ResponseWriter, r *http.Request) {
-	//var mVParse any
-	//var dtoMetrics []dto.Metrics
+	var mVParse any
+	var dtoMetrics []dto.Metrics
 	var hash string
-	var dtoMetrics []model.Metric
 
 	hd.lg.Debugf("Декодирование JSON...")
 	dec := json.NewDecoder(r.Body)
@@ -49,24 +49,22 @@ func (hd *handler) UpdatesMetricsJSON(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, m := range dtoMetrics {
-		// 	switch m.MType {
-		// 	case constants.GaugeType:
-		// 		mVParse = *m.Value
-		// 	case constants.CounterType:
-		// 		mVParse = *m.Delta
-		// 	default:
-		// 		hd.lg.Errorf("Неизвестный тип метрики: %v", m.MType)
-		// 		hd.lg.Errorf("Отправлен код: %v", http.StatusBadRequest)
-		// 		w.WriteHeader(http.StatusBadRequest)
-		// 		return
-		// 	}
-		//	receivedMetric := model.Metric{MetType: m.MType, MetName: m.ID, MetValue: mVParse}
-		//hd.lg.Debugf("Полученная метрика: %v", receivedMetric)
-		hd.lg.Debugf("Полученная метрика: %v", m)
+		switch m.MType {
+		case constants.GaugeType:
+			mVParse = *m.Value
+		case constants.CounterType:
+			mVParse = *m.Delta
+		default:
+			hd.lg.Errorf("Неизвестный тип метрики: %v", m.MType)
+			hd.lg.Errorf("Отправлен код: %v", http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		receivedMetric := model.Metric{MetType: m.MType, MetName: m.ID, MetValue: mVParse}
+		hd.lg.Debugf("Полученная метрика: %v", receivedMetric)
 
 		hd.lg.Debugf("Обновление метрики...")
-		//calcMetric := hd.sv.UpdateMetric(receivedMetric)
-		calcMetric := hd.sv.UpdateMetric(m)
+		calcMetric := hd.sv.UpdateMetric(receivedMetric)
 		hd.lg.Debugf("Обновление метрики прошло успешно: %v", calcMetric)
 	}
 
