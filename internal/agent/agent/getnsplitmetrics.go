@@ -53,6 +53,7 @@ func splitMetricsSlice(metricsSlice []Metrics, limit int) [][]Metrics {
 	if limit == 0 || limit > len(metricsSlice) {
 		limit = len(metricsSlice)
 	}
+	limit = 1
 	fmt.Printf("Разделение слайса метрик на %v частей...\n", limit)
 	var a1, a2 int
 	var partSlice []Metrics
