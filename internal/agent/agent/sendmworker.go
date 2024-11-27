@@ -59,7 +59,6 @@ func sendMetWorker(id int, urlString string, hashKey string, metrics <-chan []Me
 				fmt.Printf("sendMetWorker %d: проверка: ошибка декомпрессии запроса: %s\n", id, err.Error())
 				return
 			}
-			defer cr.Close()
 			fmt.Printf("sendMetWorker %d: проверка: декодирование JSON...\n", id)
 			var dm Metrics
 			dec := json.NewDecoder(cr)
@@ -68,13 +67,14 @@ func sendMetWorker(id int, urlString string, hashKey string, metrics <-chan []Me
 				return
 			}
 			fmt.Printf("sendMetWorker %d: gроверка: полученный JSON: %v\n", id, dm)
+			cr.Close()
 
 			fmt.Printf("url: %s\n", request.URL.String())
 
 			response, err := client.Do(request)
 			if err != nil {
 				fmt.Printf("sendMetWorker %d: Ошибка отправки запроса: %s\n", id, err.Error())
-				return
+				continue
 			}
 			response.Body.Close()
 			fmt.Printf("sendMetWorker %d: Отправка запроса прошла успешно\n", id)
