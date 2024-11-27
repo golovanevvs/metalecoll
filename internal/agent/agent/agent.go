@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/golovanevvs/metalecoll/internal/agent/model"
 	"github.com/golovanevvs/metalecoll/internal/agent/storage/mapstorage"
-	"github.com/golovanevvs/metalecoll/internal/server/constants"
 )
 
 type agent struct {
@@ -57,7 +57,7 @@ func Start(config *config) {
 	// 	}
 	// }
 	var putString string
-	var body Metrics
+	//var body Metrics
 	var metricsJSONGZIP bytes.Buffer
 
 	store := mapstorage.NewStorage()
@@ -93,27 +93,28 @@ func Start(config *config) {
 
 			fmt.Println("Формирование среза метрик...")
 
-			metrics := make([]Metrics, 0)
+			metrics := make([]model.Metric, 0)
 
 			for _, value := range mapStore {
-				switch value.Type {
-				case constants.GaugeType:
-					v, _ := value.Value.(float64)
-					body = Metrics{
-						ID:    value.Name,
-						MType: value.Type,
-						Value: &v,
-					}
-				case constants.CounterType:
-					v, _ := value.Value.(int64)
-					body = Metrics{
-						ID:    value.Name,
-						MType: value.Type,
-						Delta: &v,
-					}
-				}
+				// switch value.Type {
+				// case constants.GaugeType:
+				// 	v, _ := value.Value.(float64)
+				// 	body = Metrics{
+				// 		ID:    value.Name,
+				// 		MType: value.Type,
+				// 		Value: &v,
+				// 	}
+				// case constants.CounterType:
+				// 	v, _ := value.Value.(int64)
+				// 	body = Metrics{
+				// 		ID:    value.Name,
+				// 		MType: value.Type,
+				// 		Delta: &v,
+				// 	}
+				// }
 
-				metrics = append(metrics, body)
+				//metrics = append(metrics, body)
+				metrics = append(metrics, value)
 			}
 			fmt.Println("Формирование среза метрик прошло успешно")
 			fmt.Println(metrics)
