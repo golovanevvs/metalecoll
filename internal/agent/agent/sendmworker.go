@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 func sendMetWorker(id int, urlString string, hashKey string, metrics <-chan []Metrics, results chan<- string) {
@@ -71,10 +72,17 @@ func sendMetWorker(id int, urlString string, hashKey string, metrics <-chan []Me
 
 			fmt.Printf("url: %s\n", request.URL.String())
 
-			response, err := client.Do(request)
-			if err != nil {
-				fmt.Printf("sendMetWorker %d: Ошибка отправки запроса: %s\n", id, err.Error())
-				continue
+			var response *http.Response
+			countRepeate := 0
+			for countRepeate < 30 {
+				response, err = client.Do(request)
+				if err != nil {
+					fmt.Printf("sendMetWorker %d: Ошибка отправки запроса: %s\n", id, err.Error())
+					time.Sleep(300 * time.Millisecond)
+					countRepeate++
+					continue
+				}
+				break
 			}
 			response.Body.Close()
 			fmt.Printf("sendMetWorker %d: Отправка запроса прошла успешно\n", id)
