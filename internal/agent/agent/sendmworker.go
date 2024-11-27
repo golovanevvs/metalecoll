@@ -2,7 +2,6 @@ package agent
 
 import (
 	"bytes"
-	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -19,26 +18,27 @@ func sendMetWorker(id int, urlString string, hashKey string, metrics <-chan []Me
 		}
 		fmt.Printf("sendMetWorker %d: Кодирование в JSON прошло успешно\n", id)
 
-		fmt.Printf("sendMetWorker %d: Сжатие в gzip...\n", id)
-		var metricsJSONGZIP bytes.Buffer
-		gzipWr := gzip.NewWriter(&metricsJSONGZIP)
-		_, err = gzipWr.Write(metricsJSON)
-		if err != nil {
-			fmt.Printf("sendMetWorker %d: Ошибка сжатия в gzip: %s\n", id, err.Error())
-			gzipWr.Close()
-		}
-		gzipWr.Close()
-		fmt.Printf("sendMetWorker %d: Сжатие в gzip прошло успешно\n", id)
+		// fmt.Printf("sendMetWorker %d: Сжатие в gzip...\n", id)
+		// var metricsJSONGZIP bytes.Buffer
+		// gzipWr := gzip.NewWriter(&metricsJSONGZIP)
+		// _, err = gzipWr.Write(metricsJSON)
+		// if err != nil {
+		// 	fmt.Printf("sendMetWorker %d: Ошибка сжатия в gzip: %s\n", id, err.Error())
+		// 	gzipWr.Close()
+		// }
+		// gzipWr.Close()
+		// fmt.Printf("sendMetWorker %d: Сжатие в gzip прошло успешно\n", id)
 
 		fmt.Printf("sendMetWorker %d: Формирование запроса POST...\n", id)
-		request, err := http.NewRequest("POST", urlString, &metricsJSONGZIP)
+		//request, err := http.NewRequest("POST", urlString, &metricsJSONGZIP)
+		request, err := http.NewRequest("POST", urlString, bytes.NewBuffer(metricsJSON))
 		if err != nil {
 			fmt.Printf("sendMetWorker %d: Ошибка формирования запроса: %s\n", id, err.Error())
 		}
 		fmt.Printf("sendMetWorker %d: Формирование запроса POST прошло успешно\n", id)
 
 		fmt.Printf("sendMetWorker %d: Установка заголовков...\n", id)
-		request.Header.Set("Content-Encoding", "gzip")
+		//request.Header.Set("Content-Encoding", "gzip")
 		request.Header.Set("Content-Type", "application/json")
 		if hashKey != "" {
 			fmt.Printf("sendMetWorker %d: Формирование hash...\n", id)
@@ -53,15 +53,16 @@ func sendMetWorker(id int, urlString string, hashKey string, metrics <-chan []Me
 		request.Close = true
 
 		//! проверка тела запроса
-		cr, err := gzip.NewReader(request.Body)
-		if err != nil {
-			fmt.Printf("sendMetWorker %d: проверка: ошибка декомпрессии запроса: %s\n", id, err.Error())
-			return
-		}
-		defer cr.Close()
+		// cr, err := gzip.NewReader(request.Body)
+		// if err != nil {
+		// 	fmt.Printf("sendMetWorker %d: проверка: ошибка декомпрессии запроса: %s\n", id, err.Error())
+		// 	return
+		// }
+		// defer cr.Close()
 		fmt.Printf("sendMetWorker %d: проверка: декодирование JSON...\n", id)
 		var dm []Metrics
-		dec := json.NewDecoder(cr)
+		//dec := json.NewDecoder(cr)
+		dec := json.NewDecoder(request.Body)
 		if err := dec.Decode(&dm); err != nil {
 			fmt.Printf("sendMetWorker %d: gроверка: ошибка декодирования JSON: %s\n", id, err.Error())
 			return
