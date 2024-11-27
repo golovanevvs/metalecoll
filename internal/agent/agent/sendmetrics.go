@@ -3,6 +3,8 @@ package agent
 import "fmt"
 
 func sendMetrics(metrics [][]Metrics, urlString string, hashKey string, limit int) {
+	fmt.Printf("len(metrics): %d\n", len(metrics))
+
 	// создание буферизованного канала для принятия задач в воркер
 	jobs := make(chan []Metrics, len(metrics))
 
@@ -18,8 +20,6 @@ func sendMetrics(metrics [][]Metrics, urlString string, hashKey string, limit in
 	for j := 0; j < len(metrics); j++ {
 		jobs <- metrics[j]
 	}
-
-	fmt.Printf("len(metrics): %d", len(metrics))
 
 	//получение результатов из канала результатов
 	for a := 0; a < len(metrics); a++ {
