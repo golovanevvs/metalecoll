@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 )
 
 func sendMetWorker(id int, urlString string, hashKey string, metrics <-chan []Metrics, results chan<- string) {
+	mu := new(sync.Mutex)
 	for m := range metrics {
 		for _, v := range m {
 			client := &http.Client{}
@@ -53,12 +55,14 @@ func sendMetWorker(id int, urlString string, hashKey string, metrics <-chan []Me
 
 			request.Close = true
 
+			mu.Lock()
 			response, err := client.Do(request)
 			if err != nil {
 				fmt.Printf("sendMetWorker %d: Ошибка отправки запроса: %s\n", id, err.Error())
 				return
 			}
 			response.Body.Close()
+			mu.Unlock()
 			fmt.Printf("sendMetWorker %d: Отправка запроса прошла успешно\n", id)
 			results <- fmt.Sprintf("sendMetWorker %d: Reporting completed\n", id)
 		}
