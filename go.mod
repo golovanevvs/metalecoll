@@ -4,7 +4,6 @@ go 1.22.3
 
 require (
 	github.com/go-chi/chi v1.5.5
-	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/stretchr/testify v1.9.0
 )
 
@@ -30,6 +29,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/jackc/pgx/v5 v5.7.1
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/shirou/gopsutil/v4 v4.24.9
 	github.com/sirupsen/logrus v1.9.3

@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS metrics (
+			id SERIAL PRIMARY KEY,
+			metric_name VARCHAR(250) NOT NULL,
+			metric_type VARCHAR(250) NOT NULL,
+			gauge_value DOUBLE PRECISION DEFAULT NULL,
+			counter_value INTEGER DEFAULT NULL
+);

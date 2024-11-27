@@ -6,14 +6,14 @@ import (
 	"strconv"
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
-	Server          Server
-	Logger          Logger
-	Storage         Storage
-	MetricTypeNames MetricTypeNames
-	Crypto          Crypto
+	Server  Server
+	Storage Storage
+	Logger  Logger
+	Crypto  Crypto
 }
 
 type Server struct {
@@ -27,20 +27,15 @@ type Storage struct {
 	DatabaseDSN     string
 }
 
-type MetricTypeNames struct {
-	GaugeType   string
-	CounterType string
-}
-
 type Logger struct {
-	LogLevel string
+	LogLevel logrus.Level
 }
 
 type Crypto struct {
 	HashKey string
 }
 
-func New() (*Config, error) {
+func NewConfig() (*Config, error) {
 	var flagRunAddr, flagFileStoragePath, flagDatabaseDSN, flagHashKey string
 	var flagStoreInterval int
 	var flagRestore bool
@@ -83,23 +78,19 @@ func New() (*Config, error) {
 
 	return &Config{
 		Server{
-			Addr:          flagRunAddr,
-			StoreInterval: flagStoreInterval,
-		},
-		Logger{
-			LogLevel: "debug",
+			Addr:          flagRunAddr,       // флаг: адрес сервера
+			StoreInterval: flagStoreInterval, // флаг: интервал сохранения данных
 		},
 		Storage{
-			Restore:         flagRestore,
-			FileStoragePath: flagFileStoragePath,
-			DatabaseDSN:     flagDatabaseDSN,
+			Restore:         flagRestore,         // флаг: восстановление данных при запусае сервера
+			FileStoragePath: flagFileStoragePath, // флаг: путь к файлу сохранения данных
+			DatabaseDSN:     flagDatabaseDSN,     //флаг: DSN базы данных
 		},
-		MetricTypeNames{
-			GaugeType:   constants.GaugeType,
-			CounterType: constants.CounterType,
+		Logger{
+			logrus.DebugLevel,
 		},
 		Crypto{
-			HashKey: flagHashKey,
+			HashKey: flagHashKey, // флаг: хэш ключ
 		},
 	}, nil
 }

@@ -1,0 +1,41 @@
+Тесты для iter1:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration1$ -binary-path=C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\cmd\\server\\server
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration1$ -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server
+
+Тесты для iter2:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration2[AB]*$ -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent
+
+Тесты для iter3:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration3[AB]*$ -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server
+
+Тесты для iter4:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration4$ -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server -server-port="8082" -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll
+
+Тесты для iter5:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration5$ -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server -server-port="8082" -source-path=/C/Dev/Projects/YaPracticum/metalecoll
+
+Тесты для iter6:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration6$ -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server -server-port="8080" -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll
+
+Тесты для iter7:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration7$ -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server -server-port="8080" -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll
+
+Тесты для iter8:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration8$ -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server -server-port="8080" -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll
+
+Тесты для iter9:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration9$ -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server -file-storage-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/metrics.txt -server-port="8080" -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll
+
+Тесты для iter10:
+
+metricstest-windows-amd64 -test.v -test.run=^TestIteration10[AB]$ -agent-binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent/agent -binary-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server/server -database-dsn='localhost://postgres:password@localhost:5433/metalecoll?sslmode=disable' -server-port="8080" -source-path=/C/Golovanev/Dev/Projects/YaPracticum/metalecoll
