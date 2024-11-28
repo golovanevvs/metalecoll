@@ -1,0 +1,25 @@
+Процессор:
+
+    go tool pprof -http=":9095" -seconds=30 http://127.0.0.1:9090/debug/pprof/profile
+
+Память:
+
+    go tool pprof -http=":9095" -seconds=30 http://127.0.0.1:9090/debug/pprof/heap
+
+Из файла:
+
+    curl -s -v http://127.0.0.1:9090/debug/pprof/heap > /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/profiles/heap.out
+
+    go tool pprof -http=":9095" -seconds=30 /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/profiles/heap.out
+
+Консольный режим:
+
+    go tool pprof -seconds=30 http://localhost:9090/debug/pprof/profile
+
+        команды:
+
+            list <имя_функции>
+
+            top <имя_функции>
+
+            web

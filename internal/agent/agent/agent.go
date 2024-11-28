@@ -6,6 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	_ "net/http/pprof"
+	"os"
+	"runtime/pprof"
 	"time"
 
 	"github.com/golovanevvs/metalecoll/internal/agent/storage/mapstorage"
@@ -19,114 +22,140 @@ type agent struct {
 }
 
 func Start(config *config) {
-	var putString string
-	var body Metrics
-	var metricsJSONGZIP bytes.Buffer
+	//! создание файла журнала профилирования cpu
+	fcpu, err := os.Create("cpu.profile")
+	if err != nil {
+		panic(err)
+	}
+	defer fcpu.Close()
+	if err := pprof.StartCPUProfile(fcpu); err != nil {
+		panic(err)
+	}
+	defer pprof.StopCPUProfile()
 
-	store := mapstorage.NewStorage()
+	go func() {
+		var putString string
+		var body Metrics
+		var metricsJSONGZIP bytes.Buffer
 
-	ag := NewAgent(store, config.pollInterval, config.reportInterval)
+		store := mapstorage.NewStorage()
 
-	client := &http.Client{}
+		ag := NewAgent(store, config.pollInterval, config.reportInterval)
 
-	pollIntTime := time.NewTicker(time.Duration(ag.pollInterval) * time.Second)
-	reportIntTime := time.NewTicker(time.Duration(ag.reportInterval) * time.Second)
+		client := &http.Client{}
 
-	defer pollIntTime.Stop()
-	defer reportIntTime.Stop()
+		pollIntTime := time.NewTicker(time.Duration(ag.pollInterval) * time.Second)
+		reportIntTime := time.NewTicker(time.Duration(ag.reportInterval) * time.Second)
 
-	for {
-		select {
-		case <-pollIntTime.C:
-			RegisterMetrics(ag)
-		case <-reportIntTime.C:
-			fmt.Println("-------------------------------------------------------------------------")
-			fmt.Println("Reporting...")
+		defer pollIntTime.Stop()
+		defer reportIntTime.Stop()
 
-			fmt.Println("Получение данных из хранилища...")
-			mapStore, err := ag.store.GetMetricsMap()
-			if err != nil {
-				fmt.Println("Ошибка получения данных из хранилища:", err)
-				continue
-			}
-			fmt.Println(mapStore)
-			fmt.Println("Получение данных из хранилища прошло успешно")
+		for {
+			select {
+			case <-pollIntTime.C:
+				RegisterMetrics(ag)
+			case <-reportIntTime.C:
+				fmt.Println("-------------------------------------------------------------------------")
+				fmt.Println("Reporting...")
 
-			putString = fmt.Sprintf("http://%s/update/", config.addr)
-
-			fmt.Println("Формирование среза метрик...")
-
-			for _, value := range mapStore {
-				switch value.Type {
-				case constants.GaugeType:
-					v, _ := value.Value.(float64)
-					body = Metrics{
-						ID:    value.Name,
-						MType: value.Type,
-						Value: &v,
-					}
-				case constants.CounterType:
-					v, _ := value.Value.(int64)
-					body = Metrics{
-						ID:    value.Name,
-						MType: value.Type,
-						Delta: &v,
-					}
-				}
-
-				metrics := body
-
-				fmt.Println("Формирование среза метрик прошло успешно")
-				fmt.Println(metrics)
-
-				fmt.Println("Кодирование в JSON...")
-				metricsJSON, err := json.Marshal(metrics)
+				fmt.Println("Получение данных из хранилища...")
+				mapStore, err := ag.store.GetMetricsMap()
 				if err != nil {
-					fmt.Println("Ошибка кодирования в JSON:", err)
+					fmt.Println("Ошибка получения данных из хранилища:", err)
 					continue
 				}
-				fmt.Println("Кодирование в JSON прошло успешно")
+				fmt.Println(mapStore)
+				fmt.Println("Получение данных из хранилища прошло успешно")
 
-				fmt.Println("Сжатие в gzip...")
-				gzipWr := gzip.NewWriter(&metricsJSONGZIP)
-				_, err = gzipWr.Write(metricsJSON)
-				if err != nil {
-					fmt.Println("Ошибка сжатия в gzip:", err)
+				putString = fmt.Sprintf("http://%s/update/", config.addr)
+
+				fmt.Println("Формирование среза метрик...")
+
+				for _, value := range mapStore {
+					switch value.Type {
+					case constants.GaugeType:
+						v, _ := value.Value.(float64)
+						body = Metrics{
+							ID:    value.Name,
+							MType: value.Type,
+							Value: &v,
+						}
+					case constants.CounterType:
+						v, _ := value.Value.(int64)
+						body = Metrics{
+							ID:    value.Name,
+							MType: value.Type,
+							Delta: &v,
+						}
+					}
+
+					metrics := body
+
+					fmt.Println("Формирование среза метрик прошло успешно")
+					fmt.Println(metrics)
+
+					fmt.Println("Кодирование в JSON...")
+					metricsJSON, err := json.Marshal(metrics)
+					if err != nil {
+						fmt.Println("Ошибка кодирования в JSON:", err)
+						continue
+					}
+					fmt.Println("Кодирование в JSON прошло успешно")
+
+					fmt.Println("Сжатие в gzip...")
+					gzipWr := gzip.NewWriter(&metricsJSONGZIP)
+					_, err = gzipWr.Write(metricsJSON)
+					if err != nil {
+						fmt.Println("Ошибка сжатия в gzip:", err)
+						gzipWr.Close()
+						continue
+					}
 					gzipWr.Close()
-					continue
-				}
-				gzipWr.Close()
-				fmt.Println("Сжатие в gzip прошло успешно")
+					fmt.Println("Сжатие в gzip прошло успешно")
 
-				fmt.Println("Формирование запроса POST...")
-				request, err := http.NewRequest("POST", putString, &metricsJSONGZIP)
-				if err != nil {
-					fmt.Println("Ошибка формирования запроса:", err)
-				}
-				fmt.Println("Формирование запроса POST прошло успешно")
+					fmt.Println("Формирование запроса POST...")
+					request, err := http.NewRequest("POST", putString, &metricsJSONGZIP)
+					if err != nil {
+						fmt.Println("Ошибка формирования запроса:", err)
+					}
+					fmt.Println("Формирование запроса POST прошло успешно")
 
-				fmt.Println("Установка заголовков...")
-				request.Header.Set("Content-Encoding", "gzip")
-				request.Header.Set("Content-Type", "application/json")
-				if config.hashKey != "" {
-					fmt.Println("Формирование hash...")
-					hash := calcHash(metricsJSON, config.hashKey)
-					fmt.Println("Формирование hash прошло успешно")
-					request.Header.Set("HashSHA256", hash)
-				}
-				fmt.Println("Установка заголовков прошла успешно")
+					fmt.Println("Установка заголовков...")
+					request.Header.Set("Content-Encoding", "gzip")
+					request.Header.Set("Content-Type", "application/json")
+					if config.hashKey != "" {
+						fmt.Println("Формирование hash...")
+						hash := calcHash(metricsJSON, config.hashKey)
+						fmt.Println("Формирование hash прошло успешно")
+						request.Header.Set("HashSHA256", hash)
+					}
+					fmt.Println("Установка заголовков прошла успешно")
 
-				fmt.Println("Отправка запроса...")
-				response, err := client.Do(request)
-				if err != nil {
-					fmt.Println("Ошибка отправки запроса:", err)
-					continue
+					fmt.Println("Отправка запроса...")
+					response, err := client.Do(request)
+					if err != nil {
+						fmt.Println("Ошибка отправки запроса:", err)
+						continue
+					}
+					response.Body.Close()
+					fmt.Println("Отправка запроса прошла успешно")
+					fmt.Println("Reporting completed")
 				}
-				response.Body.Close()
-				fmt.Println("Отправка запроса прошла успешно")
-				fmt.Println("Reporting completed")
 			}
 		}
+	}()
+
+	//! продолжение профилирования
+	time.Sleep(60 * time.Second)
+	// создание файла журнала профилирования памяти
+	fmem, err := os.Create("mem.profile")
+	if err != nil {
+		panic(err)
+	}
+	defer fmem.Close()
+	// получение статистики по использованию памяти
+	if err := pprof.WriteHeapProfile(fmem); err != nil {
+		panic(err)
 	}
 }
 

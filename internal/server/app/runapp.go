@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
@@ -81,12 +82,21 @@ func RunApp() {
 		}
 	}()
 
+	//! запуск профилировщика
+	// go func() {
+	// 	lg.Infof("Сервер профилировщика запущен")
+	// 	if err := http.ListenAndServe(":9090", nil); err != nil {
+	// 		lg.Fatalf("ошибка запуска сервера профилировщика: %s", err.Error())
+	// 	}
+	// }()
+
 	// Сохранение метрик из map-хранилища в основное хранилище через интервал StoreInterval (-i)
 	saveIntTime := time.NewTicker(time.Duration(cfg.Server.StoreInterval) * time.Second)
 	defer saveIntTime.Stop()
 
 	stop := make(chan bool)
 
+	//! сохранение данных в основное хранилище
 	go func() {
 		for {
 			select {
