@@ -2,13 +2,13 @@
 
     go tool pprof -http=":6060" -seconds=60 http://127.0.0.1:8080/debug/pprof/profile
 
-    go tool pprof -http=":6060" -trim=0 -seconds=60 http://127.0.0.1:8080/debug/pprof/profile
+    go tool pprof -http=":6060" -nodecount=0 -nodefraction=0.005 -seconds=60 http://localhost:8080/debug/pprof/profile
 
 Память:
 
     go tool pprof -http=":6060" -seconds=60 http://127.0.0.1:8080/debug/pprof/heap
 
-    go tool pprof -http=":6060" -nodefraction=0.000001 -nodecount=0 -seconds=60 http://127.0.0.1:8080/debug/pprof/heap
+    go tool pprof -http=":6060" -nodecount=0 -nodefraction=0.005 -seconds=60 http://localhost:8080/debug/pprof/heap
 
 Из файла:
 
@@ -29,3 +29,9 @@
             top <имя_функции>
 
             web
+
+Сравнение профилей:
+
+    go tool pprof -top -diff_base profiles/base.pprof profiles/result.pprof
+    
+    go tool pprof -inuse_objects profiles/base.pprof profiles/result.pprof
