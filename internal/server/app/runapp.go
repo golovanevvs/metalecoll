@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	_ "net/http/pprof"
+
 	"os"
 	"os/signal"
 	"syscall"
@@ -78,7 +78,7 @@ func RunApp() {
 	go func() {
 		lg.Infof("Сервер сбора метрик metalecoll запущен")
 		if err := srv.RunServer(cfg.Server.Addr, hd.InitRoutes()); err != nil {
-			lg.Fatalf("ошибка запуска сервера: %s", err.Error())
+			lg.Fatalf("работа сервера: %s", err.Error())
 		}
 	}()
 

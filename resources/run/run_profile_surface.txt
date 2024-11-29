@@ -1,20 +1,26 @@
 Процессор:
 
-    go tool pprof -http=":9095" -seconds=30 http://127.0.0.1:9090/debug/pprof/profile
+    go tool pprof -http=":6060" -seconds=60 http://127.0.0.1:8080/debug/pprof/profile
+
+    go tool pprof -http=":6060" -trim=0 -seconds=60 http://127.0.0.1:8080/debug/pprof/profile
 
 Память:
 
-    go tool pprof -http=":9095" -seconds=30 http://127.0.0.1:9090/debug/pprof/heap
+    go tool pprof -http=":6060" -seconds=60 http://127.0.0.1:8080/debug/pprof/heap
+
+    go tool pprof -http=":6060" -nodefraction=0.000001 -nodecount=0 -seconds=60 http://127.0.0.1:8080/debug/pprof/heap
 
 Из файла:
 
-    curl -s -v http://127.0.0.1:9090/debug/pprof/heap > /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/profiles/heap.out
+    curl -s -v http://127.0.0.1:8080/debug/pprof/heap > /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/profiles/heap.out
 
-    go tool pprof -http=":9095" -seconds=30 /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/profiles/heap.out
+    go tool pprof -http=":6060" -seconds=60 /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/profiles/heap.out
 
 Консольный режим:
 
-    go tool pprof -seconds=30 http://localhost:9090/debug/pprof/profile
+    go tool pprof -seconds=60 http://localhost:8080/debug/pprof/profile
+
+    go tool pprof -seconds=60 http://localhost:8080/debug/pprof/heap
 
         команды:
 
