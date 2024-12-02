@@ -9,6 +9,7 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
 
+// UpdateMetric - обновление метрики.
 func (hd *handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	var mVParse any
 	var err error

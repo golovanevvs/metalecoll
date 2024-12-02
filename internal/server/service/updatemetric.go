@@ -7,6 +7,7 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
 
+// UpdateMetric обновляет метрику.
 func (sv *updateMetricsService) UpdateMetric(recMet model.Metric) *model.Metric {
 	updatedMetric := sv.procMetric(recMet)
 	sv.mapStorage.SaveMetricToMap(*updatedMetric)

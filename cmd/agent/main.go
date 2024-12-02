@@ -1,3 +1,4 @@
+// Модуль main обеспечивает запуск агента.
 package main
 
 import (

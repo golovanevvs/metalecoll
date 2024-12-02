@@ -1,3 +1,4 @@
+// Модуль handler предназначен для обработки запросов.
 package handler
 
 import (
@@ -17,7 +18,7 @@ type handler struct {
 	hashKey string
 }
 
-// NewHandler - конструктор *handler
+// NewHandler - конструктор *handler.
 func NewHandler(sv *service.Service, lg *logrus.Logger, hashKey string) *handler {
 	return &handler{
 		sv:      sv,
@@ -26,7 +27,7 @@ func NewHandler(sv *service.Service, lg *logrus.Logger, hashKey string) *handler
 	}
 }
 
-// InitRoutes - маршрутизация запросов, используется в качестве http.Handler при запуске сервера
+// InitRoutes - маршрутизация запросов, используется в качестве http.Handler при запуске сервера.
 func (hd *handler) InitRoutes() *chi.Mux {
 	// создание экземпляра роутера
 	rt := chi.NewRouter()

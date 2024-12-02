@@ -7,6 +7,7 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 )
 
+// GetMetricNames возвращает все известные метрики.
 func (hd *handler) GetMetricNames(w http.ResponseWriter, r *http.Request) {
 	hd.lg.Debugf("Получение всех известных метрик из хранилища...")
 	metricsMap := hd.sv.GetMetricsFromMap()

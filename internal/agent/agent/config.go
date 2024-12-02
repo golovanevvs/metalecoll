@@ -20,6 +20,7 @@ type config struct {
 	rateLimit      int
 }
 
+// NewConfig - конструктор конфигурации агента.
 func NewConfig() *config {
 	var flagRunAddr string
 	var flagRepInt int

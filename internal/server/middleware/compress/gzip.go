@@ -1,3 +1,4 @@
+// Модуль compress предназначен для создания middleware для компрессии и декомпрессии данных.
 package compress
 
 import (
@@ -44,6 +45,7 @@ func newCompressReader(r io.ReadCloser) (*compressReader, error) {
 	}, nil
 }
 
+// Compressgzip создает middleware для компрессии данных.
 func Compressgzip() func(h http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -67,6 +69,7 @@ func Compressgzip() func(h http.Handler) http.Handler {
 	}
 }
 
+// Decompressgzip создает middleware для декомпрессии данных.
 func Decompressgzip() func(h http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
