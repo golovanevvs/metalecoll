@@ -122,6 +122,7 @@ func TestHandler(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			resp, respBody := testRequest(t, ts, "POST", test.actual.targetRequest)
+			defer resp.Body.Close()
 			assert.Equal(t, test.want.httpStatus, resp.StatusCode)
 			assert.Equal(t, test.want.resp, respBody)
 		})
