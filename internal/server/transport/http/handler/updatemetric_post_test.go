@@ -1,20 +1,36 @@
 package handler
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/golovanevvs/metalecoll/internal/server/config"
 	"github.com/golovanevvs/metalecoll/internal/server/mapstorage"
+	"github.com/golovanevvs/metalecoll/internal/server/mocks"
 	"github.com/golovanevvs/metalecoll/internal/server/service"
-	"github.com/golovanevvs/metalecoll/internal/server/storage"
-	"github.com/golovanevvs/metalecoll/internal/server/storage/filestorage"
-	"github.com/golovanevvs/metalecoll/internal/server/storage/postgres"
 	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestUpdateMetric(t *testing.T) {
+func testRequest(t *testing.T, ts *httptest.Server, method, path string) (*http.Response, string) {
+	req, err := http.NewRequest(method, ts.URL+path, nil)
+	require.NoError(t, err)
+
+	resp, err := ts.Client().Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+
+	return resp, string(respBody)
+}
+
+func TestHandler(t *testing.T) {
 	//! подготовительные операции
 	// инициализация логгера
 	lg := logrus.New()
@@ -28,34 +44,32 @@ func TestUpdateMetric(t *testing.T) {
 	// установка уровня логгирования
 	lg.SetLevel(cfg.Logger.LogLevel)
 
-	// Выбор и инициализация основного хранилища: если флаг (-d) пуст, то выбирается файловое хранилище, иначе - БД
-	var mainStore storage.IStorageDB
-	switch cfg.Storage.DatabaseDSN {
-	case "":
-		mainStore = filestorage.NewFileStorage(cfg.Storage.FileStoragePath)
-	default:
-		mainStore, err = postgres.NewPostgres(cfg.Storage.DatabaseDSN)
-		if err != nil {
-			lg.Fatalf("Ошибка инициализации базы данных: %s", err.Error())
-		}
-	}
-
 	// инициализация map-хранилища
 	mst := mapstorage.NewMapStorage()
-	// инициализация хранилища
-	st := storage.NewStorage(mainStore)
+
+	//! использование заглушки БД
+	// создание контроллера
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	// создание объекта-заглушки
+	m := mocks.NewMockIStorageDB(ctrl)
+
 	// инициализация сервиса
-	sv := service.NewService(mst, st)
+	sv := service.NewService(mst, m)
 	// инициализация хендлера
 	hd := NewHandler(sv, lg, cfg.Crypto.HashKey)
-	// инициализация сервера
+
+	ts := httptest.NewServer(hd.InitRoutes())
+	defer ts.Close()
 
 	//! Задание входных и выходных параметров
 	type actual struct {
 		targetRequest string
 	}
 	type want struct {
-		httpstatus int
+		httpStatus int
+		resp       string
 	}
 	tests := []struct {
 		name   string
@@ -63,12 +77,43 @@ func TestUpdateMetric(t *testing.T) {
 		want   want
 	}{
 		{
-			name: "positive test #1",
+			name: "positive test /update/gauge/gauge1/0.1",
 			actual: actual{
 				targetRequest: "/update/gauge/gauge1/0.1",
 			},
 			want: want{
-				httpstatus: http.StatusOK,
+				httpStatus: http.StatusOK,
+				resp:       "type: gauge, name: gauge1, value: 0.1",
+			},
+		},
+		{
+			name: "positive test /update/gauge/gauge2/0.2",
+			actual: actual{
+				targetRequest: "/update/gauge/gauge1/0.2",
+			},
+			want: want{
+				httpStatus: http.StatusOK,
+				resp:       "type: gauge, name: gauge1, value: 0.2",
+			},
+		},
+		{
+			name: "positive test /update/counter/counter1/1",
+			actual: actual{
+				targetRequest: "/update/counter/counter1/1",
+			},
+			want: want{
+				httpStatus: http.StatusOK,
+				resp:       "type: counter, name: counter1, value: 1",
+			},
+		},
+		{
+			name: "positive test /update/counter/counter1/2",
+			actual: actual{
+				targetRequest: "/update/counter/counter1/2",
+			},
+			want: want{
+				httpStatus: http.StatusOK,
+				resp:       "type: counter, name: counter1, value: 3",
 			},
 		},
 	}
@@ -76,18 +121,9 @@ func TestUpdateMetric(t *testing.T) {
 	//! Запуск тестов
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			// создание имитации запроса
-			request := httptest.NewRequest(http.MethodPost, test.actual.targetRequest, nil)
-
-			// создание нового Recorder
-			w := httptest.NewRecorder()
-
-			// запуск хендлера
-			hd.UpdateMetric(w, request)
-
-			//
-
-			res := w.Result()
+			resp, respBody := testRequest(t, ts, "POST", test.actual.targetRequest)
+			assert.Equal(t, test.want.httpStatus, resp.StatusCode)
+			assert.Equal(t, test.want.resp, respBody)
 		})
 	}
 }

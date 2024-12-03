@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -72,5 +73,9 @@ func (hd *handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	hd.lg.Debugf("Отправлен код: %v", http.StatusOK)
 	w.WriteHeader(http.StatusOK)
 
-	hd.lg.Debugf("Обновлённая мапа: %v", hd.sv.GetMetricsFromMap())
+	upMap := hd.sv.GetMetricsFromMap()
+	hd.lg.Debugf("Обновлённая мапа: %v", upMap)
+	wr := fmt.Sprintf("type: %s, name: %s, value: %v", upMap[mN].MetType, upMap[mN].MetName, upMap[mN].MetValue)
+	w.Write([]byte(wr))
+
 }
