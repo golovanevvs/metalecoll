@@ -1,3 +1,4 @@
+// Модуль postgres предназначен для работы с БД postgreSQL.
 package postgres
 
 import (
@@ -18,7 +19,7 @@ type allPostgres struct {
 	db   *sqlx.DB
 }
 
-// NewPostgres - конструктор
+// NewPostgres - конструктор БД postgreSQL.
 func NewPostgres(databaseDSN string) (*allPostgres, error) {
 	// открытие БД
 	db, err := sqlx.Open("pgx", databaseDSN)
@@ -71,7 +72,7 @@ func NewPostgres(databaseDSN string) (*allPostgres, error) {
 	return st, nil
 }
 
-// GetNameDB возвращает название хранилища
+// GetNameDB возвращает название хранилища.
 func (s *allPostgres) GetNameDB() string {
 	return s.name
 }
@@ -99,7 +100,7 @@ func (s *allPostgres) tablesExist() (bool, error) {
 	return false, nil
 }
 
-// SaveMetricsToDB сохраняет метрики в БД
+// SaveMetricsToDB сохраняет метрики в БД.
 func (s *allPostgres) SaveMetricsToDB(ctx context.Context, c *config.Config, mapStore mapstorage.Storage) error {
 	s.db.ExecContext(ctx, `
 	TRUNCATE TABLE metrics RESTART IDENTITY;
@@ -132,7 +133,7 @@ func (s *allPostgres) SaveMetricsToDB(ctx context.Context, c *config.Config, map
 	return nil
 }
 
-// GetMetricsFromDB получает метрики из БД
+// GetMetricsFromDB получает метрики из БД.
 func (s *allPostgres) GetMetricsFromDB(ctx context.Context, c *config.Config) (mapstorage.Storage, error) {
 	var (
 		gaugeValue   float64
@@ -173,6 +174,7 @@ func (s *allPostgres) GetMetricsFromDB(ctx context.Context, c *config.Config) (m
 	return ms, nil
 }
 
+// Ping проверяет соединение с БД.
 func (s *allPostgres) Ping() error {
 	if err := s.db.Ping(); err != nil {
 		return err
@@ -180,6 +182,7 @@ func (s *allPostgres) Ping() error {
 	return nil
 }
 
+// CloseDB закрывает соединение с БД.
 func (s *allPostgres) CloseDB() error {
 	return s.db.Close()
 }

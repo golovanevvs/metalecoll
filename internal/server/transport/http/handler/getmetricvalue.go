@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi"
 )
 
+// GetMetricValue возвращает значение метрики по её имени.
 func (hd *handler) GetMetricValue(w http.ResponseWriter, r *http.Request) {
 	hd.lg.Debugf("Тело запроса: %v", r.URL.Path)
 

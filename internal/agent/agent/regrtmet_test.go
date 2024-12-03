@@ -3,7 +3,7 @@ package agent
 import (
 	"testing"
 
-	"github.com/golovanevvs/metalecoll/internal/agent/storage/mapstorage"
+	"github.com/golovanevvs/metalecoll/internal/agent/mapstorage"
 	"github.com/stretchr/testify/assert"
 )
 

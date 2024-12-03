@@ -1,5 +1,6 @@
 package service
 
-func (sv *PingDatabaseService) Ping() error {
+// pingDatabaseService пингование БД.
+func (sv *pingDatabaseService) Ping() error {
 	return sv.st.Ping()
 }

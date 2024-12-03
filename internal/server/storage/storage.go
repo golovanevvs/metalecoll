@@ -1,3 +1,4 @@
+// Модуль storage предназначен для работы с основным хранилищем.
 package storage
 
 import (
@@ -7,7 +8,7 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/mapstorage"
 )
 
-// IStorageDB - интерфейс работы с основным хранилищем
+// IStorageDB - интерфейс работы с основным хранилищем.
 type IStorageDB interface {
 	GetNameDB() string
 	SaveMetricsToDB(ctx context.Context, c *config.Config, mapStore mapstorage.Storage) error
@@ -16,12 +17,13 @@ type IStorageDB interface {
 	CloseDB() error
 }
 
-type StorageDB struct {
+type storageDB struct {
 	IStorageDB
 }
 
-func NewStorage(mainStore IStorageDB) *StorageDB {
-	return &StorageDB{
+// NewStorage - конструктор основного хранилища.
+func NewStorage(mainStore IStorageDB) *storageDB {
+	return &storageDB{
 		IStorageDB: mainStore,
 	}
 }

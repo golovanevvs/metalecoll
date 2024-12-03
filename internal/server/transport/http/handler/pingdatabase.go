@@ -6,6 +6,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+// PingDatabase - Пингование БД.
 func (hd *handler) PingDatabase(w http.ResponseWriter, r *http.Request) {
 	hd.lg.Debugf("Открытие БД прошло успешно")
 
