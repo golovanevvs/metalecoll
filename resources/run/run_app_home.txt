@@ -1,3 +1,7 @@
+компиляция и запуск сервера в терминале:
+
+go run cmd/server/main.go
+
 Компиляция сервера и агента:
 
 cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build

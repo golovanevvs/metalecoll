@@ -1,3 +1,4 @@
+// Модуль constants содержит в себе все константы приложений server и agent.
 package constants
 
 const (

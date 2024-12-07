@@ -11,6 +11,7 @@ import (
 
 var pCount int64
 
+// RegisterMetrics собирает метрики и сохраняет их в map-хранилище.
 func RegisterMetrics(ag *agent) {
 	var rtMet runtime.MemStats
 	var newMet model.Metric
