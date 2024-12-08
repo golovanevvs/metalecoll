@@ -1,4 +1,4 @@
-package staticlint
+package main
 
 import (
 	"golang.org/x/tools/go/analysis"
@@ -92,5 +92,5 @@ func main() {
 	}
 
 	// ДОбавление собственного анализатора.
-	//checkers = append(checkers, noosexitanal.Analyzer)
+	checkers = append(checkers, NoOsExitAnalyzer)
 }
