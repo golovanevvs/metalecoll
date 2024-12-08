@@ -2,10 +2,21 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/golovanevvs/metalecoll/internal/agent/agent"
 )
 
+var (
+	buildVersion = "N/A"
+	buildDate    = "N/A"
+	buildCommit  = "N/A"
+)
+
 func main() {
+	fmt.Printf("Build version: %s\n", buildVersion)
+	fmt.Printf("Build date: %s\n", buildDate)
+	fmt.Printf("Build commit: %s\n", buildCommit)
 	config := agent.NewConfig()
 	agent.Start(config)
 }
