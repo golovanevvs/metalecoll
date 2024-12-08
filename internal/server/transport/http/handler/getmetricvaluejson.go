@@ -10,6 +10,7 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/dto"
 )
 
+// GetMetricValueJSON получение значения метрики по имени метрики, полученному из JSON
 func (hd *handler) GetMetricValueJSON(w http.ResponseWriter, r *http.Request) {
 	hd.lg.Debugf("Декодирование JSON...")
 

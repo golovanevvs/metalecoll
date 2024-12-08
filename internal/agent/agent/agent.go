@@ -1,3 +1,4 @@
+// Модуль agent предназначен для запуска агента.
 package agent
 
 import (
@@ -8,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/golovanevvs/metalecoll/internal/agent/storage/mapstorage"
+	"github.com/golovanevvs/metalecoll/internal/agent/mapstorage"
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 )
 
@@ -18,6 +19,7 @@ type agent struct {
 	reportInterval int
 }
 
+// Start запускает агента.
 func Start(config *config) {
 	var putString string
 	var body Metrics
@@ -130,6 +132,7 @@ func Start(config *config) {
 	}
 }
 
+// NewAgent - конструктор агента.
 func NewAgent(store mapstorage.Storage, pollInterval, reportInterval int) *agent {
 	s := &agent{
 		store:          store,
