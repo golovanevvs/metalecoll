@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,24 +12,9 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/service"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
-func testRequest(t *testing.T, ts *httptest.Server, method, path string) (*http.Response, string) {
-	req, err := http.NewRequest(method, ts.URL+path, nil)
-	require.NoError(t, err)
-
-	resp, err := ts.Client().Do(req)
-	require.NoError(t, err)
-	defer resp.Body.Close()
-
-	respBody, err := io.ReadAll(resp.Body)
-	require.NoError(t, err)
-
-	return resp, string(respBody)
-}
-
-func TestHandler(t *testing.T) {
+func TestUpdateMetric(t *testing.T) {
 	//! подготовительные операции
 	// инициализация логгера
 	lg := logrus.New()
@@ -48,7 +32,7 @@ func TestHandler(t *testing.T) {
 	mst := mapstorage.NewMapStorage()
 
 	//! использование заглушки БД
-	// создание контроллера
+	// создание контроллера gomock
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -60,24 +44,30 @@ func TestHandler(t *testing.T) {
 	// инициализация хендлера
 	hd := NewHandler(sv, lg, cfg.Crypto.HashKey)
 
+	// инициализация тестового сервера
 	ts := httptest.NewServer(hd.InitRoutes())
 	defer ts.Close()
 
 	//! Задание входных и выходных параметров
+	// входные значения
 	type actual struct {
-		targetRequest string
+		targetRequest string // запрос
 	}
+
+	// ожидаемые значения
 	type want struct {
-		httpStatus int
-		resp       string
+		httpStatus int    // код ответа
+		resp       string // ответ сервера
 	}
+
+	// параметры тестов
 	tests := []struct {
-		name   string
-		actual actual
-		want   want
+		name   string // имя теста
+		actual actual // входные значения
+		want   want   // ожидаемые значения
 	}{
 		{
-			name: "positive test /update/gauge/gauge1/0.1",
+			name: "positive test: /update/gauge/gauge1/0.1",
 			actual: actual{
 				targetRequest: "/update/gauge/gauge1/0.1",
 			},
@@ -87,7 +77,7 @@ func TestHandler(t *testing.T) {
 			},
 		},
 		{
-			name: "positive test /update/gauge/gauge2/0.2",
+			name: "positive test: /update/gauge/gauge2/0.2",
 			actual: actual{
 				targetRequest: "/update/gauge/gauge1/0.2",
 			},
@@ -97,7 +87,7 @@ func TestHandler(t *testing.T) {
 			},
 		},
 		{
-			name: "positive test /update/counter/counter1/1",
+			name: "positive test: /update/counter/counter1/1",
 			actual: actual{
 				targetRequest: "/update/counter/counter1/1",
 			},
@@ -107,7 +97,7 @@ func TestHandler(t *testing.T) {
 			},
 		},
 		{
-			name: "positive test /update/counter/counter1/2",
+			name: "positive test: /update/counter/counter1/2",
 			actual: actual{
 				targetRequest: "/update/counter/counter1/2",
 			},
@@ -116,12 +106,52 @@ func TestHandler(t *testing.T) {
 				resp:       "type: counter, name: counter1, value: 3",
 			},
 		},
+		{
+			name: "negative test: no name /update/gauge//0.1",
+			actual: actual{
+				targetRequest: "/update/gauge//0.1",
+			},
+			want: want{
+				httpStatus: http.StatusNotFound,
+				resp:       "",
+			},
+		},
+		{
+			name: "negative test: wrong gauge value /update/gauge/gauge3/x",
+			actual: actual{
+				targetRequest: "/update/gauge/gauge3/x",
+			},
+			want: want{
+				httpStatus: http.StatusBadRequest,
+				resp:       "",
+			},
+		},
+		{
+			name: "negative test: wrong counter value /update/counter/counter3/0.1",
+			actual: actual{
+				targetRequest: "/update/counter/counter3/0.1",
+			},
+			want: want{
+				httpStatus: http.StatusBadRequest,
+				resp:       "",
+			},
+		},
+		{
+			name: "negative test: wrong type /update/wrongtype/counter3/0.1",
+			actual: actual{
+				targetRequest: "/update/wrongtype/counter3/0.1",
+			},
+			want: want{
+				httpStatus: http.StatusBadRequest,
+				resp:       "",
+			},
+		},
 	}
 
 	//! Запуск тестов
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			resp, respBody := testRequest(t, ts, "POST", test.actual.targetRequest)
+			resp, respBody := testRequest(t, ts, "POST", test.actual.targetRequest, nil)
 			defer resp.Body.Close()
 			assert.Equal(t, test.want.httpStatus, resp.StatusCode)
 			assert.Equal(t, test.want.resp, respBody)
