@@ -9,6 +9,7 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
 
+// UpdateMetricsJSON - обновление метрики, полученной в JSON.
 func (hd *handler) UpdateMetricsJSON(w http.ResponseWriter, r *http.Request) {
 	var mVParse any
 	var req, resp dto.Metrics

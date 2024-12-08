@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 )
 
+// calchash производит хэширование. Возвращает хэш.
 func calcHash(data []byte, key string) string {
 	h := sha256.New()
 	h.Write(data)
