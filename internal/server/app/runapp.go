@@ -1,7 +1,9 @@
+// Модуль app предназначен для запуска сервера и корректного завершения его работы.
 package app
 
 import (
 	"context"
+
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,6 +19,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// RunApp запускает сервер и корректно завершает его работу.
 func RunApp() {
 	//! подготовительные операции
 	// инициализация логгера
@@ -77,9 +80,17 @@ func RunApp() {
 	go func() {
 		lg.Infof("Сервер сбора метрик metalecoll запущен")
 		if err := srv.RunServer(cfg.Server.Addr, hd.InitRoutes()); err != nil {
-			lg.Fatalf("ошибка запуска сервера: %s", err.Error())
+			lg.Fatalf("работа сервера: %s", err.Error())
 		}
 	}()
+
+	//! запуск профилировщика
+	// go func() {
+	// 	lg.Infof("Сервер профилировщика запущен")
+	// 	if err := http.ListenAndServe(":9090", nil); err != nil {
+	// 		lg.Fatalf("ошибка запуска сервера профилировщика: %s", err.Error())
+	// 	}
+	// }()
 
 	// Сохранение метрик из map-хранилища в основное хранилище через интервал StoreInterval (-i)
 	saveIntTime := time.NewTicker(time.Duration(cfg.Server.StoreInterval) * time.Second)
@@ -87,6 +98,7 @@ func RunApp() {
 
 	stop := make(chan bool)
 
+	//! сохранение данных в основное хранилище
 	go func() {
 		for {
 			select {

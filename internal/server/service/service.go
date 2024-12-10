@@ -1,3 +1,4 @@
+// Модуль service содержит в себе бизнес-логику приложения.
 package service
 
 import (
@@ -6,15 +7,18 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/storage"
 )
 
+// IUpdateMetricsService - интерфейс сервиса обновления метрик.
 type IUpdateMetricsService interface {
 	UpdateMetric(recMet model.Metric) *model.Metric
 }
 
+// IGetMetricsService - интерфейс сервиса получения метрик.
 type IGetMetricsService interface {
 	GetMetricFromMap(name string) (model.Metric, error)
 	GetMetricsFromMap() map[string]model.Metric
 }
 
+// IPingDatabaseService - интерфейс сервиса проверки соединения с базой данных.
 type IPingDatabaseService interface {
 	Ping() error
 }
@@ -29,7 +33,7 @@ type getMetricsService struct {
 	st         storage.IStorageDB
 }
 
-type PingDatabaseService struct {
+type pingDatabaseService struct {
 	st storage.IStorageDB
 }
 
@@ -39,6 +43,7 @@ type Service struct {
 	IPingDatabaseService
 }
 
+// NewUpdateMetricsService - конструктор сервиса обновления метрик.
 func NewUpdateMetricsService(mst mapstorage.Storage, st storage.IStorageDB) *updateMetricsService {
 	return &updateMetricsService{
 		mapStorage: mst,
@@ -46,6 +51,7 @@ func NewUpdateMetricsService(mst mapstorage.Storage, st storage.IStorageDB) *upd
 	}
 }
 
+// NewGetMetricsService - конструктор сервиса получения метрик.
 func NewGetMetricsService(mst mapstorage.Storage, st storage.IStorageDB) *getMetricsService {
 	return &getMetricsService{
 		mapStorage: mst,
@@ -53,10 +59,12 @@ func NewGetMetricsService(mst mapstorage.Storage, st storage.IStorageDB) *getMet
 	}
 }
 
-func NewPingDatabaseService(st storage.IStorageDB) *PingDatabaseService {
-	return &PingDatabaseService{st: st}
+// NewPingDatabaseService - конструктор сервиса проверки соединения с базой данных.
+func NewPingDatabaseService(st storage.IStorageDB) *pingDatabaseService {
+	return &pingDatabaseService{st: st}
 }
 
+// NewService - конструктор сервиса.
 func NewService(mst mapstorage.Storage, st storage.IStorageDB) *Service {
 	return &Service{
 		IUpdateMetricsService: NewUpdateMetricsService(mst, st),

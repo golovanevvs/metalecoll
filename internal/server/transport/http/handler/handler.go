@@ -1,6 +1,9 @@
+// Модуль handler предназначен для обработки запросов.
 package handler
 
 import (
+	"net/http/pprof"
+
 	"github.com/go-chi/chi"
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/compress"
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/logger"
@@ -15,7 +18,7 @@ type handler struct {
 	hashKey string
 }
 
-// NewHandler - конструктор *handler
+// NewHandler - конструктор *handler.
 func NewHandler(sv *service.Service, lg *logrus.Logger, hashKey string) *handler {
 	return &handler{
 		sv:      sv,
@@ -24,7 +27,7 @@ func NewHandler(sv *service.Service, lg *logrus.Logger, hashKey string) *handler
 	}
 }
 
-// InitRoutes - маршрутизация запросов, используется в качестве http.Handler при запуске сервера
+// InitRoutes - маршрутизация запросов, используется в качестве http.Handler при запуске сервера.
 func (hd *handler) InitRoutes() *chi.Mux {
 	// создание экземпляра роутера
 	rt := chi.NewRouter()
@@ -50,5 +53,24 @@ func (hd *handler) InitRoutes() *chi.Mux {
 	rt.Get("/ping", hd.PingDatabase)
 	rt.Get("/", hd.GetMetricNames)
 
+	// маршруты для профилировщика
+	rtProf := chi.NewRouter()
+
+	rtProf.HandleFunc("/", pprof.Index)
+	rtProf.HandleFunc("/cmdline", pprof.Cmdline)
+	rtProf.HandleFunc("/profile", pprof.Profile)
+	rtProf.HandleFunc("/symbol", pprof.Symbol)
+	rtProf.HandleFunc("/trace", pprof.Trace)
+
+	rtProf.Handle("/goroutine", pprof.Handler("goroutine"))
+	rtProf.Handle("/heap", pprof.Handler("heap"))
+	rtProf.Handle("/threadcreate", pprof.Handler("threadcreate"))
+	rtProf.Handle("/block", pprof.Handler("block"))
+	rtProf.Handle("/mutex", pprof.Handler("mutex"))
+	rtProf.Handle("/allocs", pprof.Handler("allocs"))
+
+	rt.Mount("/debug/pprof", rtProf)
+
+	//rtProf.HandleFunc("/debug/pprof/", pprof.Index)
 	return rt
 }

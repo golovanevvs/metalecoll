@@ -1,3 +1,4 @@
+// Модуль config предназначен для определения конфигурации приложения.
 package config
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Config - структура конфигурации приложения.
 type Config struct {
 	Server  Server
 	Storage Storage
@@ -16,25 +18,30 @@ type Config struct {
 	Crypto  Crypto
 }
 
+// Server - структура конфигарации сервера.
 type Server struct {
 	Addr          string
 	StoreInterval int
 }
 
+// Storage - структура конфигурации хранилища.
 type Storage struct {
 	Restore         bool
 	FileStoragePath string
 	DatabaseDSN     string
 }
 
+// Logger - структура конфигурации логгера.
 type Logger struct {
 	LogLevel logrus.Level
 }
 
+// Crypto - структура конфигурации шифрования.
 type Crypto struct {
 	HashKey string
 }
 
+// NewConfig - конструктор конфигурации.
 func NewConfig() (*Config, error) {
 	var flagRunAddr, flagFileStoragePath, flagDatabaseDSN, flagHashKey string
 	var flagStoreInterval int

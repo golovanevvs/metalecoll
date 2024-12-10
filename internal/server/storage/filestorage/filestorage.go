@@ -1,3 +1,4 @@
+// Модуль filestorage предназначен для работы с файловым хранилищем.
 package filestorage
 
 import (
@@ -12,27 +13,27 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
 
-// FileStorage - тип файлового хранилища
-type FileStorage struct {
+// fileStorage - тип файлового хранилища
+type fileStorage struct {
 	Name            string
 	FileStoragePath string
 }
 
-// NewFileStorage - конструктор файлового хранилища
-func NewFileStorage(fileStoragePath string) *FileStorage {
-	return &FileStorage{
+// NewFileStorage - конструктор файлового хранилища.
+func NewFileStorage(fileStoragePath string) *fileStorage {
+	return &fileStorage{
 		Name:            "Файловое хранилище: " + fileStoragePath,
 		FileStoragePath: fileStoragePath,
 	}
 }
 
-// GetNameDB возвращает название хранилища
-func (f *FileStorage) GetNameDB() string {
+// GetNameDB возвращает название хранилища.
+func (f *fileStorage) GetNameDB() string {
 	return f.Name
 }
 
-// SaveMetricsToDB сохраняет метрики из map-хранилища в файл
-func (f *FileStorage) SaveMetricsToDB(ctx context.Context, c *config.Config, mapStore mapstorage.Storage) error {
+// SaveMetricsToDB сохраняет метрики из map-хранилища в файл.
+func (f *fileStorage) SaveMetricsToDB(ctx context.Context, c *config.Config, mapStore mapstorage.Storage) error {
 	var str string
 	var file *os.File
 	file, err := os.OpenFile(c.Storage.FileStoragePath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, os.ModePerm|os.ModeDir)
@@ -59,8 +60,8 @@ func (f *FileStorage) SaveMetricsToDB(ctx context.Context, c *config.Config, map
 	return nil
 }
 
-// GetMetricsFromDB возвращает метрики из файла
-func (f *FileStorage) GetMetricsFromDB(ctx context.Context, c *config.Config) (mapstorage.Storage, error) {
+// GetMetricsFromDB возвращает метрики из файла.
+func (f *fileStorage) GetMetricsFromDB(ctx context.Context, c *config.Config) (mapstorage.Storage, error) {
 	var metric model.Metric
 
 	file, err := os.Open(c.Storage.FileStoragePath)
@@ -86,11 +87,12 @@ func (f *FileStorage) GetMetricsFromDB(ctx context.Context, c *config.Config) (m
 	return ms, nil
 }
 
-// Ping - метод-заглушка для соответствия интерфейсу
-func (f *FileStorage) Ping() error {
+// Ping - метод-заглушка для соответствия интерфейсу.
+func (f *fileStorage) Ping() error {
 	return nil
 }
 
-func (f *FileStorage) CloseDB() error {
+// CloseDB - метод-заглушка для соответствия интерфейсу.
+func (f *fileStorage) CloseDB() error {
 	return nil
 }

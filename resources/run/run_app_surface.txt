@@ -1,0 +1,15 @@
+компиляция и запуск сервера в терминале:
+
+go run cmd/server/main.go
+
+компиляция и запуск агента в терминале:
+
+go run cmd/agent/main.go
+
+Компиляция и запуск сервера:
+
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && start server
+
+Компиляция и запуск агента:
+
+cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/agent && go build && start agent

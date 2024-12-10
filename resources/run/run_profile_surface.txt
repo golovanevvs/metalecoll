@@ -1,0 +1,37 @@
+Процессор:
+
+    go tool pprof -http=":6060" -seconds=60 http://127.0.0.1:8080/debug/pprof/profile
+
+    go tool pprof -http=":6060" -nodecount=0 -nodefraction=0.005 -seconds=60 http://localhost:8080/debug/pprof/profile
+
+Память:
+
+    go tool pprof -http=":6060" -seconds=60 http://127.0.0.1:8080/debug/pprof/heap
+
+    go tool pprof -http=":6060" -nodecount=0 -nodefraction=0.005 -seconds=60 http://localhost:8080/debug/pprof/heap
+
+Из файла:
+
+    curl -s -v http://127.0.0.1:8080/debug/pprof/heap > /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/profiles/heap.out
+
+    go tool pprof -http=":6060" -seconds=60 /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/profiles/heap.out
+
+Консольный режим:
+
+    go tool pprof -seconds=60 http://localhost:8080/debug/pprof/profile
+
+    go tool pprof -seconds=60 http://localhost:8080/debug/pprof/heap
+
+        команды:
+
+            list <имя_функции>
+
+            top <имя_функции>
+
+            web
+
+Сравнение профилей:
+
+    go tool pprof -top -diff_base profiles/base.pprof profiles/result.pprof
+    
+    go tool pprof -inuse_objects profiles/base.pprof profiles/result.pprof

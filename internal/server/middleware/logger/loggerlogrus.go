@@ -1,3 +1,4 @@
+// Модуль logger предназначен для создания middleware для логирования запросов и ответов.
 package logger
 
 import (
@@ -44,8 +45,8 @@ func (r *loggingResponseWriter) WriteHeader(statusCode int) {
 	r.responseData.contentType = r.Header().Get("Content-Type")
 }
 
-// WithLogging - middleware, Функция-оболочка, которая оборачивает http.Handler
-// добавляет дополнительный код и возвращает новый http.Handler
+// WithLogging - middleware, Функция-оболочка, которая оборачивает http.Handler,
+// добавляет дополнительный код и возвращает новый http.Handler.
 func WithLogging(lg *logrus.Logger) func(h http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
