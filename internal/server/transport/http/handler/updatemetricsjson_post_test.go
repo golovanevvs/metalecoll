@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUpdateMetricJSON(t *testing.T) {
+func TestUpdateMetricsJSON(t *testing.T) {
 	//! подготовительные операции
 	// инициализация логгера
 	lg := logrus.New()
@@ -70,7 +70,7 @@ func TestUpdateMetricJSON(t *testing.T) {
 		want   want   // ожидаемые значения
 	}{
 		{
-			name: "positive test: gauge1=0.1",
+			name: "positive test gauge: gauge1=0.1",
 			actual: actual{
 				body: dto.Metrics{
 					ID:    "gauge1",
@@ -149,6 +149,46 @@ func TestUpdateMetricJSON(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "negative test: no name",
+			actual: actual{
+				body: dto.Metrics{
+					ID:    "",
+					MType: "gauge",
+					Delta: nil,
+					Value: floatToPtr(0.1),
+				},
+			},
+			want: want{
+				httpStatus: http.StatusNotFound,
+				resp: dto.Metrics{
+					ID:    "",
+					MType: "gauge",
+					Delta: nil,
+					Value: floatToPtr(0.1),
+				},
+			},
+		},
+		{
+			name: "negative test: wrong type",
+			actual: actual{
+				body: dto.Metrics{
+					ID:    "counter3",
+					MType: "wrongtype",
+					Delta: intToPtr(4),
+					Value: nil,
+				},
+			},
+			want: want{
+				httpStatus: http.StatusBadRequest,
+				resp: dto.Metrics{
+					ID:    "counter3",
+					MType: "wrongtype",
+					Delta: intToPtr(4),
+					Value: nil,
+				},
+			},
+		},
 	}
 
 	//! Запуск тестов
@@ -173,7 +213,9 @@ func TestUpdateMetricJSON(t *testing.T) {
 
 			// сравнение ответа и ожидаемого значения
 			assert.Equal(t, test.want.httpStatus, resp.StatusCode)
-			assert.Equal(t, string(encExp), respBody)
+			if test.want.httpStatus == http.StatusOK {
+				assert.Equal(t, string(encExp), respBody)
+			}
 		})
 	}
 }

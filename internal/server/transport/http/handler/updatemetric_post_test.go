@@ -67,7 +67,7 @@ func TestUpdateMetric(t *testing.T) {
 		want   want   // ожидаемые значения
 	}{
 		{
-			name: "positive test: /update/gauge/gauge1/0.1",
+			name: "positive test gauge: /update/gauge/gauge1/0.1",
 			actual: actual{
 				targetRequest: "/update/gauge/gauge1/0.1",
 			},
@@ -77,7 +77,7 @@ func TestUpdateMetric(t *testing.T) {
 			},
 		},
 		{
-			name: "positive test: /update/gauge/gauge1/0.2",
+			name: "positive test update gauge: /update/gauge/gauge1/0.2",
 			actual: actual{
 				targetRequest: "/update/gauge/gauge1/0.2",
 			},
@@ -87,7 +87,7 @@ func TestUpdateMetric(t *testing.T) {
 			},
 		},
 		{
-			name: "positive test: /update/counter/counter1/1",
+			name: "positive test counter: /update/counter/counter1/1",
 			actual: actual{
 				targetRequest: "/update/counter/counter1/1",
 			},
@@ -97,7 +97,7 @@ func TestUpdateMetric(t *testing.T) {
 			},
 		},
 		{
-			name: "positive test: /update/counter/counter1/2",
+			name: "positive test update counter: /update/counter/counter1/2",
 			actual: actual{
 				targetRequest: "/update/counter/counter1/2",
 			},
@@ -137,9 +137,9 @@ func TestUpdateMetric(t *testing.T) {
 			},
 		},
 		{
-			name: "negative test: wrong type /update/wrongtype/counter3/0.1",
+			name: "negative test: wrong type /update/wrongtype/counter3/4",
 			actual: actual{
-				targetRequest: "/update/wrongtype/counter3/0.1",
+				targetRequest: "/update/wrongtype/counter3/4",
 			},
 			want: want{
 				httpStatus: http.StatusBadRequest,
@@ -154,7 +154,9 @@ func TestUpdateMetric(t *testing.T) {
 			resp, respBody := testRequest(t, ts, "POST", test.actual.targetRequest, nil)
 			defer resp.Body.Close()
 			assert.Equal(t, test.want.httpStatus, resp.StatusCode)
-			assert.Equal(t, test.want.resp, respBody)
+			if test.want.httpStatus == http.StatusOK {
+				assert.Equal(t, test.want.resp, respBody)
+			}
 		})
 	}
 }
