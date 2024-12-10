@@ -77,7 +77,7 @@ func TestUpdateMetric(t *testing.T) {
 			},
 		},
 		{
-			name: "positive test: /update/gauge/gauge2/0.2",
+			name: "positive test: /update/gauge/gauge1/0.2",
 			actual: actual{
 				targetRequest: "/update/gauge/gauge1/0.2",
 			},
