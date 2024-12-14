@@ -2,13 +2,18 @@
 package handler
 
 import (
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"net/http/pprof"
+	"testing"
 
 	"github.com/go-chi/chi"
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/compress"
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/logger"
 	"github.com/golovanevvs/metalecoll/internal/server/service"
 	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
 )
 
 // структура handler
@@ -73,4 +78,22 @@ func (hd *handler) InitRoutes() *chi.Mux {
 
 	//rtProf.HandleFunc("/debug/pprof/", pprof.Index)
 	return rt
+}
+
+// testRequest формирует запрос, отправляет запрос на тестовый сервер, фозвращает ответ от сервера и тело ответа.
+func testRequest(t *testing.T, ts *httptest.Server, method, path string, body io.Reader) (*http.Response, string) {
+	// формирование запроса
+	req, err := http.NewRequest(method, ts.URL+path, body)
+	require.NoError(t, err)
+
+	// отправка запроса на тестовый сервер и получение ответа
+	resp, err := ts.Client().Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	// формирование тела ответа тестового сервера
+	respBody, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+
+	return resp, string(respBody)
 }
