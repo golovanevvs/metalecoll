@@ -3,6 +3,7 @@ package agent
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -12,6 +13,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/golovanevvs/metalecoll/internal/agent/mapstorage"
@@ -48,8 +51,18 @@ func Start(config *config) {
 	defer pollIntTime.Stop()
 	defer reportIntTime.Stop()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	go func(cancel context.CancelFunc) {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+		<-quit
+		cancel()
+	}(cancel)
+
 	for {
 		select {
+		case <-ctx.Done():
+			return
 		case <-pollIntTime.C:
 			RegisterMetrics(ag)
 		case <-reportIntTime.C:

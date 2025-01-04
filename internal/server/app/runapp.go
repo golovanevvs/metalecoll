@@ -119,7 +119,7 @@ func RunApp() {
 
 	//! операции при завершении работы сервера
 	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	<-quit
 
 	lg.Infof("Получен сигнал о завершении работы сервера")
