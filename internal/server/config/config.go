@@ -38,12 +38,13 @@ type Logger struct {
 
 // Crypto - структура конфигурации шифрования.
 type Crypto struct {
-	HashKey string
+	HashKey        string
+	PrivateKeyPath string
 }
 
 // NewConfig - конструктор конфигурации.
 func NewConfig() (*Config, error) {
-	var flagRunAddr, flagFileStoragePath, flagDatabaseDSN, flagHashKey string
+	var flagRunAddr, flagFileStoragePath, flagDatabaseDSN, flagHashKey, flagPrivateKeyPath string
 	var flagStoreInterval int
 	var flagRestore bool
 
@@ -54,6 +55,7 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&flagDatabaseDSN, "d", "", "database DSN")
 	//flag.StringVar(&flagDatabaseDSN, "d", "host=localhost port=5433 user=postgres password=password dbname=metalecoll sslmode=disable", "database DSN")
 	flag.StringVar(&flagHashKey, "k", "", "hash key")
+	flag.StringVar(&flagPrivateKeyPath, "crypto-key", "C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\private_key.pem", "private key")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
@@ -82,6 +84,9 @@ func NewConfig() (*Config, error) {
 	if envHashKey := os.Getenv("KEY"); envHashKey != "" {
 		flagHashKey = envHashKey
 	}
+	if envPrivateKeyPath := os.Getenv("CRYPTO_KEY"); envPrivateKeyPath != "" {
+		flagPrivateKeyPath = envPrivateKeyPath
+	}
 
 	return &Config{
 		Server{
@@ -91,13 +96,14 @@ func NewConfig() (*Config, error) {
 		Storage{
 			Restore:         flagRestore,         // флаг: восстановление данных при запусае сервера
 			FileStoragePath: flagFileStoragePath, // флаг: путь к файлу сохранения данных
-			DatabaseDSN:     flagDatabaseDSN,     //флаг: DSN базы данных
+			DatabaseDSN:     flagDatabaseDSN,     // флаг: DSN базы данных
 		},
 		Logger{
 			logrus.DebugLevel,
 		},
 		Crypto{
-			HashKey: flagHashKey, // флаг: хэш ключ
+			HashKey:        flagHashKey,        // флаг: хэш ключ
+			PrivateKeyPath: flagPrivateKeyPath, // флаг: путь к приватному ключу
 		},
 	}, nil
 }

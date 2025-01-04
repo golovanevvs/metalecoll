@@ -18,6 +18,7 @@ type config struct {
 	reportInterval int
 	hashKey        string
 	rateLimit      int
+	publicKeyPath  string
 }
 
 // NewConfig - конструктор конфигурации агента.
@@ -27,12 +28,14 @@ func NewConfig() *config {
 	var flagPollInt int
 	var flagHashKey string
 	var flagRateLimit int
+	var flagPublicKeyPath string
 
 	flag.StringVar(&flagRunAddr, "a", constants.AddrA, "address and port of server")
 	flag.IntVar(&flagRepInt, "r", 10, "reportInterval")
 	flag.IntVar(&flagPollInt, "p", 2, "pollInterval")
 	flag.StringVar(&flagHashKey, "k", "", "hash key")
 	flag.IntVar(&flagRateLimit, "l", 3, "rate limit")
+	flag.StringVar(&flagPublicKeyPath, "crypto-key", "C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\public_key.pem", "public key path")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
@@ -50,6 +53,9 @@ func NewConfig() *config {
 	if envRateLimit := os.Getenv("RATE_LIMIT"); envRateLimit != "" {
 		flagRateLimit, _ = strconv.Atoi(envRateLimit)
 	}
+	if envPublicKeyPath := os.Getenv("CRYPTO_KEY"); envPublicKeyPath != "" {
+		flagPublicKeyPath = envPublicKeyPath
+	}
 	if flagRateLimit == 0 {
 		flagRateLimit = 1
 	}
@@ -64,5 +70,6 @@ func NewConfig() *config {
 		reportInterval: flagRepInt,
 		hashKey:        flagHashKey,
 		rateLimit:      flagRateLimit,
+		publicKeyPath:  flagPublicKeyPath,
 	}
 }

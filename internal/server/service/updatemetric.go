@@ -1,8 +1,6 @@
 package service
 
 import (
-	"fmt"
-
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/golovanevvs/metalecoll/internal/server/model"
 )
@@ -29,12 +27,6 @@ func (sv *updateMetricsService) procMetric(recMet model.Metric) *model.Metric {
 			newValue = (getValue.MetValue.(int64)) + recMet.MetValue.(int64)
 		}
 	}
-
-	slice := make([]int, 0, 10000000)
-	for i := 0; i < 10000000; i++ {
-		slice = append(slice, i)
-	}
-	fmt.Println(len(slice))
 
 	return &model.Metric{
 		MetType:  recMet.MetType,

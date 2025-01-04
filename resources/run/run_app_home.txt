@@ -30,3 +30,10 @@ cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && start server &
 
 cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && start server
 
+Генерация приватного ключа RSA
+
+ openssl genrsa -out C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\private_key.pem 2048
+
+ Экспорт публичного ключа из приватного
+
+ openssl rsa -in C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\private_key.pem -pubout -out C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\public_key.pem
