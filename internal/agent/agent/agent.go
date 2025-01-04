@@ -30,7 +30,7 @@ func Start(config *config) {
 	var body Metrics
 	//var metricsJSONGZIP bytes.Buffer
 
-	publicCryptoKey, err := getPublicKey(config.publicKeyPath)
+	publicCryptoKey, err := getPublicKey(config.PublicKeyPath)
 	if err != nil {
 		fmt.Printf("Ошибка получения публичного ключа: %s\n", err.Error())
 		os.Exit(1)
@@ -38,7 +38,7 @@ func Start(config *config) {
 
 	store := mapstorage.NewStorage()
 
-	ag := NewAgent(store, config.pollInterval, config.reportInterval)
+	ag := NewAgent(store, config.PollInterval, config.ReportInterval)
 
 	client := &http.Client{}
 
@@ -65,7 +65,7 @@ func Start(config *config) {
 			fmt.Println(mapStore)
 			fmt.Println("Получение данных из хранилища прошло успешно")
 
-			putString = fmt.Sprintf("http://%s/update/", config.addr)
+			putString = fmt.Sprintf("http://%s/update/", config.Addr)
 
 			fmt.Println("Формирование среза метрик...")
 

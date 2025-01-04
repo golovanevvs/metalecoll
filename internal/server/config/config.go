@@ -2,7 +2,10 @@
 package config
 
 import (
+	"encoding/json"
 	"flag"
+	"fmt"
+	"io"
 	"os"
 	"strconv"
 
@@ -20,15 +23,15 @@ type Config struct {
 
 // Server - структура конфигарации сервера.
 type Server struct {
-	Addr          string
-	StoreInterval int
+	Addr          string `json:"address"`
+	StoreInterval int    `json:"store_interval"`
 }
 
 // Storage - структура конфигурации хранилища.
 type Storage struct {
-	Restore         bool
-	FileStoragePath string
-	DatabaseDSN     string
+	Restore         bool   `json:"restore"`
+	FileStoragePath string `json:"store_file"`
+	DatabaseDSN     string `json:"database_dsn"`
 }
 
 // Logger - структура конфигурации логгера.
@@ -39,14 +42,40 @@ type Logger struct {
 // Crypto - структура конфигурации шифрования.
 type Crypto struct {
 	HashKey        string
-	PrivateKeyPath string
+	PrivateKeyPath string `json:"crypto_key"`
 }
 
 // NewConfig - конструктор конфигурации.
 func NewConfig() (*Config, error) {
-	var flagRunAddr, flagFileStoragePath, flagDatabaseDSN, flagHashKey, flagPrivateKeyPath string
+	var flagRunAddr, flagFileStoragePath, flagDatabaseDSN, flagHashKey, flagPrivateKeyPath, jsonConfigPath string
 	var flagStoreInterval int
 	var flagRestore bool
+	var config Config
+
+	flag.StringVar(&jsonConfigPath, "config", "", "JSON config file path")
+
+	flag.Parse()
+
+	if envJSONConfigPath := os.Getenv("CONFIG"); envJSONConfigPath != "" {
+		jsonConfigPath = envJSONConfigPath
+	}
+
+	if jsonConfigPath != "" {
+		file, err := os.Open(jsonConfigPath)
+		if err != nil {
+			return nil, fmt.Errorf("открытие JSON файла конфигурации: %s", err.Error())
+		}
+		defer file.Close()
+
+		body, err := io.ReadAll(file)
+		if err != nil {
+			return nil, fmt.Errorf("чтение JSON файла конфигурации: %s", err.Error())
+		}
+
+		if err := json.Unmarshal(body, &config); err != nil {
+			return nil, fmt.Errorf("десериализация JSON файла конфигурации: %s", err.Error())
+		}
+	}
 
 	flag.StringVar(&flagRunAddr, "a", constants.AddrS, "address and port to run server")
 	flag.IntVar(&flagStoreInterval, "i", 15, "the interval for saving to a file")
@@ -55,7 +84,7 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&flagDatabaseDSN, "d", "", "database DSN")
 	//flag.StringVar(&flagDatabaseDSN, "d", "host=localhost port=5433 user=postgres password=password dbname=metalecoll sslmode=disable", "database DSN")
 	flag.StringVar(&flagHashKey, "k", "", "hash key")
-	flag.StringVar(&flagPrivateKeyPath, "crypto-key", "C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\key", "private key")
+	flag.StringVar(&flagPrivateKeyPath, "crypto-key", "C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\private_key_pkcs1.pem", "private key")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
@@ -86,6 +115,27 @@ func NewConfig() (*Config, error) {
 	}
 	if envPrivateKeyPath := os.Getenv("CRYPTO_KEY"); envPrivateKeyPath != "" {
 		flagPrivateKeyPath = envPrivateKeyPath
+	}
+
+	if jsonConfigPath != "" {
+		if flagRunAddr == "" {
+			flagRunAddr = config.Server.Addr
+		}
+		if flagStoreInterval == 0 {
+			flagStoreInterval = config.Server.StoreInterval
+		}
+		if flagFileStoragePath == "" {
+			flagFileStoragePath = config.Storage.FileStoragePath
+		}
+		if !flagRestore {
+			flagRestore = config.Storage.Restore
+		}
+		if flagDatabaseDSN == "" {
+			flagDatabaseDSN = config.Storage.DatabaseDSN
+		}
+		if flagPrivateKeyPath == "" {
+			flagPrivateKeyPath = config.Crypto.PrivateKeyPath
+		}
 	}
 
 	return &Config{
