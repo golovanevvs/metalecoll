@@ -119,6 +119,7 @@ func Start(config *config) {
 				}
 
 				fmt.Println("Формирование запроса POST...")
+				// request, err := http.NewRequest("POST", putString, bytes.NewBuffer(metricsJSON))
 				request, err := http.NewRequest("POST", putString, bytes.NewBuffer([]byte(encryptedMessageBase64)))
 				if err != nil {
 					fmt.Println("Ошибка формирования запроса:", err)
@@ -126,7 +127,7 @@ func Start(config *config) {
 				fmt.Println("Формирование запроса POST прошло успешно")
 
 				fmt.Println("Установка заголовков...")
-				request.Header.Set("Content-Encoding", "gzip")
+				//request.Header.Set("Content-Encoding", "gzip")
 				request.Header.Set("Content-Type", "application/json")
 				if config.hashKey != "" {
 					fmt.Println("Формирование hash...")
@@ -166,9 +167,12 @@ func getPublicKey(publicPathKey string) (*rsa.PublicKey, error) {
 		return nil, fmt.Errorf("получение publicKey: открытие файла: %s", err.Error())
 	}
 
-	block, _ := pem.Decode(file)
+	block, rest := pem.Decode(file)
+	if len(rest) > 0 {
+		return nil, fmt.Errorf("получение publicKey: неожиданные данные после PEM-блока")
+	}
 	if block == nil || block.Type != "RSA PUBLIC KEY" {
-		return nil, fmt.Errorf("получение publicKey: неверный формат файла: %s", err.Error())
+		return nil, fmt.Errorf("получение publicKey: неверный формат файла")
 	}
 
 	publicKey, err := x509.ParsePKCS1PublicKey(block.Bytes)

@@ -34,6 +34,12 @@ cd /c/Golovanev/Dev/Projects/YaPracticum/metalecoll/cmd/server && go build && st
 
  openssl genrsa -out C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\private_key.pem 2048
 
+ openssl genpkey -algorithm RSA -out C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\private_key_pkcs1.pem -pkeyopt rsa_keygen_bits:2048
+
+ ssh-keygen -m PEM -t rsa -b 2048 -f C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\key
+
  Экспорт публичного ключа из приватного
 
  openssl rsa -in C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\private_key.pem -pubout -out C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\public_key.pem
+
+ openssl rsa -in C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\private_key_pkcs1.pem -RSAPublicKey_out -out C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\public_key_pkcs1.pem

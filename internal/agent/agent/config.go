@@ -35,7 +35,7 @@ func NewConfig() *config {
 	flag.IntVar(&flagPollInt, "p", 2, "pollInterval")
 	flag.StringVar(&flagHashKey, "k", "", "hash key")
 	flag.IntVar(&flagRateLimit, "l", 3, "rate limit")
-	flag.StringVar(&flagPublicKeyPath, "crypto-key", "C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\public_key.pem", "public key path")
+	flag.StringVar(&flagPublicKeyPath, "crypto-key", "C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\key.pub", "public key path")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {

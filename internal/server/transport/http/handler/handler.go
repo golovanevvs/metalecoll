@@ -51,12 +51,12 @@ func (hd *handler) InitRoutes() *chi.Mux {
 	// маршруты
 	rt.Route("/update", func(r chi.Router) {
 		r.Post("/{type}/{name}/{value}", hd.UpdateMetric)
-		r.Post("/", hd.UpdateMetricsJSON)
+		//r.Post("/", hd.UpdateMetricsJSON)
+		r.With(decrypt.Decrypt(hd.privateKeyPath, hd.lg)).Post("/", hd.UpdateMetricsJSON)
 	})
 	rt.Route("/value", func(r chi.Router) {
 		r.Get("/{type}/{name}", hd.GetMetricValue)
-		//r.Post("/", hd.GetMetricValueJSON)
-		r.With(decrypt.Decrypt(hd.privateKeyPath, hd.lg)).Post("/", hd.GetMetricValueJSON)
+		r.Post("/", hd.GetMetricValueJSON)
 	})
 	rt.Post("/updates/", hd.UpdatesMetricsJSON)
 	rt.Get("/ping", hd.PingDatabase)

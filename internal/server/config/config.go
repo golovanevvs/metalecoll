@@ -55,7 +55,7 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&flagDatabaseDSN, "d", "", "database DSN")
 	//flag.StringVar(&flagDatabaseDSN, "d", "host=localhost port=5433 user=postgres password=password dbname=metalecoll sslmode=disable", "database DSN")
 	flag.StringVar(&flagHashKey, "k", "", "hash key")
-	flag.StringVar(&flagPrivateKeyPath, "crypto-key", "C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\private_key.pem", "private key")
+	flag.StringVar(&flagPrivateKeyPath, "crypto-key", "C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\key", "private key")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {

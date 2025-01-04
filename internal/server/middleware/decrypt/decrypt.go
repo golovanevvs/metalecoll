@@ -65,17 +65,21 @@ func cryptoChecker(privateKeyPath string, lg *logrus.Logger, encryptedBody []byt
 func getPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
 	file, err := os.ReadFile(privateKeyPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("не удалось прочитать файл: %s", err.Error())
 	}
 
-	block, _ := pem.Decode(file)
+	block, rest := pem.Decode(file)
+	if len(rest) > 0 {
+		return nil, fmt.Errorf("ошибка декодирования: в файл обнаружены непредвиденные данные после PEM-блока")
+	}
 	if block == nil || block.Type != "RSA PRIVATE KEY" {
-		return nil, fmt.Errorf("ошибка декодирования")
+		fmt.Printf("block: %v, block.Type: %v", block, block.Type)
+		return nil, fmt.Errorf("ошибка декодирования: неверный формат файла")
 	}
 
 	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ошибка декодирования: не удалось распарсить приватный ключ: %s", err.Error())
 	}
 
 	return privateKey, nil
