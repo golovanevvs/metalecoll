@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/compress"
+	"github.com/golovanevvs/metalecoll/internal/server/middleware/decrypt"
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/logger"
 	"github.com/golovanevvs/metalecoll/internal/server/service"
 	"github.com/sirupsen/logrus"
@@ -18,17 +19,19 @@ import (
 
 // структура handler
 type handler struct {
-	sv      *service.Service
-	lg      *logrus.Logger
-	hashKey string
+	sv             *service.Service
+	lg             *logrus.Logger
+	hashKey        string
+	privateKeyPath string
 }
 
 // NewHandler - конструктор *handler.
-func NewHandler(sv *service.Service, lg *logrus.Logger, hashKey string) *handler {
+func NewHandler(sv *service.Service, lg *logrus.Logger, hashKey string, privateKeyPath string) *handler {
 	return &handler{
-		sv:      sv,
-		lg:      lg,
-		hashKey: hashKey,
+		sv:             sv,
+		lg:             lg,
+		hashKey:        hashKey,
+		privateKeyPath: privateKeyPath,
 	}
 }
 
@@ -48,7 +51,8 @@ func (hd *handler) InitRoutes() *chi.Mux {
 	// маршруты
 	rt.Route("/update", func(r chi.Router) {
 		r.Post("/{type}/{name}/{value}", hd.UpdateMetric)
-		r.Post("/", hd.UpdateMetricsJSON)
+		//r.Post("/", hd.UpdateMetricsJSON)
+		r.With(decrypt.Decrypt(hd.privateKeyPath, hd.lg)).Post("/", hd.UpdateMetricsJSON)
 	})
 	rt.Route("/value", func(r chi.Router) {
 		r.Get("/{type}/{name}", hd.GetMetricValue)

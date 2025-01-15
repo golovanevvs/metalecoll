@@ -27,3 +27,4 @@ vendor/
 .te/
 .run/
 /cmd/server/metrics.txt
+/resources/keys

@@ -3,10 +3,18 @@ package agent
 
 import (
 	"bytes"
-	"compress/gzip"
+	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/golovanevvs/metalecoll/internal/agent/mapstorage"
@@ -23,11 +31,17 @@ type agent struct {
 func Start(config *config) {
 	var putString string
 	var body Metrics
-	var metricsJSONGZIP bytes.Buffer
+	//var metricsJSONGZIP bytes.Buffer
+
+	publicCryptoKey, err := getPublicKey(config.PublicKeyPath)
+	if err != nil {
+		fmt.Printf("Ошибка получения публичного ключа: %s\n", err.Error())
+		os.Exit(1)
+	}
 
 	store := mapstorage.NewStorage()
 
-	ag := NewAgent(store, config.pollInterval, config.reportInterval)
+	ag := NewAgent(store, config.PollInterval, config.ReportInterval)
 
 	client := &http.Client{}
 
@@ -37,8 +51,18 @@ func Start(config *config) {
 	defer pollIntTime.Stop()
 	defer reportIntTime.Stop()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	go func(cancel context.CancelFunc) {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+		<-quit
+		cancel()
+	}(cancel)
+
 	for {
 		select {
+		case <-ctx.Done():
+			return
 		case <-pollIntTime.C:
 			RegisterMetrics(ag)
 		case <-reportIntTime.C:
@@ -54,7 +78,7 @@ func Start(config *config) {
 			fmt.Println(mapStore)
 			fmt.Println("Получение данных из хранилища прошло успешно")
 
-			putString = fmt.Sprintf("http://%s/update/", config.addr)
+			putString = fmt.Sprintf("http://%s/update/", config.Addr)
 
 			fmt.Println("Формирование среза метрик...")
 
@@ -89,26 +113,34 @@ func Start(config *config) {
 				}
 				fmt.Println("Кодирование в JSON прошло успешно")
 
-				fmt.Println("Сжатие в gzip...")
-				gzipWr := gzip.NewWriter(&metricsJSONGZIP)
-				_, err = gzipWr.Write(metricsJSON)
+				// fmt.Println("Сжатие в gzip...")
+				// gzipWr := gzip.NewWriter(&metricsJSONGZIP)
+				// _, err = gzipWr.Write(metricsJSON)
+				// if err != nil {
+				// 	fmt.Println("Ошибка сжатия в gzip:", err)
+				// 	gzipWr.Close()
+				// 	continue
+				// }
+				// gzipWr.Close()
+				// fmt.Println("Сжатие в gzip прошло успешно")
+
+				fmt.Println("encryptedMessageBase64")
+				encryptedMessageBase64, err := encryptBody(metricsJSON, publicCryptoKey)
 				if err != nil {
-					fmt.Println("Ошибка сжатия в gzip:", err)
-					gzipWr.Close()
+					fmt.Println("Ошибка кодирования в base64:", err)
 					continue
 				}
-				gzipWr.Close()
-				fmt.Println("Сжатие в gzip прошло успешно")
 
 				fmt.Println("Формирование запроса POST...")
-				request, err := http.NewRequest("POST", putString, &metricsJSONGZIP)
+				// request, err := http.NewRequest("POST", putString, bytes.NewBuffer(metricsJSON))
+				request, err := http.NewRequest("POST", putString, bytes.NewBuffer([]byte(encryptedMessageBase64)))
 				if err != nil {
 					fmt.Println("Ошибка формирования запроса:", err)
 				}
 				fmt.Println("Формирование запроса POST прошло успешно")
 
 				fmt.Println("Установка заголовков...")
-				request.Header.Set("Content-Encoding", "gzip")
+				//request.Header.Set("Content-Encoding", "gzip")
 				request.Header.Set("Content-Type", "application/json")
 				if config.hashKey != "" {
 					fmt.Println("Формирование hash...")
@@ -140,4 +172,37 @@ func NewAgent(store mapstorage.Storage, pollInterval, reportInterval int) *agent
 		reportInterval: reportInterval,
 	}
 	return s
+}
+
+func getPublicKey(publicPathKey string) (*rsa.PublicKey, error) {
+	file, err := os.ReadFile(publicPathKey)
+	if err != nil {
+		return nil, fmt.Errorf("получение publicKey: открытие файла: %s", err.Error())
+	}
+
+	block, rest := pem.Decode(file)
+	if len(rest) > 0 {
+		return nil, fmt.Errorf("получение publicKey: неожиданные данные после PEM-блока")
+	}
+	if block == nil || block.Type != "RSA PUBLIC KEY" {
+		return nil, fmt.Errorf("получение publicKey: неверный формат файла")
+	}
+
+	publicKey, err := x509.ParsePKCS1PublicKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("получение publicKey: неверный формат файла: %s", err.Error())
+	}
+
+	return publicKey, nil
+}
+
+func encryptBody(body []byte, publicKey *rsa.PublicKey) (string, error) {
+	encryptedBody, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, body)
+	if err != nil {
+		return "", fmt.Errorf("шифрование тела запроса: %s", err.Error())
+	}
+
+	res := base64.StdEncoding.EncodeToString(encryptedBody)
+
+	return res, nil
 }
