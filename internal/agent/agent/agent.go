@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -131,6 +132,16 @@ func Start(config *config) {
 					continue
 				}
 
+				var machineIP string
+				addrs, _ := net.InterfaceAddrs()
+				for _, addr := range addrs {
+					if ipNet, ok := addr.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
+						if ipNet.IP.To4() != nil {
+							machineIP = ipNet.IP.String()
+						}
+					}
+				}
+
 				fmt.Println("Формирование запроса POST...")
 				// request, err := http.NewRequest("POST", putString, bytes.NewBuffer(metricsJSON))
 				request, err := http.NewRequest("POST", putString, bytes.NewBuffer([]byte(encryptedMessageBase64)))
@@ -148,6 +159,7 @@ func Start(config *config) {
 					fmt.Println("Формирование hash прошло успешно")
 					request.Header.Set("HashSHA256", hash)
 				}
+				request.Header.Set("X-Real-IP", machineIP)
 				fmt.Println("Установка заголовков прошла успешно")
 
 				fmt.Println("Отправка запроса...")
@@ -157,6 +169,10 @@ func Start(config *config) {
 					continue
 				}
 				response.Body.Close()
+				if response.StatusCode != http.StatusOK {
+					fmt.Println("Сервер вернул ответ отличный от 200:", response.Status)
+					continue
+				}
 				fmt.Println("Отправка запроса прошла успешно")
 				fmt.Println("Reporting completed")
 			}
