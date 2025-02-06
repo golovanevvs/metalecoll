@@ -12,34 +12,33 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/golovanevvs/metalecoll/internal/server/constants"
 	"github.com/sirupsen/logrus"
 )
 
-type ctxKey string
-
-const decryptKey = ctxKey("decrypt")
-
 // Decrypt - middleware для декодирования
-func Decrypt(privateKeyPath string, lg *logrus.Logger) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			encrypted, err := io.ReadAll(r.Body)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
+func Decrypt(privateKeyPath string, lg *logrus.Logger, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		encrypted, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			lg.Errorf("Ошибка чтения зашифрованного тела: %s", err.Error())
+			return
+		}
 
-			decryptedBody, err := cryptoChecker(privateKeyPath, lg, encrypted)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
+		decryptedBody, err := cryptoChecker(privateKeyPath, lg, encrypted)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			lg.Errorf("Ошибка расшифровки зашифрованного тела: %s", err.Error())
+			return
+		}
 
-			r = r.WithContext(context.WithValue(r.Context(), decryptKey, decryptedBody))
+		r = r.WithContext(context.WithValue(r.Context(), constants.DecryptKey, decryptedBody))
 
-			next.ServeHTTP(w, r)
-		})
-	}
+		fmt.Println("Из мидлварь", decryptedBody)
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func cryptoChecker(privateKeyPath string, lg *logrus.Logger, encryptedBody []byte) ([]byte, error) {

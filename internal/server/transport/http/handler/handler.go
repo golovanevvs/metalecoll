@@ -52,7 +52,11 @@ func (hd *handler) InitRoutes() *chi.Mux {
 	rt.Route("/update", func(r chi.Router) {
 		r.Post("/{type}/{name}/{value}", hd.UpdateMetric)
 		//r.Post("/", hd.UpdateMetricsJSON)
-		r.With(decrypt.Decrypt(hd.privateKeyPath, hd.lg)).Post("/", hd.UpdateMetricsJSON)
+		r.With(
+			func(next http.Handler) http.Handler {
+				return decrypt.Decrypt(hd.privateKeyPath, hd.lg, next)
+			},
+		).Post("/", hd.UpdateMetricsJSON)
 	})
 	rt.Route("/value", func(r chi.Router) {
 		r.Get("/{type}/{name}", hd.GetMetricValue)
