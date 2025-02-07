@@ -35,8 +35,6 @@ func Decrypt(privateKeyPath string, lg *logrus.Logger, next http.Handler) http.H
 
 		r = r.WithContext(context.WithValue(r.Context(), constants.DecryptKey, decryptedBody))
 
-		fmt.Println("Из мидлварь", decryptedBody)
-
 		next.ServeHTTP(w, r)
 	})
 }

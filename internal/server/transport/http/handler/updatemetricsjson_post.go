@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
@@ -13,13 +12,12 @@ import (
 // UpdateMetricsJSON - обновление метрики, полученной в JSON.
 func (hd *handler) UpdateMetricsJSON(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	decFromCTX, _ := ctx.Value(constants.DecryptKey).([]byte)
-	// if !ok {
-	// 	hd.lg.Errorf("Ошибка декодирования crypto\n")
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
-	fmt.Println("Из хендлера", decFromCTX)
+	decFromCTX, ok := ctx.Value(constants.DecryptKey).([]byte)
+	if !ok {
+		hd.lg.Errorf("Ошибка декодирования crypto\n")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	var mVParse any
 	var req, resp dto.Metrics
 
