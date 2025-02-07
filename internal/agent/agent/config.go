@@ -39,7 +39,7 @@ func NewConfig() (*config, error) {
 
 	flag.Parse()
 
-	if envJSONConfigPath := os.Getenv("CONFIG"); envJSONConfigPath != "" {
+	if envJSONConfigPath := os.Getenv("AGENT_CONFIG"); envJSONConfigPath != "" {
 		jsonConfigPath = envJSONConfigPath
 	}
 

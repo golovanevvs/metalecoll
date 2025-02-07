@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/golovanevvs/metalecoll/internal/agent/agent"
 )
@@ -19,7 +20,9 @@ func main() {
 	fmt.Printf("Build commit: %s\n", buildCommit)
 	config, err := agent.NewConfig()
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		time.Sleep(time.Second * 15)
+		return
 	}
 	agent.Start(config)
 }
