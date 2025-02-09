@@ -12,6 +12,7 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/compress"
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/decrypt"
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/logger"
+	"github.com/golovanevvs/metalecoll/internal/server/middleware/trustedipchecker"
 	"github.com/golovanevvs/metalecoll/internal/server/service"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
@@ -53,12 +54,12 @@ func (hd *handler) InitRoutes() *chi.Mux {
 	// маршруты
 	rt.Route("/update", func(r chi.Router) {
 		r.Post("/{type}/{name}/{value}", hd.UpdateMetric)
-		//r.Post("/", hd.UpdateMetricsJSON)
-		// доработать
-		// r.With(decrypt.Decrypt(hd.privateKeyPath, hd.lg), trustedipchecker.TrustedIPChecker(hd.trustedSubnet)).Post("/", hd.UpdateMetricsJSON)
 		r.With(
 			func(next http.Handler) http.Handler {
 				return decrypt.Decrypt(hd.privateKeyPath, hd.lg, next)
+			},
+			func(next http.Handler) http.Handler {
+				return trustedipchecker.TrustedIPChecker(hd.trustedSubnet, next)
 			},
 		).Post("/", hd.UpdateMetricsJSON)
 	})

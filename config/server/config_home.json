@@ -1,0 +1,8 @@
+{
+    "address": ":8080",
+    "restore": true,
+    "store_interval": 15,
+    "store_file": "/c/Golovanev/dev/projects/yapracticum/metalecoll/cmd/server/metrics.txt",
+    "database_dsn": "",
+    "crypto_key": "/c/Golovanev/dev/projects/yapracticum/metalecoll/resources/keys"
+}
