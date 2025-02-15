@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Metrics_UpdateMetricsJSON_FullMethodName = "/grpc.Metrics/UpdateMetricsJSON"
+	Metrics_UpdateMetrics_FullMethodName = "/grpc.Metrics/UpdateMetrics"
 )
 
 // MetricsClient is the client API for Metrics service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MetricsClient interface {
-	UpdateMetricsJSON(ctx context.Context, in *UpdateMetricsJSONRequest, opts ...grpc.CallOption) (*UpdateMetricsJSONResponse, error)
+	UpdateMetrics(ctx context.Context, in *UpdateMetricsRequest, opts ...grpc.CallOption) (*UpdateMetricsResponse, error)
 }
 
 type metricsClient struct {
@@ -37,10 +37,10 @@ func NewMetricsClient(cc grpc.ClientConnInterface) MetricsClient {
 	return &metricsClient{cc}
 }
 
-func (c *metricsClient) UpdateMetricsJSON(ctx context.Context, in *UpdateMetricsJSONRequest, opts ...grpc.CallOption) (*UpdateMetricsJSONResponse, error) {
+func (c *metricsClient) UpdateMetrics(ctx context.Context, in *UpdateMetricsRequest, opts ...grpc.CallOption) (*UpdateMetricsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateMetricsJSONResponse)
-	err := c.cc.Invoke(ctx, Metrics_UpdateMetricsJSON_FullMethodName, in, out, cOpts...)
+	out := new(UpdateMetricsResponse)
+	err := c.cc.Invoke(ctx, Metrics_UpdateMetrics_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (c *metricsClient) UpdateMetricsJSON(ctx context.Context, in *UpdateMetrics
 // All implementations must embed UnimplementedMetricsServer
 // for forward compatibility.
 type MetricsServer interface {
-	UpdateMetricsJSON(context.Context, *UpdateMetricsJSONRequest) (*UpdateMetricsJSONResponse, error)
+	UpdateMetrics(context.Context, *UpdateMetricsRequest) (*UpdateMetricsResponse, error)
 	mustEmbedUnimplementedMetricsServer()
 }
 
@@ -62,8 +62,8 @@ type MetricsServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMetricsServer struct{}
 
-func (UnimplementedMetricsServer) UpdateMetricsJSON(context.Context, *UpdateMetricsJSONRequest) (*UpdateMetricsJSONResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateMetricsJSON not implemented")
+func (UnimplementedMetricsServer) UpdateMetrics(context.Context, *UpdateMetricsRequest) (*UpdateMetricsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMetrics not implemented")
 }
 func (UnimplementedMetricsServer) mustEmbedUnimplementedMetricsServer() {}
 func (UnimplementedMetricsServer) testEmbeddedByValue()                 {}
@@ -86,20 +86,20 @@ func RegisterMetricsServer(s grpc.ServiceRegistrar, srv MetricsServer) {
 	s.RegisterService(&Metrics_ServiceDesc, srv)
 }
 
-func _Metrics_UpdateMetricsJSON_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateMetricsJSONRequest)
+func _Metrics_UpdateMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMetricsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MetricsServer).UpdateMetricsJSON(ctx, in)
+		return srv.(MetricsServer).UpdateMetrics(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Metrics_UpdateMetricsJSON_FullMethodName,
+		FullMethod: Metrics_UpdateMetrics_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MetricsServer).UpdateMetricsJSON(ctx, req.(*UpdateMetricsJSONRequest))
+		return srv.(MetricsServer).UpdateMetrics(ctx, req.(*UpdateMetricsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,8 +112,8 @@ var Metrics_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MetricsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "UpdateMetricsJSON",
-			Handler:    _Metrics_UpdateMetricsJSON_Handler,
+			MethodName: "UpdateMetrics",
+			Handler:    _Metrics_UpdateMetrics_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

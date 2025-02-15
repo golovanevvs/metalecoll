@@ -3,20 +3,24 @@ package app
 
 import (
 	"context"
+	"net"
 
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	pb "github.com/golovanevvs/metalecoll/internal/proto"
 	"github.com/golovanevvs/metalecoll/internal/server/config"
 	"github.com/golovanevvs/metalecoll/internal/server/mapstorage"
 	"github.com/golovanevvs/metalecoll/internal/server/service"
 	"github.com/golovanevvs/metalecoll/internal/server/storage"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/filestorage"
 	"github.com/golovanevvs/metalecoll/internal/server/storage/postgres"
+	"github.com/golovanevvs/metalecoll/internal/server/transport/grpc/grpchandler"
 	"github.com/golovanevvs/metalecoll/internal/server/transport/http/handler"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 // RunApp запускает сервер и корректно завершает его работу.
@@ -76,11 +80,34 @@ func RunApp() {
 		}
 	}
 
-	//! запуск сервера
+	//! запуск сервера REST API
 	go func() {
-		lg.Infof("Сервер сбора метрик metalecoll запущен")
+		lg.Infof("Сервер REST API сбора метрик metalecoll запущен")
 		if err := srv.RunServer(cfg.Server.Addr, hd.InitRoutes()); err != nil {
 			lg.Fatalf("работа сервера: %s", err.Error())
+		}
+	}()
+
+	//! запуск сервера gRPC
+	go func() {
+		lg.Infof("Запуск сервера gRPC сбора метрик metalecoll...")
+		// определение порта для gRPC сервера
+		listen, err := net.Listen("tcp", ":3200")
+		if err != nil {
+			lg.Fatalf("Ошибка прослушивания по локальному адресу: %s", err.Error())
+		}
+		// создание gRPC сервера без зарегистрированной службы
+		gRPCSrv := grpc.NewServer()
+		// создание gRPC хендлера
+		gRPCHandlers := grpchandler.NewGrpcHandler(sv, lg, cfg.Crypto.HashKey, cfg.Crypto.PrivateKeyPath, cfg.Server.TrustedSubnet)
+		// регистрация службы
+		pb.RegisterMetricsServer(gRPCSrv, gRPCHandlers)
+
+		lg.Infof("Сервер gRPC сбора метрик metalecoll запущен")
+
+		// получение запроса gRPC
+		if err := gRPCSrv.Serve(listen); err != nil {
+			lg.Fatalf("Ошибка получения запроса gRPC: %s", err.Error())
 		}
 	}()
 

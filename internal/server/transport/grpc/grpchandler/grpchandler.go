@@ -1,7 +1,7 @@
 package grpchandler
 
 import (
-	"github.com/golovanevvs/metalecoll/internal/proto"
+	pb "github.com/golovanevvs/metalecoll/internal/proto"
 	"github.com/golovanevvs/metalecoll/internal/server/service"
 	"github.com/sirupsen/logrus"
 )
@@ -12,7 +12,7 @@ type gRPCHandler struct {
 	hashKey        string
 	privateKeyPath string
 	trustedSubnet  string
-	proto.UnimplementedMetricsServer
+	pb.UnimplementedMetricsServer
 }
 
 func NewGrpcHandler(sv *service.Service, lg *logrus.Logger, hashKey string, privateKeyPath string, trustedSubnet string) *gRPCHandler {
