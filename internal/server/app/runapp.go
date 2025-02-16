@@ -99,7 +99,7 @@ func RunApp() {
 		// создание gRPC сервера без зарегистрированной службы
 		gRPCSrv := grpc.NewServer()
 		// создание gRPC хендлера
-		gRPCHandlers := grpchandler.NewGrpcHandler(sv, lg, cfg.Crypto.HashKey, cfg.Crypto.PrivateKeyPath, cfg.Server.TrustedSubnet)
+		gRPCHandlers := grpchandler.NewGrpcHandler(sv, lg)
 		// регистрация службы
 		pb.RegisterMetricsServer(gRPCSrv, gRPCHandlers)
 

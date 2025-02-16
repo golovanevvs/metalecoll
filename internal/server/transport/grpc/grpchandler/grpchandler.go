@@ -7,20 +7,14 @@ import (
 )
 
 type gRPCHandler struct {
-	sv             *service.Service
-	lg             *logrus.Logger
-	hashKey        string
-	privateKeyPath string
-	trustedSubnet  string
+	sv *service.Service
+	lg *logrus.Logger
 	pb.UnimplementedMetricsServer
 }
 
-func NewGrpcHandler(sv *service.Service, lg *logrus.Logger, hashKey string, privateKeyPath string, trustedSubnet string) *gRPCHandler {
+func NewGrpcHandler(sv *service.Service, lg *logrus.Logger) *gRPCHandler {
 	return &gRPCHandler{
-		sv:             sv,
-		lg:             lg,
-		hashKey:        hashKey,
-		privateKeyPath: privateKeyPath,
-		trustedSubnet:  trustedSubnet,
+		sv: sv,
+		lg: lg,
 	}
 }
