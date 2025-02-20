@@ -1,6 +1,10 @@
 // Модуль constants содержит в себе все константы приложений server и agent.
 package constants
 
+type CTXKey string
+
+const DecryptKey = CTXKey("decrypt")
+
 const (
 	GaugeType   = "gauge"
 	CounterType = "counter"

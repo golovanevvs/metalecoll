@@ -11,12 +11,18 @@ import (
 
 // UpdateMetricsJSON - обновление метрики, полученной в JSON.
 func (hd *handler) UpdateMetricsJSON(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	decFromCTX, ok := ctx.Value(constants.DecryptKey).([]byte)
+	if !ok {
+		hd.lg.Errorf("Ошибка декодирования crypto\n")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	var mVParse any
 	var req, resp dto.Metrics
 
 	hd.lg.Debugf("Декодирование JSON...")
-	dec := json.NewDecoder(r.Body)
-	if err := dec.Decode(&req); err != nil {
+	if err := json.Unmarshal(decFromCTX, &req); err != nil {
 		hd.lg.Errorf("Ошибка декодирования JSON: %v", err)
 		hd.lg.Errorf("Отправлен код: %v", http.StatusInternalServerError)
 		w.WriteHeader(http.StatusInternalServerError)

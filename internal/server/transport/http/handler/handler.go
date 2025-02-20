@@ -12,6 +12,7 @@ import (
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/compress"
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/decrypt"
 	"github.com/golovanevvs/metalecoll/internal/server/middleware/logger"
+	"github.com/golovanevvs/metalecoll/internal/server/middleware/trustedipchecker"
 	"github.com/golovanevvs/metalecoll/internal/server/service"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
@@ -23,15 +24,17 @@ type handler struct {
 	lg             *logrus.Logger
 	hashKey        string
 	privateKeyPath string
+	trustedSubnet  string
 }
 
 // NewHandler - конструктор *handler.
-func NewHandler(sv *service.Service, lg *logrus.Logger, hashKey string, privateKeyPath string) *handler {
+func NewHandler(sv *service.Service, lg *logrus.Logger, hashKey string, privateKeyPath string, trustedSubnet string) *handler {
 	return &handler{
 		sv:             sv,
 		lg:             lg,
 		hashKey:        hashKey,
 		privateKeyPath: privateKeyPath,
+		trustedSubnet:  trustedSubnet,
 	}
 }
 
@@ -51,8 +54,14 @@ func (hd *handler) InitRoutes() *chi.Mux {
 	// маршруты
 	rt.Route("/update", func(r chi.Router) {
 		r.Post("/{type}/{name}/{value}", hd.UpdateMetric)
-		//r.Post("/", hd.UpdateMetricsJSON)
-		r.With(decrypt.Decrypt(hd.privateKeyPath, hd.lg)).Post("/", hd.UpdateMetricsJSON)
+		r.With(
+			func(next http.Handler) http.Handler {
+				return decrypt.Decrypt(hd.privateKeyPath, hd.lg, next)
+			},
+			func(next http.Handler) http.Handler {
+				return trustedipchecker.TrustedIPChecker(hd.trustedSubnet, next)
+			},
+		).Post("/", hd.UpdateMetricsJSON)
 	})
 	rt.Route("/value", func(r chi.Router) {
 		r.Get("/{type}/{name}", hd.GetMetricValue)

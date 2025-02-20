@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -18,7 +19,10 @@ import (
 	"time"
 
 	"github.com/golovanevvs/metalecoll/internal/agent/mapstorage"
+	pb "github.com/golovanevvs/metalecoll/internal/proto"
 	"github.com/golovanevvs/metalecoll/internal/server/constants"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type agent struct {
@@ -59,6 +63,22 @@ func Start(config *config) {
 		cancel()
 	}(cancel)
 
+	// выбор сервера REST API или gRPC
+	server := "gRPC"
+
+	var gRPCClient *grpc.ClientConn
+	var gRPCMetricsClient pb.MetricsClient
+	if server == "gRPC" {
+		gRPCClient, err = grpc.NewClient(":3200", grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			fmt.Printf("ошибка соединения с gRPC сервером: %s\n", err.Error())
+			return
+		}
+		defer gRPCClient.Close()
+
+		gRPCMetricsClient = pb.NewMetricsClient(gRPCClient)
+	}
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -78,9 +98,7 @@ func Start(config *config) {
 			fmt.Println(mapStore)
 			fmt.Println("Получение данных из хранилища прошло успешно")
 
-			putString = fmt.Sprintf("http://%s/update/", config.Addr)
-
-			fmt.Println("Формирование среза метрик...")
+			fmt.Println("Формирование метрики...")
 
 			for _, value := range mapStore {
 				switch value.Type {
@@ -102,63 +120,104 @@ func Start(config *config) {
 
 				metrics := body
 
-				fmt.Println("Формирование среза метрик прошло успешно")
+				fmt.Println("Формирование метрики прошло успешно")
 				fmt.Println(metrics)
 
-				fmt.Println("Кодирование в JSON...")
-				metricsJSON, err := json.Marshal(metrics)
-				if err != nil {
-					fmt.Println("Ошибка кодирования в JSON:", err)
-					continue
-				}
-				fmt.Println("Кодирование в JSON прошло успешно")
+				// отправка метрик с помощью REST API или gRPC
+				switch server {
 
-				// fmt.Println("Сжатие в gzip...")
-				// gzipWr := gzip.NewWriter(&metricsJSONGZIP)
-				// _, err = gzipWr.Write(metricsJSON)
-				// if err != nil {
-				// 	fmt.Println("Ошибка сжатия в gzip:", err)
-				// 	gzipWr.Close()
-				// 	continue
-				// }
-				// gzipWr.Close()
-				// fmt.Println("Сжатие в gzip прошло успешно")
+				case "REST API":
 
-				fmt.Println("encryptedMessageBase64")
-				encryptedMessageBase64, err := encryptBody(metricsJSON, publicCryptoKey)
-				if err != nil {
-					fmt.Println("Ошибка кодирования в base64:", err)
-					continue
+					putString = fmt.Sprintf("http://%s/update/", config.Addr)
+
+					fmt.Println("Кодирование в JSON...")
+					metricsJSON, err := json.Marshal(metrics)
+					if err != nil {
+						fmt.Println("Ошибка кодирования в JSON:", err)
+						continue
+					}
+					fmt.Println("Кодирование в JSON прошло успешно")
+
+					// fmt.Println("Сжатие в gzip...")
+					// gzipWr := gzip.NewWriter(&metricsJSONGZIP)
+					// _, err = gzipWr.Write(metricsJSON)
+					// if err != nil {
+					// 	fmt.Println("Ошибка сжатия в gzip:", err)
+					// 	gzipWr.Close()
+					// 	continue
+					// }
+					// gzipWr.Close()
+					// fmt.Println("Сжатие в gzip прошло успешно")
+
+					fmt.Println("encryptedMessageBase64")
+					encryptedMessageBase64, err := encryptBody(metricsJSON, publicCryptoKey)
+					if err != nil {
+						fmt.Println("Ошибка кодирования в base64:", err)
+						continue
+					}
+
+					var machineIP string
+					addrs, _ := net.InterfaceAddrs()
+					for _, addr := range addrs {
+						if ipNet, ok := addr.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
+							if ipNet.IP.To4() != nil {
+								machineIP = ipNet.IP.String()
+							}
+						}
+					}
+
+					fmt.Println("Формирование запроса POST...")
+					// request, err := http.NewRequest("POST", putString, bytes.NewBuffer(metricsJSON))
+					request, err := http.NewRequest("POST", putString, bytes.NewBuffer([]byte(encryptedMessageBase64)))
+					if err != nil {
+						fmt.Println("Ошибка формирования запроса:", err)
+					}
+					fmt.Println("Формирование запроса POST прошло успешно")
+
+					fmt.Println("Установка заголовков...")
+					//request.Header.Set("Content-Encoding", "gzip")
+					request.Header.Set("Content-Type", "application/json")
+					if config.hashKey != "" {
+						fmt.Println("Формирование hash...")
+						hash := calcHash(metricsJSON, config.hashKey)
+						fmt.Println("Формирование hash прошло успешно")
+						request.Header.Set("HashSHA256", hash)
+					}
+					request.Header.Set("X-Real-IP", machineIP)
+					fmt.Println("Установка заголовков прошла успешно")
+
+					fmt.Println("Отправка запроса...")
+					response, err := client.Do(request)
+					if err != nil {
+						fmt.Println("Ошибка отправки запроса:", err)
+						continue
+					}
+					response.Body.Close()
+					if response.StatusCode != http.StatusOK {
+						fmt.Println("Сервер вернул ответ отличный от 200:", response.Status)
+						continue
+					}
+					fmt.Println("Отправка запроса прошла успешно")
+					fmt.Println("Reporting completed")
+
+				case "gRPC":
+					req := &pb.UpdateMetricsRequest{
+						Id:   metrics.ID,
+						Type: metrics.MType,
+					}
+					switch metrics.MType {
+					case constants.GaugeType:
+						req.Value = *metrics.Value
+					case constants.CounterType:
+						req.Delta = *metrics.Delta
+					}
+					_, err := gRPCMetricsClient.UpdateMetrics(ctx, req)
+					if err != nil {
+						fmt.Printf("ошибка при отправке метрик с помощью gRPC: %s\n", err.Error())
+						continue
+					}
 				}
 
-				fmt.Println("Формирование запроса POST...")
-				// request, err := http.NewRequest("POST", putString, bytes.NewBuffer(metricsJSON))
-				request, err := http.NewRequest("POST", putString, bytes.NewBuffer([]byte(encryptedMessageBase64)))
-				if err != nil {
-					fmt.Println("Ошибка формирования запроса:", err)
-				}
-				fmt.Println("Формирование запроса POST прошло успешно")
-
-				fmt.Println("Установка заголовков...")
-				//request.Header.Set("Content-Encoding", "gzip")
-				request.Header.Set("Content-Type", "application/json")
-				if config.hashKey != "" {
-					fmt.Println("Формирование hash...")
-					hash := calcHash(metricsJSON, config.hashKey)
-					fmt.Println("Формирование hash прошло успешно")
-					request.Header.Set("HashSHA256", hash)
-				}
-				fmt.Println("Установка заголовков прошла успешно")
-
-				fmt.Println("Отправка запроса...")
-				response, err := client.Do(request)
-				if err != nil {
-					fmt.Println("Ошибка отправки запроса:", err)
-					continue
-				}
-				response.Body.Close()
-				fmt.Println("Отправка запроса прошла успешно")
-				fmt.Println("Reporting completed")
 			}
 		}
 	}

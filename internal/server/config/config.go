@@ -25,6 +25,7 @@ type Config struct {
 type Server struct {
 	Addr          string `json:"address"`
 	StoreInterval int    `json:"store_interval"`
+	TrustedSubnet string `json:"trusted_subnet"`
 }
 
 // Storage - структура конфигурации хранилища.
@@ -47,7 +48,7 @@ type Crypto struct {
 
 // NewConfig - конструктор конфигурации.
 func NewConfig() (*Config, error) {
-	var flagRunAddr, flagFileStoragePath, flagDatabaseDSN, flagHashKey, flagPrivateKeyPath, jsonConfigPath string
+	var flagRunAddr, flagFileStoragePath, flagDatabaseDSN, flagHashKey, flagPrivateKeyPath, jsonConfigPath, flagTrustedSubnet string
 	var flagStoreInterval int
 	var flagRestore bool
 	var config Config
@@ -56,7 +57,7 @@ func NewConfig() (*Config, error) {
 
 	flag.Parse()
 
-	if envJSONConfigPath := os.Getenv("CONFIG"); envJSONConfigPath != "" {
+	if envJSONConfigPath := os.Getenv("SERVER_CONFIG"); envJSONConfigPath != "" {
 		jsonConfigPath = envJSONConfigPath
 	}
 
@@ -84,7 +85,8 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&flagDatabaseDSN, "d", "", "database DSN")
 	//flag.StringVar(&flagDatabaseDSN, "d", "host=localhost port=5433 user=postgres password=password dbname=metalecoll sslmode=disable", "database DSN")
 	flag.StringVar(&flagHashKey, "k", "", "hash key")
-	flag.StringVar(&flagPrivateKeyPath, "crypto-key", "C:\\Golovanev\\Dev\\Projects\\YaPracticum\\metalecoll\\resources\\keys\\private_key_pkcs1.pem", "private key")
+	flag.StringVar(&flagTrustedSubnet, "t", "", "trusted subnet")
+	flag.StringVar(&flagPrivateKeyPath, "crypto-key", "../../resources/keys", "private key path")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
@@ -116,6 +118,9 @@ func NewConfig() (*Config, error) {
 	if envPrivateKeyPath := os.Getenv("CRYPTO_KEY"); envPrivateKeyPath != "" {
 		flagPrivateKeyPath = envPrivateKeyPath
 	}
+	if envTrustedSubnet := os.Getenv("TRUSTED_SUBNET"); envTrustedSubnet != "" {
+		flagTrustedSubnet = envTrustedSubnet
+	}
 
 	if jsonConfigPath != "" {
 		if flagRunAddr == "" {
@@ -136,12 +141,16 @@ func NewConfig() (*Config, error) {
 		if flagPrivateKeyPath == "" {
 			flagPrivateKeyPath = config.Crypto.PrivateKeyPath
 		}
+		if flagTrustedSubnet == "" {
+			flagTrustedSubnet = config.Server.TrustedSubnet
+		}
 	}
 
 	return &Config{
 		Server{
 			Addr:          flagRunAddr,       // флаг: адрес сервера
 			StoreInterval: flagStoreInterval, // флаг: интервал сохранения данных
+			TrustedSubnet: flagTrustedSubnet, // флаг: CIDR
 		},
 		Storage{
 			Restore:         flagRestore,         // флаг: восстановление данных при запусае сервера
@@ -152,8 +161,8 @@ func NewConfig() (*Config, error) {
 			logrus.DebugLevel,
 		},
 		Crypto{
-			HashKey:        flagHashKey,        // флаг: хэш ключ
-			PrivateKeyPath: flagPrivateKeyPath, // флаг: путь к приватному ключу
+			HashKey:        flagHashKey,                                                 // флаг: хэш ключ
+			PrivateKeyPath: fmt.Sprintf("%s/private_key_pkcs1.pem", flagPrivateKeyPath), // флаг: путь к приватному ключу
 		},
 	}, nil
 }

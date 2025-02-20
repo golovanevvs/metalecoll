@@ -45,7 +45,7 @@ func TestUpdateMetricsJSON(t *testing.T) {
 	// инициализация сервиса
 	sv := service.NewService(mst, m)
 	// инициализация хендлера
-	hd := NewHandler(sv, lg, cfg.Crypto.HashKey, cfg.Crypto.PrivateKeyPath)
+	hd := NewHandler(sv, lg, cfg.Crypto.HashKey, cfg.Crypto.PrivateKeyPath, cfg.Server.TrustedSubnet)
 
 	// инициализация тестового сервера
 	ts := httptest.NewServer(hd.InitRoutes())
